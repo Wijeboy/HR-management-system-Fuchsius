@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FUCHSIUS HRMS - Admin Control Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4F46E5",
+              "primary-dark": "#3730A3",
+              "background-light": "#F8FAFC",
+              "background-dark": "#0F172A",
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#1E293B",
+              "text-main": "#0F172A",
+              "text-secondary": "#64748B",
+              "border-light": "#E2E8F0",
+              "border-dark": "#334155",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.375rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="flex w-72 flex-col border-r border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark transition-all duration-300">
+<div class="flex h-16 items-center gap-3 px-6 border-b border-border-light dark:border-border-dark">
+<div class="size-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">hexagon</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-text-main dark:text-white">FUCHSIUS HRMS</h1>
+</div>
+<div class="flex flex-1 flex-col justify-between overflow-y-auto px-4 py-6">
+<div class="flex flex-col gap-6">
+<!-- User Profile Snippet in Sidebar -->
+<div class="flex items-center gap-3 px-2">
+<div class="relative size-10 overflow-hidden rounded-full bg-slate-200" data-alt="User profile avatar">
+<img alt="Admin User" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWRsPlsswRWo4PmZI0dbPnt1kTQXMkBIvI3gMzBaFRFeprFxI2fs6Pkwednm12nRjUkgCPE4erfNXHCFw093Sz1ybXW4mFz7t_YdxY3IPlHpQO7HBnXLektgJxn_PIK7tvwJ-0LcYQZK8F95BFoazX-N2TsIPmSQUcqAJiY9KttH_NX5PR1Kd1xcU1mXJfX-quTm9njuHsFIR4V6_BgBMc6vVnTWr7w_xCtjAvB0WKumkyr-gl2LaBJUZj5XD0NovaFKhG5WkitIA"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-text-main dark:text-white">Admin Center</span>
+<span class="text-xs text-text-secondary dark:text-slate-400">HR Platform</span>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<p class="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-slate-500">Main Menu</p>
+<a class="group flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary dark:text-primary-light" href="#">
+<span class="material-symbols-outlined text-[20px] font-medium">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="text-sm font-medium">Employees</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="text-sm font-medium">Payroll</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">domain</span>
+<span class="text-sm font-medium">Departments</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">assignment</span>
+<span class="text-sm font-medium">Requests</span>
+<span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-100 px-1.5 text-xs font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400">3</span>
+</a>
+</nav>
+<nav class="flex flex-col gap-1">
+<p class="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-slate-500">Management</p>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="group flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="rounded-xl bg-slate-100 dark:bg-slate-800 p-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="rounded-full bg-primary/20 p-2 text-primary">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+</div>
+<span class="font-semibold text-sm">Security Status</span>
+</div>
+<p class="text-xs text-text-secondary dark:text-slate-400 mb-3">System audit completed successfully. No vulnerabilities found.</p>
+<button class="w-full rounded-lg bg-white dark:bg-slate-700 py-2 text-xs font-semibold text-text-main dark:text-white shadow-sm hover:shadow transition-shadow">View Report</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex flex-1 flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Top Header -->
+<header class="flex h-16 items-center justify-between gap-4 border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-8">
+<div class="flex flex-1 items-center gap-4">
+<!-- Search Bar -->
+<div class="relative flex w-full max-w-md items-center">
+<span class="absolute left-3 text-text-secondary dark:text-slate-500 material-symbols-outlined">search</span>
+<input class="h-10 w-full rounded-lg border-none bg-slate-100 pl-10 pr-4 text-sm text-text-main placeholder-text-secondary focus:ring-2 focus:ring-primary dark:bg-slate-800 dark:text-white dark:placeholder-slate-500" placeholder="Search employees, departments, or requests..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark transition-colors shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Create Request</span>
+</button>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700"></div>
+<button class="relative flex size-10 items-center justify-center rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-surface-dark"></span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-lg text-text-secondary hover:bg-slate-100 hover:text-text-main dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">help</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="mx-auto flex max-w-7xl flex-col gap-8">
+<!-- Page Title -->
+<div class="flex flex-col gap-1">
+<h2 class="text-2xl font-bold tracking-tight text-text-main dark:text-white">Dashboard Overview</h2>
+<p class="text-text-secondary dark:text-slate-400">Welcome back, Admin. Here's what's happening today.</p>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+<!-- Card 1 -->
+<div class="rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-shadow hover:shadow-md dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-text-secondary dark:text-slate-400">Total Employees</p>
+<span class="material-symbols-outlined text-text-secondary dark:text-slate-500">group</span>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-3xl font-bold text-text-main dark:text-white">1,248</span>
+<span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>
+                                12%
+                            </span>
+</div>
+<p class="mt-1 text-xs text-text-secondary dark:text-slate-500">vs. last month</p>
+</div>
+<!-- Card 2 -->
+<div class="rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-shadow hover:shadow-md dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-text-secondary dark:text-slate-400">Monthly Payroll</p>
+<span class="material-symbols-outlined text-text-secondary dark:text-slate-500">attach_money</span>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-3xl font-bold text-text-main dark:text-white">$4.2M</span>
+<span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>
+                                2.4%
+                            </span>
+</div>
+<p class="mt-1 text-xs text-text-secondary dark:text-slate-500">vs. last month</p>
+</div>
+<!-- Card 3 -->
+<div class="rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-shadow hover:shadow-md dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-text-secondary dark:text-slate-400">Active Requests</p>
+<span class="material-symbols-outlined text-text-secondary dark:text-slate-500">pending_actions</span>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-3xl font-bold text-text-main dark:text-white">145</span>
+<span class="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-800 dark:bg-rose-900/30 dark:text-rose-400">
+<span class="material-symbols-outlined text-[14px] mr-0.5">trending_down</span>
+                                5%
+                            </span>
+</div>
+<p class="mt-1 text-xs text-text-secondary dark:text-slate-500">vs. last month</p>
+</div>
+<!-- Card 4 -->
+<div class="rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-shadow hover:shadow-md dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-text-secondary dark:text-slate-400">Open Positions</p>
+<span class="material-symbols-outlined text-text-secondary dark:text-slate-500">person_add</span>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-3xl font-bold text-text-main dark:text-white">12</span>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[14px] mr-0.5">remove</span>
+                                0%
+                            </span>
+</div>
+<p class="mt-1 text-xs text-text-secondary dark:text-slate-500">vs. last month</p>
+</div>
+</div>
+<!-- Charts and Tables -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+<!-- Departmental Headcount -->
+<div class="rounded-xl border border-border-light bg-surface-light p-6 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="mb-6 flex items-center justify-between">
+<h3 class="text-base font-semibold text-text-main dark:text-white">Department Headcount</h3>
+<button class="text-text-secondary hover:text-primary dark:text-slate-400 dark:hover:text-primary">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="flex h-[240px] items-end justify-between gap-2 px-2">
+<div class="group relative flex h-full w-full flex-col justify-end gap-2">
+<div class="w-full rounded-t-md bg-primary/20 transition-all hover:bg-primary/40 dark:bg-primary/20" style="height: 45%;"></div>
+<span class="text-center text-xs font-medium text-text-secondary dark:text-slate-400">Eng</span>
+</div>
+<div class="group relative flex h-full w-full flex-col justify-end gap-2">
+<div class="w-full rounded-t-md bg-primary/30 transition-all hover:bg-primary/50 dark:bg-primary/30" style="height: 65%;"></div>
+<span class="text-center text-xs font-medium text-text-secondary dark:text-slate-400">Sales</span>
+</div>
+<div class="group relative flex h-full w-full flex-col justify-end gap-2">
+<div class="w-full rounded-t-md bg-primary/20 transition-all hover:bg-primary/40 dark:bg-primary/20" style="height: 35%;"></div>
+<span class="text-center text-xs font-medium text-text-secondary dark:text-slate-400">Mkt</span>
+</div>
+<div class="group relative flex h-full w-full flex-col justify-end gap-2">
+<div class="w-full rounded-t-md bg-primary/40 transition-all hover:bg-primary/60 dark:bg-primary/40" style="height: 75%;"></div>
+<span class="text-center text-xs font-medium text-text-secondary dark:text-slate-400">Ops</span>
+</div>
+<div class="group relative flex h-full w-full flex-col justify-end gap-2">
+<div class="w-full rounded-t-md bg-primary transition-all hover:bg-primary-dark dark:bg-primary" style="height: 90%;"></div>
+<span class="text-center text-xs font-medium text-text-secondary dark:text-slate-400">HR</span>
+</div>
+</div>
+</div>
+<!-- Payroll Trends (Using SVG for Chart) -->
+<div class="lg:col-span-2 rounded-xl border border-border-light bg-surface-light p-6 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="mb-6 flex items-center justify-between">
+<div>
+<h3 class="text-base font-semibold text-text-main dark:text-white">Payroll Trends (YTD)</h3>
+<p class="text-sm text-text-secondary dark:text-slate-400">Total Spend: <span class="font-medium text-text-main dark:text-white">$38,402,000</span></p>
+</div>
+<select class="rounded-lg border-border-light bg-slate-50 py-1.5 text-sm text-text-main focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-slate-800 dark:text-white">
+<option>Last 6 Months</option>
+<option>Last Year</option>
+</select>
+</div>
+<div class="relative h-[240px] w-full">
+<!-- Simple SVG Line Chart -->
+<svg class="h-full w-full overflow-visible" viewbox="0 0 800 240">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4F46E5" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#4F46E5" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line class="dark:stroke-slate-700" stroke="#E2E8F0" stroke-width="1" x1="0" x2="800" y1="200" y2="200"></line>
+<line class="dark:stroke-slate-700" stroke="#E2E8F0" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="150" y2="150"></line>
+<line class="dark:stroke-slate-700" stroke="#E2E8F0" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="100" y2="100"></line>
+<line class="dark:stroke-slate-700" stroke="#E2E8F0" stroke-dasharray="4 4" stroke-width="1" x1="0" x2="800" y1="50" y2="50"></line>
+<!-- Area Path -->
+<path d="M0,200 L0,140 C100,140 100,160 200,130 C300,100 300,120 400,90 C500,60 500,80 600,70 C700,60 700,40 800,50 L800,200 Z" fill="url(#chartGradient)"></path>
+<!-- Line Path -->
+<path d="M0,140 C100,140 100,160 200,130 C300,100 300,120 400,90 C500,60 500,80 600,70 C700,60 700,40 800,50" fill="none" stroke="#4F46E5" stroke-linecap="round" stroke-width="3"></path>
+<!-- Points -->
+<circle class="fill-white stroke-primary stroke-2" cx="0" cy="140" fill="#4F46E5" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2" cx="200" cy="130" fill="#4F46E5" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2" cx="400" cy="90" fill="#4F46E5" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2" cx="600" cy="70" fill="#4F46E5" r="4"></circle>
+<circle class="fill-white stroke-primary stroke-2" cx="800" cy="50" fill="#4F46E5" r="4"></circle>
+</svg>
+<div class="mt-2 flex justify-between text-xs font-medium text-text-secondary dark:text-slate-500">
+<span>Jan</span>
+<span>Feb</span>
+<span>Mar</span>
+<span>Apr</span>
+<span>May</span>
+<span>Jun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity Section -->
+<div class="rounded-xl border border-border-light bg-surface-light shadow-sm dark:border-border-dark dark:bg-surface-dark overflow-hidden">
+<div class="border-b border-border-light px-6 py-4 dark:border-border-dark">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold text-text-main dark:text-white">Recent Requests</h3>
+<button class="text-sm font-medium text-primary hover:text-primary-dark">View All</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm text-text-secondary dark:text-slate-400">
+<thead class="bg-slate-50 text-xs uppercase text-text-secondary dark:bg-slate-800 dark:text-slate-400">
+<tr>
+<th class="px-6 py-3 font-semibold" scope="col">Employee</th>
+<th class="px-6 py-3 font-semibold" scope="col">Type</th>
+<th class="px-6 py-3 font-semibold" scope="col">Department</th>
+<th class="px-6 py-3 font-semibold" scope="col">Date</th>
+<th class="px-6 py-3 font-semibold" scope="col">Status</th>
+<th class="px-6 py-3 font-semibold text-right" scope="col">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark bg-white dark:bg-surface-dark">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<td class="px-6 py-4 font-medium text-text-main dark:text-white flex items-center gap-3">
+<div class="size-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold dark:bg-indigo-900 dark:text-indigo-300">SJ</div>
+                                        Sarah Jenkins
+                                    </td>
+<td class="px-6 py-4">Time Off</td>
+<td class="px-6 py-4">Engineering</td>
+<td class="px-6 py-4">Oct 24, 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                            Pending
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-primary-dark font-medium">Review</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<td class="px-6 py-4 font-medium text-text-main dark:text-white flex items-center gap-3">
+<div class="size-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold dark:bg-emerald-900 dark:text-emerald-300">MR</div>
+                                        Michael Ross
+                                    </td>
+<td class="px-6 py-4">Expense</td>
+<td class="px-6 py-4">Sales</td>
+<td class="px-6 py-4">Oct 23, 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                            Approved
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-text-secondary hover:text-text-main dark:hover:text-white">Details</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<td class="px-6 py-4 font-medium text-text-main dark:text-white flex items-center gap-3">
+<div class="size-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-xs font-bold dark:bg-purple-900 dark:text-purple-300">AL</div>
+                                        Alicia Lopez
+                                    </td>
+<td class="px-6 py-4">Equipment</td>
+<td class="px-6 py-4">Design</td>
+<td class="px-6 py-4">Oct 22, 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                            Processing
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-text-secondary hover:text-text-main dark:hover:text-white">Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
