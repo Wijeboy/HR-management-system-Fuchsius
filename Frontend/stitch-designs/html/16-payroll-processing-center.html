@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payroll Processing Center - FUCHSIUS HRMS</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#5048e5",
+                        "primary-hover": "#4338ca",
+                        "primary-light": "#e0e7ff",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                        "slate-900": "#0f172a",
+                        "slate-800": "#1e293b",
+                        "slate-600": "#475569",
+                        "slate-500": "#64748b",
+                        "slate-400": "#94a3b8",
+                        "slate-200": "#e2e8f0",
+                        "slate-100": "#f1f5f9",
+                        "slate-50": "#f8fafc",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-row overflow-hidden">
+<!-- Side Navigation -->
+<div class="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-20 hidden lg:flex">
+<div class="flex flex-col gap-6 p-6">
+<!-- Brand -->
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 flex items-center justify-center rounded-lg size-10 text-primary">
+<span class="material-symbols-outlined">hexagon</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-tight tracking-tight">FUCHSIUS HRMS</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">Admin Portal</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">group</span>
+<span class="text-sm font-medium">Employees</span>
+</a>
+<div class="pt-2 pb-1">
+<p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Management</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">event_busy</span>
+<span class="text-sm font-medium">Leave Management</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:text-white font-medium" href="#">
+<span class="material-symbols-outlined text-primary dark:text-white">payments</span>
+<span class="text-sm">Payroll</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">trending_up</span>
+<span class="text-sm font-medium">Performance</span>
+</a>
+</nav>
+</div>
+<!-- User Profile -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-700">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" href="#">
+<div class="size-9 rounded-full bg-slate-200 overflow-hidden" data-alt="User Avatar Profile Picture">
+<img alt="Profile" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy_FNZ6MmV14v-_e-O5ArTYfX4aldStvDvXQnRmkIvddQRvjs4mVyZ1KkmGhVGWIBJ4sRrYuA3KrqNlye6YZgN_HVTwe_YG1NljQNhkmxdIO21w0LZPF0b460WG3MrcnYEJQQoNRdEMKHkvmvzEW1oKPobU2csS3UNq0VKUH41tRI_zvRwPZtv_PfcWq199m2SbSlng5JgSvsZMxH13ODM5ZZcXcyn8CaduyDFVglQX0m1D82p3VyhBI4jWbLTWphlwhn9i5V_k8s"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-900 dark:text-white">Alex Morgan</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Head of HR</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 ml-auto">more_vert</span>
+</a>
+</div>
+</div>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto">
+<!-- Mobile Header (Visible only on small screens) -->
+<header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 lg:hidden flex justify-between items-center sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<button class="text-slate-500">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-bold text-slate-900 dark:text-white">FUCHSIUS HRMS</span>
+</div>
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Profile" class="h-full w-full object-cover" data-alt="User Avatar Mobile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy3JqTWMv3tadiZbwII0ToPKWBgVNtHJJpL0MzfBGMhkHqKYn9YJ9rTvv8CxvGR1BCgib_3fI9ZKkRbSI8VP4ecnpEwyApsrzgRz0kSPE5P4rMf-6KjATZY-b5pCcZ3KoWleg0mamfrw3snHSQ5INj4MdUlyeaqESMcKa_ZWE9k_8BsCurHLU6JjsLsdzftnIAYknKXUZF6DBajfJFqjU1HrjfjOY_eZmgwudCk7hEMLZQjT7qWOGKC6pBA51SpVp8q-7ISPyTw0E"/>
+</div>
+</header>
+<div class="flex-1 px-4 py-6 md:px-8 lg:px-12 max-w-7xl mx-auto w-full">
+<!-- Breadcrumbs -->
+<nav aria-label="Breadcrumb" class="flex mb-6">
+<ol class="inline-flex items-center space-x-1 md:space-x-2 text-sm">
+<li class="inline-flex items-center">
+<a class="text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white font-medium" href="#">Finance</a>
+</li>
+<li>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-slate-400 text-base mx-1">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium">Payroll Processing</span>
+</div>
+</li>
+</ol>
+</nav>
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+<div>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Payroll Processing Center</h1>
+<p class="text-slate-500 dark:text-slate-400">Manage, review, and finalize monthly employee compensation for October 2023.</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[20px]">print</span>
+<span>Print</span>
+</button>
+<button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Export CSV</span>
+</button>
+<button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors text-sm font-bold shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+<span>Run Payroll</span>
+</button>
+</div>
+</div>
+<!-- Stats Overview (Optional but good for context) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Payroll Cost</p>
+<p class="text-2xl font-bold text-slate-900 dark:text-white">$142,390.00</p>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Employees</p>
+<p class="text-2xl font-bold text-slate-900 dark:text-white">48</p>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Pending Review</p>
+<p class="text-2xl font-bold text-orange-500">3</p>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Next Pay Date</p>
+<p class="text-2xl font-bold text-slate-900 dark:text-white">Oct 31, 2023</p>
+</div>
+</div>
+<!-- Filters & Search -->
+<div class="bg-white dark:bg-slate-800 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-700 p-4 flex flex-col sm:flex-row justify-between gap-4 items-center">
+<div class="relative w-full sm:w-96">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition duration-150 ease-in-out" placeholder="Search employee by name or ID..." type="text"/>
+</div>
+<div class="flex gap-2 w-full sm:w-auto">
+<select class="block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg dark:bg-slate-900 dark:text-slate-200">
+<option>All Departments</option>
+<option>Engineering</option>
+<option>Marketing</option>
+<option>Sales</option>
+</select>
+<select class="block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg dark:bg-slate-900 dark:text-slate-200">
+<option>All Statuses</option>
+<option>Draft</option>
+<option>Ready</option>
+<option>Paid</option>
+</select>
+</div>
+</div>
+<!-- Data Table -->
+<div class="w-full overflow-hidden rounded-b-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase">Employee</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase hidden sm:table-cell">ID</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-right">Base Salary</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-right hidden md:table-cell">Overtime</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-right hidden md:table-cell">Deductions</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-right">Net Pay</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-center">Status</th>
+<th class="p-4 text-xs font-semibold tracking-wide text-slate-500 uppercase text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">SJ</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">Sarah Jenkins</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Engineering Lead</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-001</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$5,000.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$250.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$150.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$5,100.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+                                            Draft
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-hover font-medium text-sm transition-colors">Edit</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">MC</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">Michael Chen</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Senior Designer</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-004</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$6,200.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$0.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$200.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$6,000.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Ready
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full overflow-hidden" data-alt="Employee Portrait">
+<img alt="Amara" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANTV8usSti6nMrT2aOgEyUiXwF2iEg3BGS_NpQ-fBN8iHyHfT6S9fLvwtrE4KlWioq8BTIBGK6rl7lnKapd91Kf1aI1rryBLZoKcylmO9bProgVnILrqBd0TOisRO0W2YwdF-HznVo8nx666pDSScGx46Ch9FAineAhJlRPTCUWIA8vvXimA2AFkdo6JX4kk27ud9Y8Q69ocBZeL3QROBNZswFPRbS9mTANGhxLjeZnFVyXQK_0U3TCBEYyUsAnZBb8zNo-W3ocdU"/>
+</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">Amara Okafor</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Product Manager</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-009</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$4,800.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$400.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$180.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$5,020.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+                                            Draft
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-hover font-medium text-sm transition-colors">Edit</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">DM</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">David Miller</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Data Analyst</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-012</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$5,500.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$150.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$160.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$5,490.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Ready
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full overflow-hidden" data-alt="Employee Portrait">
+<img alt="Emily" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKFDMSo3PiI-gUFAoMnf90dTSDsk9AmHl_E155AwynwwQwyJsyVHgqvcjSk-7k7WiVfKB2f5Zt4sEi3jfyMPFux10i7Um-DkerUkItKYKuIkz6FKl2DXVSJYx8RjyHrjeiaaW8ARcApVxVgTRTDHGFAahruCO5CCwLEOvaiQxVxrIXcP4oNovZKsSgOgbBEIpmIRz1vV5ZGVx1f9Ndms7MP9brGAELaQnpu-vHh2JSv76XcYrjy4KdgVXocFZqxTMaEFLue6g270M"/>
+</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">Emily Zhang</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">VP of Engineering</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-015</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$7,000.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$0.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$300.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$6,700.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                                            Review
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-primary hover:text-primary-hover font-medium text-sm transition-colors">Edit</button>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">JW</div>
+<div>
+<p class="font-medium text-slate-900 dark:text-white">James Wilson</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Customer Success</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 font-mono hidden sm:table-cell">EMP-022</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-300 text-right font-medium">$4,500.00</td>
+<td class="p-4 text-sm text-slate-500 dark:text-slate-400 text-right hidden md:table-cell">$300.00</td>
+<td class="p-4 text-sm text-rose-500 text-right hidden md:table-cell">-$120.00</td>
+<td class="p-4 text-sm text-slate-900 dark:text-white font-bold text-right">$4,680.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Ready
+                                        </span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="bg-white dark:bg-slate-800 px-4 py-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-700">
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                                    Showing <span class="font-medium text-slate-900 dark:text-white">1</span> to <span class="font-medium text-slate-900 dark:text-white">6</span> of <span class="font-medium text-slate-900 dark:text-white">48</span> results
+                                </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</a>
+<a aria-current="page" class="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">1</a>
+<a class="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">2</a>
+<a class="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">3</a>
+<span class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700">...</span>
+<a class="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">8</a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
