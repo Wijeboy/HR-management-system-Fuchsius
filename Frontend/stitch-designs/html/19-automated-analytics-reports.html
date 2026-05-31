@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics & Reports - FUCHSIUS HRMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#4F46E5",
+          "primary-dark": "#3730A3",
+          "background-light": "#F8FAFC",
+          "surface-light": "#FFFFFF",
+          "text-main": "#0F172A",
+          "text-secondary": "#64748B",
+          "border-light": "#E2E8F0",
+        },
+        fontFamily: {
+          "display": ["Inter", "sans-serif"]
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+</style>
+</head>
+<body class="bg-background-light text-text-main">
+<div class="flex h-screen w-full overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="flex w-72 flex-col border-r border-border-light bg-surface-light">
+    <div class="flex h-16 items-center gap-3 px-6 border-b border-border-light">
+      <div class="size-8 rounded-lg bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[20px]">hexagon</span>
+      </div>
+      <h1 class="text-lg font-bold tracking-tight">FUCHSIUS HRMS</h1>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-4 py-6">
+      <div class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span class="text-sm font-medium">Employees</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary" href="#">
+          <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+          <span class="text-sm font-medium">Analytics</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">description</span>
+          <span class="text-sm font-medium">Reports</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">settings</span>
+          <span class="text-sm font-medium">Settings</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="flex h-16 items-center justify-between border-b border-border-light bg-surface-light px-8">
+      <div>
+        <h2 class="text-2xl font-bold text-text-main">Analytics & Reports</h2>
+        <p class="text-sm text-text-secondary">Automated insights and data visualization</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="flex h-10 items-center gap-2 rounded-lg border border-border-light px-4 text-sm font-medium hover:bg-slate-50">
+          <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+          Last 30 Days
+        </button>
+        <button class="flex h-10 items-center gap-2 rounded-lg border border-border-light px-4 text-sm font-medium hover:bg-slate-50">
+          <span class="material-symbols-outlined text-[20px]">download</span>
+          Export
+        </button>
+        <button class="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary-dark">
+          <span class="material-symbols-outlined text-[20px]">add</span>
+          Generate Report
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="p-8">
+      <!-- Key Metrics -->
+      <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div class="rounded-xl border border-border-light bg-surface-light p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+              <span class="material-symbols-outlined text-2xl text-blue-600">group</span>
+            </div>
+            <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">+12%</span>
+          </div>
+          <p class="mt-4 text-sm font-medium text-text-secondary">Total Employees</p>
+          <p class="mt-1 text-3xl font-bold text-text-main">847</p>
+        </div>
+
+        <div class="rounded-xl border border-border-light bg-surface-light p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-50">
+              <span class="material-symbols-outlined text-2xl text-green-600">trending_up</span>
+            </div>
+            <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">+8%</span>
+          </div>
+          <p class="mt-4 text-sm font-medium text-text-secondary">Attendance Rate</p>
+          <p class="mt-1 text-3xl font-bold text-text-main">95.8%</p>
+        </div>
+
+        <div class="rounded-xl border border-border-light bg-surface-light p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50">
+              <span class="material-symbols-outlined text-2xl text-purple-600">payments</span>
+            </div>
+            <span class="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">+5%</span>
+          </div>
+          <p class="mt-4 text-sm font-medium text-text-secondary">Total Payroll</p>
+          <p class="mt-1 text-3xl font-bold text-text-main">$8.9M</p>
+        </div>
+
+        <div class="rounded-xl border border-border-light bg-surface-light p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-50">
+              <span class="material-symbols-outlined text-2xl text-orange-600">person_off</span>
+            </div>
+            <span class="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">+2%</span>
+          </div>
+          <p class="mt-4 text-sm font-medium text-text-secondary">Turnover Rate</p>
+          <p class="mt-1 text-3xl font-bold text-text-main">4.2%</p>
+        </div>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Employee Growth Chart -->
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-text-main">Employee Growth Trend</h3>
+              <p class="text-sm text-text-secondary">Year-over-year comparison</p>
+            </div>
+            <button class="rounded-lg border border-border-light p-2 hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+          </div>
+          <div class="relative h-64">
+            <canvas id="employeeGrowthChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Department Distribution -->
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-text-main">Department Distribution</h3>
+              <p class="text-sm text-text-secondary">Employee allocation by department</p>
+            </div>
+            <button class="rounded-lg border border-border-light p-2 hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+          </div>
+          <div class="relative h-64">
+            <canvas id="departmentChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2 -->
+      <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- Attendance Overview -->
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-text-main">Attendance Overview</h3>
+              <p class="text-sm text-text-secondary">This month</p>
+            </div>
+            <button class="rounded-lg border border-border-light p-2 hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+          </div>
+          <div class="relative h-48">
+            <canvas id="attendanceChart"></canvas>
+          </div>
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                <span class="text-text-secondary">Present</span>
+              </div>
+              <span class="font-semibold text-text-main">95.2%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <div class="h-3 w-3 rounded-full bg-red-500"></div>
+                <span class="text-text-secondary">Absent</span>
+              </div>
+              <span class="font-semibold text-text-main">2.7%</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <div class="h-3 w-3 rounded-full bg-blue-500"></div>
+                <span class="text-text-secondary">On Leave</span>
+              </div>
+              <span class="font-semibold text-text-main">2.1%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payroll Expenses -->
+        <div class="rounded-xl border border-border-light bg-surface-light p-6 lg:col-span-2">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-text-main">Payroll Expenses</h3>
+              <p class="text-sm text-text-secondary">Monthly breakdown</p>
+            </div>
+            <button class="rounded-lg border border-border-light p-2 hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[20px]">more_vert</span>
+            </button>
+          </div>
+          <div class="relative h-56">
+            <canvas id="payrollChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Reports Table -->
+      <div class="rounded-xl border border-border-light bg-surface-light">
+        <div class="border-b border-border-light p-6">
+          <h3 class="text-lg font-bold text-text-main">Generated Reports</h3>
+          <p class="text-sm text-text-secondary">Recently created analytics reports</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-border-light">
+            <thead>
+              <tr class="bg-slate-50">
+                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Report Name</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Type</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Generated</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Size</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Status</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border-light bg-white">
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                      <span class="material-symbols-outlined text-[20px] text-blue-600">description</span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-text-main">Q1 Employee Performance</p>
+                      <p class="text-xs text-text-secondary">Jan - Mar 2026</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">Performance</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Mar 1, 2026</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">2.4 MB</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Ready</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                  <button class="rounded-lg p-2 hover:bg-slate-100">
+                    <span class="material-symbols-outlined text-[20px] text-text-secondary">download</span>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+                      <span class="material-symbols-outlined text-[20px] text-green-600">description</span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-text-main">February Attendance Report</p>
+                      <p class="text-xs text-text-secondary">Feb 2026</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Attendance</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Feb 28, 2026</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">1.8 MB</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Ready</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                  <button class="rounded-lg p-2 hover:bg-slate-100">
+                    <span class="material-symbols-outlined text-[20px] text-text-secondary">download</span>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+                      <span class="material-symbols-outlined text-[20px] text-orange-600">description</span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-text-main">Department Budget Analysis</p>
+                      <p class="text-xs text-text-secondary">FY 2026</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">Financial</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Feb 15, 2026</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">3.1 MB</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Ready</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                  <button class="rounded-lg p-2 hover:bg-slate-100">
+                    <span class="material-symbols-outlined text-[20px] text-text-secondary">download</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Employee Growth Chart
+const ctxGrowth = document.getElementById('employeeGrowthChart').getContext('2d');
+new Chart(ctxGrowth, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [{
+      label: '2026',
+      data: [742, 756, 771, 789, 802, 815, 823, 835, 847, null, null, null],
+      borderColor: '#4F46E5',
+      backgroundColor: 'rgba(79, 70, 229, 0.1)',
+      tension: 0.4,
+      fill: true
+    }, {
+      label: '2025',
+      data: [658, 672, 685, 698, 711, 724, 738, 751, 765, 778, 791, 804],
+      borderColor: '#94A3B8',
+      backgroundColor: 'rgba(148, 163, 184, 0.05)',
+      tension: 0.4,
+      borderDash: [5, 5]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+    scales: {
+      y: { beginAtZero: false, min: 600 }
+    }
+  }
+});
+
+// Department Chart
+const ctxDept = document.getElementById('departmentChart').getContext('2d');
+new Chart(ctxDept, {
+  type: 'doughnut',
+  data: {
+    labels: ['Engineering', 'Sales', 'Customer Support', 'HR', 'Finance', 'Operations'],
+    datasets: [{
+      data: [245, 187, 156, 89, 78, 92],
+      backgroundColor: ['#4F46E5', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'right' } }
+  }
+});
+
+// Attendance Chart
+const ctxAtt = document.getElementById('attendanceChart').getContext('2d');
+new Chart(ctxAtt, {
+  type: 'doughnut',
+  data: {
+    labels: ['Present', 'Absent', 'On Leave'],
+    datasets: [{
+      data: [641, 18, 14],
+      backgroundColor: ['#10B981', '#EF4444', '#3B82F6']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Payroll Chart
+const ctxPayroll = document.getElementById('payrollChart').getContext('2d');
+new Chart(ctxPayroll, {
+  type: 'bar',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [{
+      label: 'Payroll ($M)',
+      data: [8.2, 8.3, 8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 8.9, null, null, null],
+      backgroundColor: '#4F46E5'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 7 }
+    }
+  }
+});
+</script>
+</body>
+</html>
