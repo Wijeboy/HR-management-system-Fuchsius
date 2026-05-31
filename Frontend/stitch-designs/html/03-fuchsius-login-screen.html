@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FUCHSIUS HRMS - Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4F46E5",
+                        "primary-hover": "#4338ca",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "border-light": "#E5E7EB",
+                        "text-main": "#111827",
+                        "text-muted": "#6B7280",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                    },
+                    boxShadow: {
+                        "soft": "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+                        "card": "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light text-text-main font-display min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-[440px] bg-white rounded-2xl shadow-card border border-border-light overflow-hidden">
+<!-- Header / Logo Area -->
+<div class="pt-8 pb-6 px-8 flex flex-col items-center">
+<div class="mb-6 flex items-center justify-center size-12 rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[32px]">dataset</span>
+</div>
+<h1 class="text-2xl font-bold text-text-main tracking-tight text-center">FUCHSIUS HRMS</h1>
+<p class="mt-2 text-sm text-text-muted text-center">Enter your credentials to access your workspace</p>
+</div>
+<!-- Login Form -->
+<form class="px-8 pb-8 space-y-5" onsubmit="event.preventDefault();">
+<!-- Role Selection -->
+<div class="space-y-1.5">
+<label class="block text-sm font-medium text-text-main" for="role">
+                    Select Role
+                </label>
+<div class="relative">
+<select class="block w-full rounded-lg border-border-light bg-white py-2.5 pl-3 pr-10 text-text-main shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="role" name="role">
+<option value="employee">Employee</option>
+<option value="manager">Manager</option>
+<option value="hr">HR Admin</option>
+<option value="admin">Super Admin</option>
+</select>
+<!-- Custom Arrow Icon if needed, default is usually fine for native look but let's stick to clean defaults for reliability -->
+</div>
+</div>
+<!-- Email Field -->
+<div class="space-y-1.5">
+<label class="block text-sm font-medium text-text-main" for="email">
+                    Email Address
+                </label>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</div>
+<input class="block w-full rounded-lg border-border-light py-2.5 pl-10 pr-3 text-text-main placeholder-text-muted shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="email" name="email" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="block text-sm font-medium text-text-main" for="password">
+                        Password
+                    </label>
+<a class="text-sm font-medium text-primary hover:text-primary-hover hover:underline" href="#">
+                        Forgot password?
+                    </a>
+</div>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<input class="block w-full rounded-lg border-border-light py-2.5 pl-10 pr-10 text-text-main placeholder-text-muted shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="password" name="password" placeholder="••••••••" type="password"/>
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-text-muted hover:text-text-main">
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</div>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-border-light text-primary focus:ring-primary" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-2 block text-sm text-text-muted" for="remember-me">
+                    Remember me for 30 days
+                </label>
+</div>
+<!-- Submit Button -->
+<button class="flex w-full justify-center rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors duration-200" type="submit">
+                Sign in
+            </button>
+<!-- SSO Option -->
+<div class="relative mt-6">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-border-light"></div>
+</div>
+<div class="relative flex justify-center text-sm font-medium leading-6">
+<span class="bg-white px-4 text-text-muted">Or continue with</span>
+</div>
+</div>
+<button class="mt-4 flex w-full items-center justify-center gap-3 rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-text-main shadow-sm ring-1 ring-inset ring-border-light hover:bg-gray-50 focus-visible:ring-transparent transition-colors duration-200" type="button">
+<svg aria-hidden="true" class="h-5 w-5" viewbox="0 0 24 24">
+<path d="M12.0003 20.45c4.6667 0 8.45-3.7833 8.45-8.45 0-4.6667-3.7833-8.45-8.45-8.45-4.6667 0-8.45 3.7833-8.45 8.45 0 4.6667 3.7833 8.45 8.45 8.45Z" fill="#fff" stroke="#fff" stroke-width="2"></path>
+<path d="M20.3 12.875c.075-.575.125-1.175.125-1.775 0-4.4-3.375-8.05-7.65-8.425v5.7h-2.1v2.95h2.1v8.825c.925.15 1.875.15 2.8 0v-8.825h2.525l.4-2.95h-2.925v-2.05c0-.85.225-1.425 1.45-1.425h1.55v-2.65c-.275-.025-1.225-.125-2.325-.125-2.3 0-3.875 1.4-3.875 3.975v2.275h-2.6v2.95h2.6v8.725c1.475-.375 2.825-1.075 3.975-2.075" fill="#1877F2"></path>
+<path d="M21.35 11.1H12v2.8h5.35c-.2 1.25-.9 2.325-1.9 3.025v2.5h3.075c1.8-1.65 2.825-4.075 2.825-6.875 0-.675-.075-1.35-.15-2.45Z" fill="#4285F4"></path>
+<path d="M12 21c2.55 0 4.7-.85 6.275-2.3l-3.075-2.5c-.85.575-1.925.9-3.2.9-2.45 0-4.525-1.65-5.275-3.875H3.625v2.425C5.2 18.775 8.375 21 12 21Z" fill="#34A853"></path>
+<path d="M6.725 13.225c-.2-.6-.3-1.225-.3-1.875 0-.65.1-1.275.3-1.875V7.05H3.625C2.975 8.35 2.6 9.825 2.6 11.35s.375 3 1.025 4.3l3.1-2.425Z" fill="#FBBC05"></path>
+<path d="M12 5.375c1.375 0 2.625.475 3.6 1.4l2.7-2.7C16.65 2.525 14.5 1.6 12 1.6 8.375 1.6 5.2 3.825 3.625 6.95l3.1 2.425c.75-2.225 2.825-3.875 5.275-3.875Z" fill="#EA4335"></path>
+</svg>
+<span class="text-text-main">Sign in with Google</span>
+</button>
+</form>
+<!-- Footer / Help -->
+<div class="px-8 py-4 bg-gray-50 border-t border-border-light text-center">
+<p class="text-xs text-text-muted">
+                Need help accessing your account? <a class="font-medium text-primary hover:underline" href="#">Contact Support</a>
+</p>
+</div>
+</div>
+</body></html>

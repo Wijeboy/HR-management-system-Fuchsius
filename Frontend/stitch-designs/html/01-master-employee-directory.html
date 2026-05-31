@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Master Employee Directory - FUCHSIUS HRMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                        "slate": {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full transition-all duration-300">
+<div class="h-16 flex items-center px-6 gap-3 border-b border-slate-100 dark:border-slate-800">
+<div class="bg-primary/10 flex items-center justify-center rounded-lg size-10 text-primary">
+<span class="material-symbols-outlined" style="font-size: 24px;">diamond</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-none tracking-tight">FUCHSIUS</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">HRMS v2.0</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px;">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px; font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-sm font-medium">Employees</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px;">calendar_month</span>
+<span class="text-sm font-medium">Attendance</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px;">payments</span>
+<span class="text-sm font-medium">Payroll</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px;">folder_shared</span>
+<span class="text-sm font-medium">Documents</span>
+</a>
+<div class="my-2 border-t border-slate-100 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px;">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+<div class="size-9 rounded-full bg-cover bg-center" data-alt="User profile picture of HR manager" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBU7OVs7sRhC7jUo0AnsfDkFHVennle98kWmKIfp_Zg5UeSz7mDTQv2Sz9CNuUDOgxx2lQICQ7J88fn7CiOASQUki1bUDhGpSqyaVpEfvWJIy_QYD1VX61u8Zba0pE3elHW5ylh998g7r9TUAUF_0NLXk4TjLqUWCiY5JlJGW153PYpqKSe1wqSrt0PjEoE2-HaVTtIdgxR0LTUozqW-e6Yb8UvOxBH6IXAc81jjwgJ5NoY1HpOrfnukf8bnnjIY7SZeaEF5Vdo8X4');"></div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold text-slate-900 dark:text-white truncate">Alex Morgan</p>
+<p class="text-xs text-slate-500 truncate">HR Admin</p>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full min-w-0 bg-background-light dark:bg-background-dark overflow-hidden relative">
+<!-- Topbar -->
+<header class="h-16 flex-shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Employee Directory</h2>
+<span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">1,248 Total</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-96 hidden md:block">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined" style="font-size: 20px;">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-800 transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Search by name, ID, or role..." type="text"/>
+</div>
+<div class="flex items-center gap-4 border-l border-slate-200 dark:border-slate-700 pl-6">
+<button class="relative p-2 text-slate-500 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-auto p-8 scroll-smooth">
+<!-- Action Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">All Employees</h3>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Manage access, status, and department details.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-10 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">file_upload</span>
+                            Export
+                        </button>
+<button class="h-10 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium text-sm flex items-center gap-2 shadow-lg shadow-primary/30 transition-all">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                            Add Employee
+                        </button>
+</div>
+</div>
+<!-- Filters -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 mb-6 shadow-sm">
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-slate-400" style="font-size: 18px;">filter_list</span>
+<span class="font-medium">Filter By:</span>
+</div>
+<!-- Filter Dropdowns -->
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm hover:border-primary/50 transition-colors text-slate-700 dark:text-slate-200">
+                                Department
+                                <span class="material-symbols-outlined text-slate-400" style="font-size: 18px;">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm hover:border-primary/50 transition-colors text-slate-700 dark:text-slate-200">
+                                Status
+                                <span class="material-symbols-outlined text-slate-400" style="font-size: 18px;">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm hover:border-primary/50 transition-colors text-slate-700 dark:text-slate-200">
+                                Role
+                                <span class="material-symbols-outlined text-slate-400" style="font-size: 18px;">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm hover:border-primary/50 transition-colors text-slate-700 dark:text-slate-200">
+                                Location
+                                <span class="material-symbols-outlined text-slate-400" style="font-size: 18px;">expand_more</span>
+</button>
+</div>
+<div class="ml-auto">
+<button class="text-sm text-primary font-medium hover:underline">Clear all</button>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="p-4 pl-6 w-12">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Employee Name</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Department</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+<th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right pr-6">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-4 pl-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-slate-900" data-alt="Portrait of Sarah Jenkins" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB5GzV-jiddgfIsL99G-9kfLL73r9DCnadJjqtYvX_kKap0DIvVbfmM_xztb18DDqz_GVb2oiTheSpA08D0AStWH_f5IBGD1yJju4yBZBYJVri2oCzv-HxmRXhDKpQT9HIASCS7OR0w8jaIgSUx_j00CfrEdavBF7D-zOvyhbUKdoPLledCh5YgIHywYXhFOD7eqWuQpu8UwdtkpJaw5zlIkk1WHyOaaSC9eoU4dphY99_0Er2Cs-Lg4J-Tvn9yvhE4pZp28Km54VM');"></div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Sarah Jenkins</p>
+<p class="text-xs text-slate-500">sarah.j@fuchsius.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400 font-mono">#EMP-2049</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400">Senior UX Designer</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
+<span class="size-1.5 rounded-full bg-purple-500"></span>
+                                            Product
+                                        </span>
+</td>
+<td class="p-4">
+<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800">
+                                            Active
+                                        </span>
+</td>
+<td class="p-4 text-right pr-6">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-4 pl-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-slate-900" data-alt="Portrait of Michael Chen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwsm5s_M_Lgx-LRv8QGemw7Lc2qo9pW9Ab-5bU-C555ROzPbphaafS8gPA_29JpOLvWmJXU9gpVbQj0ASHOT-6C67iL4q3V7ipCh8o7r9joh4FY08aMA1vB8r6FvhnZjO0SBKOFZHWo9QcnBVBC6ASdgR0FkkbHQFjUjW62eczBlbJxGQJ8X3mLkSyfNugUbmoIN8wv_5mBys0bqSjrTxJGDZ8XZkW0jez3KTQc8H3rnvR4i_qLlBoIjnWdG5naKubDqwetKY0i50');"></div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Michael Chen</p>
+<p class="text-xs text-slate-500">michael.c@fuchsius.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400 font-mono">#EMP-2050</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400">Marketing Lead</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+<span class="size-1.5 rounded-full bg-blue-500"></span>
+                                            Marketing
+                                        </span>
+</td>
+<td class="p-4">
+<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-100 dark:border-amber-800">
+                                            On Leave
+                                        </span>
+</td>
+<td class="p-4 text-right pr-6">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-4 pl-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm ring-2 ring-white dark:ring-slate-900">
+                                                JD
+                                            </div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">James Davidson</p>
+<p class="text-xs text-slate-500">james.d@fuchsius.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400 font-mono">#EMP-2051</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400">Software Engineer</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
+<span class="size-1.5 rounded-full bg-purple-500"></span>
+                                            Engineering
+                                        </span>
+</td>
+<td class="p-4">
+<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800">
+                                            Active
+                                        </span>
+</td>
+<td class="p-4 text-right pr-6">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-4 pl-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-slate-900" data-alt="Portrait of Emily Watson" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNlaa87z0IWDEPadLSpkwemOtEd1yEPtNiEwkKORZPbP58-iTkHpOJvtilv7frIzguvzla0CDjbm0-UxfUDQNre8KxmswjIphOpiQdHIFS9IaT-UAETeMomgok_M6mkJeKwlEjbjehnoyk1jTlxlBu8u5S5v4zFs5LgeYgizQ7wzCcCfH_BsWCASzNRkMLGHLD9qppt1EhzGvcLPffSzT-HVoxrGh0oriRbp5XZgfD9L6dPYpmGXi6rIzGuh8B5Gp5pdUNuvi13l8');"></div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Emily Watson</p>
+<p class="text-xs text-slate-500">emily.w@fuchsius.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400 font-mono">#EMP-2052</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400">HR Specialist</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-100 dark:border-orange-800">
+<span class="size-1.5 rounded-full bg-orange-500"></span>
+                                            Human Resources
+                                        </span>
+</td>
+<td class="p-4">
+<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                            Inactive
+                                        </span>
+</td>
+<td class="p-4 text-right pr-6">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="p-4 pl-6">
+<input class="rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-sm ring-2 ring-white dark:ring-slate-900">
+                                                RK
+                                            </div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Rajesh Kumar</p>
+<p class="text-xs text-slate-500">rajesh.k@fuchsius.com</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400 font-mono">#EMP-2053</td>
+<td class="p-4 text-sm text-slate-600 dark:text-slate-400">Finance Manager</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-100 dark:border-cyan-800">
+<span class="size-1.5 rounded-full bg-cyan-500"></span>
+                                            Finance
+                                        </span>
+</td>
+<td class="p-4">
+<span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800">
+                                            Active
+                                        </span>
+</td>
+<td class="p-4 text-right pr-6">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                            Showing <span class="font-medium text-slate-900 dark:text-white">1</span> to <span class="font-medium text-slate-900 dark:text-white">5</span> of <span class="font-medium text-slate-900 dark:text-white">1,248</span> results
+                        </p>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50" disabled="">Previous</button>
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm bg-primary text-white border-primary hover:bg-primary/90">1</button>
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">2</button>
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">3</button>
+<span class="px-2 py-1 text-slate-400">...</span>
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">12</button>
+<button class="px-3 py-1 rounded border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Next</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

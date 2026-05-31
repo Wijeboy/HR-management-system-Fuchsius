@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Attendance Log - FUCHSIUS HRMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#4F46E5",
+          "primary-dark": "#3730A3",
+          "background-light": "#F8FAFC",
+          "surface-light": "#FFFFFF",
+          "text-main": "#0F172A",
+          "text-secondary": "#64748B",
+          "border-light": "#E2E8F0",
+        },
+        fontFamily: {
+          "display": ["Inter", "sans-serif"]
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+</style>
+</head>
+<body class="bg-background-light text-text-main">
+<div class="flex h-screen w-full overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="flex w-72 flex-col border-r border-border-light bg-surface-light">
+    <div class="flex h-16 items-center gap-3 px-6 border-b border-border-light">
+      <div class="size-8 rounded-lg bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[20px]">hexagon</span>
+      </div>
+      <h1 class="text-lg font-bold tracking-tight">FUCHSIUS HRMS</h1>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-4 py-6">
+      <div class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span class="text-sm font-medium">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span class="text-sm font-medium">Employees</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary" href="#">
+          <span class="material-symbols-outlined text-[20px]">schedule</span>
+          <span class="text-sm font-medium">Attendance</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">event_available</span>
+          <span class="text-sm font-medium">Leave</span>
+        </a>
+        <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-text-secondary hover:bg-slate-100" href="#">
+          <span class="material-symbols-outlined text-[20px]">payments</span>
+          <span class="text-sm font-medium">Payroll</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="flex h-16 items-center justify-between border-b border-border-light bg-surface-light px-8">
+      <div>
+        <h2 class="text-2xl font-bold text-text-main">Daily Attendance Log</h2>
+        <p class="text-sm text-text-secondary">Track employee check-ins and work hours</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="flex h-10 items-center gap-2 rounded-lg border border-border-light px-4 text-sm font-medium hover:bg-slate-50">
+          <span class="material-symbols-outlined text-[20px]">download</span>
+          Export Report
+        </button>
+        <button class="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white hover:bg-primary-dark">
+          <span class="material-symbols-outlined text-[20px]">add</span>
+          Mark Attendance
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="p-8">
+      <!-- Date Picker and Stats -->
+      <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <div class="lg:col-span-2 rounded-xl border border-border-light bg-surface-light p-6">
+          <h3 class="mb-4 text-sm font-semibold text-text-main">Select Date</h3>
+          <input class="h-12 w-full rounded-lg border border-border-light px-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" type="date" value="2026-03-04"/>
+          <div class="mt-4 flex items-center gap-4">
+            <button class="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg border border-border-light text-sm font-medium hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              Previous
+            </button>
+            <button class="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg border border-border-light text-sm font-medium hover:bg-slate-50">
+              Next
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-text-secondary">Present</p>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+              <span class="material-symbols-outlined text-green-600">check_circle</span>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-text-main">641</p>
+          <p class="mt-1 text-xs text-green-600">↑ 95.2% of total</p>
+        </div>
+
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-text-secondary">Absent</p>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+              <span class="material-symbols-outlined text-red-600">cancel</span>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-text-main">18</p>
+          <p class="mt-1 text-xs text-red-600">↓ 2.7% of total</p>
+        </div>
+
+        <div class="rounded-xl border border-border-light bg-surface-light p-6">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-text-secondary">On Leave</p>
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+              <span class="material-symbols-outlined text-blue-600">event_available</span>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-text-main">14</p>
+          <p class="mt-1 text-xs text-blue-600">2.1% of total</p>
+        </div>
+      </div>
+
+      <!-- Search and Filter -->
+      <div class="mb-6 flex items-center gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-3 text-text-secondary">search</span>
+            <input class="h-12 w-full rounded-lg border border-border-light pl-10 pr-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search employees..." type="text"/>
+          </div>
+        </div>
+        <select class="h-12 rounded-lg border border-border-light px-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option>All Departments</option>
+          <option>Engineering</option>
+          <option>Sales</option>
+          <option>Finance</option>
+        </select>
+        <select class="h-12 rounded-lg border border-border-light px-4 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option>All Status</option>
+          <option>Present</option>
+          <option>Absent</option>
+          <option>On Leave</option>
+        </select>
+      </div>
+
+      <!-- Attendance Table -->
+      <div class="rounded-xl border border-border-light bg-surface-light overflow-hidden">
+        <table class="min-w-full divide-y divide-border-light">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Employee</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Department</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Check In</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Check Out</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Work Hours</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Status</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-light bg-white">
+            <!-- Row 1 -->
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">JD</div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-text-main">John Davis</div>
+                    <div class="text-xs text-text-secondary">EMP-0012</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Engineering</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main font-medium">08:45 AM</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main font-medium">05:30 PM</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main">8h 45m</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-primary hover:text-primary-dark">View Details</button>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold">SW</div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-text-main">Sarah Williams</div>
+                    <div class="text-xs text-text-secondary">EMP-0034</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Sales</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main font-medium">09:12 AM</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Ongoing</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-primary hover:text-primary-dark">View Details</button>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-semibold">MJ</div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-text-main">Michael Johnson</div>
+                    <div class="text-xs text-text-secondary">EMP-0087</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Finance</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Absent</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-primary hover:text-primary-dark">View Details</button>
+              </td>
+            </tr>
+
+            <!-- Row 4 -->
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold">LA</div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-text-main">Lisa Anderson</div>
+                    <div class="text-xs text-text-secondary">EMP-0124</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">HR</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main font-medium">08:30 AM</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main font-medium">05:00 PM</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main">8h 30m</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-primary hover:text-primary-dark">View Details</button>
+              </td>
+            </tr>
+
+            <!-- Row 5 -->
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-semibold">RW</div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-text-main">Robert Wilson</div>
+                    <div class="text-xs text-text-secondary">EMP-0156</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">Operations</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">--</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">On Leave</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-primary hover:text-primary-dark">View Details</button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-border-light bg-white px-6 py-4">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-text-secondary">Showing</span>
+            <select class="rounded border border-border-light px-2 py-1 text-sm">
+              <option>10</option>
+              <option>25</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+            <span class="text-sm text-text-secondary">of 673 employees</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="rounded-lg border border-border-light px-3 py-2 text-sm font-medium hover:bg-slate-50">Previous</button>
+            <button class="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white">1</button>
+            <button class="rounded-lg border border-border-light px-3 py-2 text-sm font-medium hover:bg-slate-50">2</button>
+            <button class="rounded-lg border border-border-light px-3 py-2 text-sm font-medium hover:bg-slate-50">3</button>
+            <span class="px-2 text-sm text-text-secondary">...</span>
+            <button class="rounded-lg border border-border-light px-3 py-2 text-sm font-medium hover:bg-slate-50">68</button>
+            <button class="rounded-lg border border-border-light px-3 py-2 text-sm font-medium hover:bg-slate-50">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
