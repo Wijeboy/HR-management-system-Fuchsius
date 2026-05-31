@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Vacancy Portal - FUCHSIUS HRMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "primary-hover": "#4338ca",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                        "text-primary-light": "#1e293b",
+                        "text-secondary-light": "#64748b",
+                        "text-primary-dark": "#f8fafc",
+                        "text-secondary-dark": "#94a3b8",
+                        "border-light": "#e2e8f0",
+                        "border-dark": "#334155",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.375rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        "2xl": "1rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="flex w-64 flex-col justify-between border-r border-border-light bg-surface-light px-4 py-6 dark:border-border-dark dark:bg-surface-dark transition-colors duration-200">
+<div class="flex flex-col gap-6">
+<!-- Logo Area -->
+<div class="flex items-center gap-3 px-2">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined">hexagon</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-tight tracking-tight text-text-primary-light dark:text-text-primary-dark">FUCHSIUS HR</h1>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Enterprise Portal</p>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-white" href="#">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+                        Dashboard
+                    </a>
+<a class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary dark:bg-primary/20 dark:text-white" href="#">
+<span class="material-symbols-outlined text-[20px] filled">group</span>
+                        Recruitment
+                    </a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-white" href="#">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+                        Employees
+                    </a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-white" href="#">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                        Performance
+                    </a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-white" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                        Payroll
+                    </a>
+</nav>
+</div>
+<!-- Bottom Actions -->
+<div class="flex flex-col gap-1 border-t border-border-light pt-4 dark:border-border-dark">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-white" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                    Settings
+                </a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary-light transition-colors hover:bg-slate-50 hover:text-red-500 dark:text-text-secondary-dark dark:hover:bg-slate-800/50 dark:hover:text-red-400" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                    Logout
+                </a>
+<div class="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
+<div class="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" data-alt="Profile picture of a man in a suit" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDh-WzWaV8OLUzxJpTS7t1Duv8mivjZY4xtKDuUWkqyMQVcVRf4idXG5PkXVfseUJpF_1mjUfGj3tReiLjxsoXtNerNoXbt-B4SWl5PzN1qMm1EGbhB7JVlsqUGcyY4ir_C3mSVXNm7Xd2Dl7MtH_IvdV5tolrQ7UHE4fgk0kbekgvrfXgJI0vNCCc2UOZyGC2j_FrAGtSpGg9d8ElukX8G5oUCYnKSeXDCv_2-8drywh0YY6twOkp1mRcPd9y6ofx0dbHTiwzbBgA"); background-size: cover; background-position: center;'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="truncate text-sm font-semibold text-text-primary-light dark:text-white">Tom Cook</p>
+<p class="truncate text-xs text-text-secondary-light dark:text-text-secondary-dark">HR Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-border-light bg-surface-light/80 px-8 backdrop-blur-md dark:border-border-dark dark:bg-surface-dark/80">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold tracking-tight text-text-primary-light dark:text-white">Job Vacancy Portal</h2>
+<span class="h-4 w-px bg-border-light dark:bg-border-dark"></span>
+<div class="flex items-center gap-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<span>Recruitment</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-medium">Vacancies</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">search</span>
+<input class="h-10 w-80 rounded-lg border-none bg-slate-100 pl-10 pr-4 text-sm text-text-primary-light placeholder-text-secondary-light focus:ring-2 focus:ring-primary dark:bg-slate-800 dark:text-white dark:placeholder-text-secondary-dark" placeholder="Search jobs, departments..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-2 border-l border-border-light pl-4 dark:border-border-dark">
+<button class="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary-light transition-colors hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary-light transition-colors hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">chat</span>
+</button>
+</div>
+<button class="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-hover hover:shadow-primary/40 active:scale-95">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Post New Job</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="flex flex-col gap-8 p-8">
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="flex flex-col gap-1 rounded-xl border border-border-light bg-surface-light p-5 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Active Jobs</span>
+<span class="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg text-[20px]">work</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-3xl font-bold text-text-primary-light dark:text-white">12</span>
+<span class="text-xs font-medium text-green-600 dark:text-green-400 flex items-center bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span> 2.5%
+                            </span>
+</div>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">vs last month</span>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-border-light bg-surface-light p-5 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Total Applicants</span>
+<span class="material-symbols-outlined text-purple-600 bg-purple-500/10 p-1.5 rounded-lg text-[20px]">groups</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-3xl font-bold text-text-primary-light dark:text-white">486</span>
+<span class="text-xs font-medium text-green-600 dark:text-green-400 flex items-center bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span> 12%
+                            </span>
+</div>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Total pipeline volume</span>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-border-light bg-surface-light p-5 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Interviews</span>
+<span class="material-symbols-outlined text-amber-600 bg-amber-500/10 p-1.5 rounded-lg text-[20px]">calendar_month</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-3xl font-bold text-text-primary-light dark:text-white">24</span>
+<span class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark flex items-center bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">
+                                Scheduled this week
+                            </span>
+</div>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">Upcoming events</span>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-border-light bg-surface-light p-5 shadow-sm dark:border-border-dark dark:bg-surface-dark">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Hired (MTD)</span>
+<span class="material-symbols-outlined text-green-600 bg-green-500/10 p-1.5 rounded-lg text-[20px]">check_circle</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-3xl font-bold text-text-primary-light dark:text-white">8</span>
+<span class="text-xs font-medium text-green-600 dark:text-green-400 flex items-center bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span> 1%
+                            </span>
+</div>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">On target</span>
+</div>
+</div>
+<!-- Filters & Views -->
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap gap-2">
+<button class="inline-flex items-center gap-2 rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors">
+                            All Jobs
+                        </button>
+<button class="inline-flex items-center gap-2 rounded-lg border border-border-light bg-white px-4 py-2 text-sm font-medium text-text-secondary-light hover:bg-slate-50 hover:text-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white transition-colors">
+                            Engineering
+                        </button>
+<button class="inline-flex items-center gap-2 rounded-lg border border-border-light bg-white px-4 py-2 text-sm font-medium text-text-secondary-light hover:bg-slate-50 hover:text-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white transition-colors">
+                            Design
+                        </button>
+<button class="inline-flex items-center gap-2 rounded-lg border border-border-light bg-white px-4 py-2 text-sm font-medium text-text-secondary-light hover:bg-slate-50 hover:text-primary dark:border-border-dark dark:bg-surface-dark dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white transition-colors">
+                            Marketing
+                        </button>
+<button class="inline-flex items-center gap-2 rounded-lg border border-dashed border-border-light bg-transparent px-3 py-2 text-sm font-medium text-text-secondary-light hover:border-primary hover:text-primary dark:border-border-dark dark:text-text-secondary-dark dark:hover:border-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            More Filters
+                        </button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Sort by:</span>
+<button class="flex items-center gap-1 text-sm font-medium text-text-primary-light dark:text-white">
+                             Newest First
+                             <span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+<!-- Job Cards Grid -->
+<div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+<!-- Card 1 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-md dark:border-border-dark dark:bg-surface-dark dark:hover:border-primary/50">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-primary dark:bg-indigo-900/30 dark:text-indigo-300">
+<span class="material-symbols-outlined text-[28px]">code</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Senior Frontend Developer</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Engineering · Remote</p>
+</div>
+</div>
+<button class="rounded-full p-1 text-text-secondary-light hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mt-6 flex items-center justify-between border-b border-border-light pb-4 dark:border-border-dark">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 1" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCpoVFVZsIgGH30CXvj3L3xpCxNNnAUFtDXPG84MJUKtVBWnfzM9gModAWke6AeZpuD1v71VyIJlFZM5I_BYW4lwGLJnLlh6WOkHXtz1-s_nYZ4V-DwxJdODh9zwfcpFj2tp88bN0esbLePHVYWvuVPTbw1lFWvozkn_5YZlo_tyqzPtwD7fdR5BNo--arJXb7zEwflGe6QMhDfYZuh4st5NJniD3m_734Gg0JQiQKsylkcxVG3IVN2i8NzzAf0xAlmCqjEjePJoJs"); background-size: cover;'></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 2" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFI_l9Apo1sy6ikI7DBpnvu1PdNUT3irHHbckuXePZzgS7OfRlc_dbAb_QNfN6y111LiWUCnmle7w1f3tKFd789XuPi-67zYSjSU4VVEUSkCcyLmAtSwPkCg9X23Ymm0CoPd_-BVPmxsU88tvVglYhH7vE9PW64GiWTXpu1HUL6oS-UkerknOuu0bk1uhZJ7hmcis9HSl8mrI_J8D94dNP2r9N7Vn3bVymotT3EdhEqEtie2PUTRExYQZxGUzhs1D1_sD393h6giI"); background-size: cover;'></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 3" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB76HVL7JpwGt64FsAA8iI2RZEj0YcT3DHMRMshlAoC-3u07zyJKUYSwtXrCldqJmSyvDxUQAUVlbJXppfZSSdKnJqdxPBxL8JCpBgleMDkiejFyQcS2c16ecPN6Zgv0ID-jzZSbE9loQevDP0FUoyrsF0Bu0wpCuVAnmcJK638LnHmbXEFVPF6jnJQYm3UU-UwEHSbE72YkhhqG6wK5YmeeMcfN5DBkAa9sdOzKqyDgYB0Nz8F0WVHMWhwHRKpJoZb3wdfJltL39U"); background-size: cover;'></div>
+<div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-xs font-medium text-text-secondary-light dark:border-surface-dark dark:bg-slate-700 dark:text-text-secondary-dark">+42</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-text-primary-light dark:text-white">45</p>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Applicants</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Published
+                            </span>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Posted 2 days ago</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-md dark:border-border-dark dark:bg-surface-dark dark:hover:border-primary/50">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">
+<span class="material-symbols-outlined text-[28px]">design_services</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Product Designer</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Design · New York, NY</p>
+</div>
+</div>
+<button class="rounded-full p-1 text-text-secondary-light hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mt-6 flex items-center justify-between border-b border-border-light pb-4 dark:border-border-dark">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 4" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCM4kkkcdEoktHXb7kSWauomE-pp0OV_xiUHyj5Q55ksEDSQLib3N6EC10sBQPDe2l0Y9mVRKEiqG6DbXH7_-GNpob3QgdlCxWwDMd1kAe0Z9_n3qH3lCiKDA40qnuQYtC9IyY3-1vGtjcuPvXNmQKaF-UTc5sWt-iWBs8pdaRaD-G9eOCJaRWgUvbI3auvwjbYut6PXcwg4j11Ly9qn5Xbyh9w4Puo7TCDJGhysy13-MVJxQw990XCjlEgU7LnpC9auWW06lfxbGY"); background-size: cover;'></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 5" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCTftfe9Oc4K19cBB3f0n33ygkONJfubPvZv02KWzt_34upeeuPMsEKdubG4_k74p2q01jaGE2H1RuWPxzXMsFCqU5jlCn8dQaCDX5iaLyDdwKa26Oa7vrzOmSU4qR-PfMFTWwK4n5sKtY5RbqYrKExaH9hryModaxXpdj5tjZkzceeIa73WbYT7ykhRgohbxBHXJJK2toAkHzknQYLvRngaq8wLiCKAflETdSsHTXjNuEIQ4bB0ra6Pd_uzhahjq7TU50zAwWRdoQ"); background-size: cover;'></div>
+<div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-xs font-medium text-text-secondary-light dark:border-surface-dark dark:bg-slate-700 dark:text-text-secondary-dark">+18</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-text-primary-light dark:text-white">20</p>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Applicants</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Published
+                            </span>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Posted 5 days ago</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-md dark:border-border-dark dark:bg-surface-dark dark:hover:border-primary/50">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300">
+<span class="material-symbols-outlined text-[28px]">campaign</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Marketing Manager</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Marketing · London, UK</p>
+</div>
+</div>
+<button class="rounded-full p-1 text-text-secondary-light hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mt-6 flex items-center justify-between border-b border-border-light pb-4 dark:border-border-dark">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 6" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAb8kRjd1mS-d2hR5OmRWHa5vyv_9xg0OW1TugVbudcYXSL59nMv9iFiXtyY9H_DN-Fc0XxL4P74CxznDxfMar0Az3yy_tmMalNv2GmhqTBgNQlzO05bXjmpwgXobOWD2Bxr2p73DTDgezB1pOEglr5X9k21xL24Sk0foasE-Z878dKCYYeVXSZP7JAWDTZlKcUilI0niv_CDY9FZURq7gDKRVufCzIHfQfH4OJUEp-mgZuKJvRzPQriNtOKvByu2uSgtkoN4bl_hc"); background-size: cover;'></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 7" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA1t38rP4i67dU2HsOdcmYKhB6IQOErJPHu5UhPegZFLejLhL7tUF5F800qFhJvTuhnC1TNixxoPp3PIjVJTv5LbeovV29mX4tec2dK9TLYWPFOLPl_cIuea-VenjpucIPB5RefOeMCEmY9YLuTjf3grgTQ-wljzi2wMHBn_CyyNiAh-MhF6yzPjKCnlhjZrLbPlXBro0IG3yMclRmI45TrKN9pCibA-nRZQXU-mFnx4Gb4UAVHA0_vLzttOexMzWaMznXLpV2w8cY"); background-size: cover;'></div>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 8" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDzfCxhEFdVga2Yytf7NzdQFpnZWWz-anrG3olhUFAYUC2RauOqVtC6xJJ1F1lgHAGcbrNBqhIiDECqw99PxBn3BfRiRk_mcJHuVKS9gKYmjexRFprwGAyf2lbYtIOLb5VIMYHGsu8U27syeRFdn8Yas44Yul4Xxbq_Asi_WcLvHeisnJ9c1wEv6BLpbue9FtY67ndATlP00pV0SckV-NYEIv-OuL9KTQep30BN9AbC2c1mql6ueFkAaa1YbIUG-k9PBqcJrfkBZpc"); background-size: cover;'></div>
+<div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-xs font-medium text-text-secondary-light dark:border-surface-dark dark:bg-slate-700 dark:text-text-secondary-dark">+89</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-text-primary-light dark:text-white">92</p>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Applicants</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                Interviewing
+                            </span>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Posted 1 week ago</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-md dark:border-border-dark dark:bg-surface-dark dark:hover:border-primary/50">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-primary dark:bg-indigo-900/30 dark:text-indigo-300">
+<span class="material-symbols-outlined text-[28px]">dns</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Backend Engineer</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Engineering · Remote</p>
+</div>
+</div>
+<button class="rounded-full p-1 text-text-secondary-light hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mt-6 flex items-center justify-between border-b border-border-light pb-4 dark:border-border-dark">
+<div class="flex -space-x-2">
+<div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-xs font-medium text-text-secondary-light dark:border-surface-dark dark:bg-slate-700 dark:text-text-secondary-dark">0</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-text-primary-light dark:text-white">0</p>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Applicants</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+<span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span>
+                                Draft
+                            </span>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Edited 2 hours ago</span>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-border-light bg-surface-light p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-md dark:border-border-dark dark:bg-surface-dark dark:hover:border-primary/50">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300">
+<span class="material-symbols-outlined text-[28px]">support_agent</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Customer Success</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Sales · Berlin, DE</p>
+</div>
+</div>
+<button class="rounded-full p-1 text-text-secondary-light hover:bg-slate-100 hover:text-primary dark:text-text-secondary-dark dark:hover:bg-slate-800 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mt-6 flex items-center justify-between border-b border-border-light pb-4 dark:border-border-dark">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-white bg-gray-200 dark:border-surface-dark" data-alt="Applicant 9" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAS0PcWY77qicgWevXw9ZuYHq3_dQv5nk0ZyokwTJQq02oX8BpQNLC47YeM4EC3J6pZ0aT4PaG6CWjvqMDXBfsHh_xYjH3hMmZ61irRdNVokjr46sIq4J7Jxfl_6QixMMxMRb0l_WveqbRD92s77PmVeG77feeqT5MCYNtCswFxGVHgSqkGUPGhRM-RnIeDh92YhmP3O-mn9E4rqqdlS0dNAbS5z6VUfiBBKh_OB3-wXVROlDFnxXUbj_UOXu9OEzzhMltDErxQKo4"); background-size: cover;'></div>
+<div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-xs font-medium text-text-secondary-light dark:border-surface-dark dark:bg-slate-700 dark:text-text-secondary-dark">+5</div>
+</div>
+<div class="text-right">
+<p class="text-2xl font-bold text-text-primary-light dark:text-white">6</p>
+<p class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark">Applicants</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+<span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                Closing Soon
+                            </span>
+<span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Posted 3 weeks ago</span>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group relative flex flex-col justify-between rounded-xl border border-dashed border-border-light bg-surface-light/50 p-6 transition-all hover:border-primary/50 hover:bg-surface-light dark:border-border-dark dark:bg-surface-dark/50 dark:hover:bg-surface-dark">
+<div class="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+<div class="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-colors group-hover:bg-primary/10 group-hover:text-primary dark:bg-slate-800 dark:text-slate-500 dark:group-hover:bg-primary/20">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-text-primary-light dark:text-white">Create New Vacancy</h3>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1">Add a new role to the board</p>
+</div>
+<button class="mt-2 text-sm font-semibold text-primary transition-colors hover:text-primary-hover">
+                                Get Started →
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

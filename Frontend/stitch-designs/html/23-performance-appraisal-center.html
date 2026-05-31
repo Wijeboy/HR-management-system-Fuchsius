@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Performance Appraisal Center - FUCHSIUS HRMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5048e5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121121",
+                        "slate": {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for the sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 px-8 py-3 shrink-0 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-slate-900 dark:text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M39.998 12.236C39.9944 12.2537 39.9875 12.2845 39.9748 12.3294C39.9436 12.4399 39.8949 12.5741 39.8346 12.7175C39.8168 12.7597 39.7989 12.8007 39.7813 12.8398C38.5103 13.7113 35.9788 14.9393 33.7095 15.4811C30.9875 16.131 27.6413 16.5217 24 16.5217C20.3587 16.5217 17.0125 16.131 14.2905 15.4811C12.0012 14.9346 9.44505 13.6897 8.18538 12.8168C8.17384 12.7925 8.16216 12.767 8.15052 12.7408C8.09919 12.6249 8.05721 12.5114 8.02977 12.411C8.00356 12.3152 8.00039 12.2667 8.00004 12.2612C8.00004 12.261 8 12.2607 8.00004 12.2612C8.00004 12.2359 8.0104 11.9233 8.68485 11.3686C9.34546 10.8254 10.4222 10.2469 11.9291 9.72276C14.9242 8.68098 19.1919 8 24 8C28.8081 8 33.0758 8.68098 36.0709 9.72276C37.5778 10.2469 38.6545 10.8254 39.3151 11.3686C39.9006 11.8501 39.9857 12.1489 39.998 12.236ZM4.95178 15.2312L21.4543 41.6973C22.6288 43.5809 25.3712 43.5809 26.5457 41.6973L43.0534 15.223C43.0709 15.1948 43.0878 15.1662 43.104 15.1371L41.3563 14.1648C43.104 15.1371 43.1038 15.1374 43.104 15.1371L43.1051 15.135L43.1065 15.1325L43.1101 15.1261L43.1199 15.1082C43.1276 15.094 43.1377 15.0754 43.1497 15.0527C43.1738 15.0075 43.2062 14.9455 43.244 14.8701C43.319 14.7208 43.4196 14.511 43.5217 14.2683C43.6901 13.8679 44 13.0689 44 12.2609C44 10.5573 43.003 9.22254 41.8558 8.2791C40.6947 7.32427 39.1354 6.55361 37.385 5.94477C33.8654 4.72057 29.133 4 24 4C18.867 4 14.1346 4.72057 10.615 5.94478C8.86463 6.55361 7.30529 7.32428 6.14419 8.27911C4.99695 9.22255 3.99999 10.5573 3.99999 12.2609C3.99999 13.1275 4.29264 13.9078 4.49321 14.3607C4.60375 14.6102 4.71348 14.8196 4.79687 14.9689C4.83898 15.0444 4.87547 15.1065 4.9035 15.1529C4.91754 15.1762 4.92954 15.1957 4.93916 15.2111L4.94662 15.223L4.95178 15.2312ZM35.9868 18.996L24 38.22L12.0131 18.996C12.4661 19.1391 12.9179 19.2658 13.3617 19.3718C16.4281 20.1039 20.0901 20.5217 24 20.5217C27.9099 20.5217 31.5719 20.1039 34.6383 19.3718C35.082 19.2658 35.5339 19.1391 35.9868 18.996Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">FUCHSIUS HRMS</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-400 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search employee..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="hidden lg:flex items-center gap-9">
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Employees</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Leave</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Payroll</a>
+<a class="text-slate-900 dark:text-white font-semibold text-sm leading-normal border-b-2 border-primary pb-0.5" href="#">Performance</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="relative text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-slate-200 dark:border-slate-700 cursor-pointer" data-alt="Manager Profile Picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDH7m4BAWBkGXGUn-gJbPKqw0bmV5fKZiyayiXRIVLDwk6YHBr8TNNzny5oH61PiRB5mdXMeR1Uj5HJkNpN79kRn3l1AJ22wDu_bhFKtkb2eC2E5OCyIrFVu3dtIOUOgbhI3SYUdz_vQVnZsnEBhgHG5iosw1AO0d94OM0ScMEj-QhlHlgmZyhNH6zsdGiabz0gko_gQLMxObLBMoPPiycd9WZbPKxYh-omCyIUIQDwm96ilcWcLOyqSKsi-1FW-H2zDtst4l_gt5c");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar bg-background-light dark:bg-background-dark p-6 md:p-10 flex flex-col gap-8">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h1 class="text-slate-900 dark:text-white text-3xl font-black leading-tight tracking-tight mb-2">Performance Appraisal Center</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal">Review and evaluate team member performance for Q3 2024.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Export Report
+                        </button>
+</div>
+</div>
+<!-- KPI Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Pending Reviews</span>
+<span class="p-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">pending_actions</span>
+</span>
+</div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">5</span>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+<div class="bg-orange-500 h-1.5 rounded-full" style="width: 30%"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Completed Reviews</span>
+<span class="p-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</span>
+</div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">12</span>
+<div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+<div class="bg-green-500 h-1.5 rounded-full" style="width: 70%"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Team Avg Score</span>
+<span class="p-1.5 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span>
+</span>
+</div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">4.2<span class="text-lg text-slate-400 font-medium">/5</span></span>
+<div class="flex gap-0.5 mt-2 text-primary">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="material-symbols-outlined text-[16px]">star_half</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-1">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Submission Due</span>
+<span class="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">event_busy</span>
+</span>
+</div>
+<span class="text-3xl font-bold text-slate-900 dark:text-white">Oct 15</span>
+<p class="text-xs text-red-500 font-medium mt-2">3 days remaining</p>
+</div>
+</div>
+<!-- Main Content Split: List & Review Form -->
+<div class="flex flex-col xl:flex-row gap-6 h-full min-h-[600px]">
+<!-- Left: Employee List -->
+<div class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+<div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800">
+<h3 class="font-bold text-slate-900 dark:text-white text-lg">Pending Appraisals</h3>
+<button class="text-primary text-sm font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-auto custom-scrollbar flex-1">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 dark:bg-slate-900 sticky top-0 z-10">
+<tr>
+<th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
+<th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Role</th>
+<th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+<!-- Selected Row (Active State) -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 bg-primary/5 border-l-4 border-l-primary transition-colors cursor-pointer">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<img alt="Alice Johnson" class="size-10 rounded-full object-cover border border-slate-200" data-alt="Portrait of Alice Johnson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm8L4I-8SvwEt_3e7V1iwhnk_7Tz9iervB4coAZSetz3nxxjR0Nv6y7hCN1nEFZBmMUpbQIO2qruAIPsiJckuLrE_2XAPvZEHaDvF2QCAUOGZymCQmu5P74xTFQph8-qiT91PpLmp02DKkO9iVsXc7ofCb3AS90vQLt_HxICuyslax91ohAY8uQaRKExMYTvfqUv15KdtSa6zT1SuoaAvIk0N_8jrvOBimbl4JI3VXv4BEipK1q6JTHKpGePA3pXh8kSTsKGKLRRc"/>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Alice Johnson</p>
+<p class="text-xs text-slate-500 sm:hidden">Senior Developer</p>
+</div>
+</div>
+</td>
+<td class="p-4 hidden sm:table-cell">
+<span class="text-sm text-slate-600 dark:text-slate-300">Senior Developer</span>
+</td>
+<td class="p-4 text-right">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
+                                                Reviewing
+                                            </span>
+</td>
+</tr>
+<!-- Standard Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer border-l-4 border-l-transparent">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold text-sm">BS</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Bob Smith</p>
+<p class="text-xs text-slate-500 sm:hidden">UX Designer</p>
+</div>
+</div>
+</td>
+<td class="p-4 hidden sm:table-cell">
+<span class="text-sm text-slate-600 dark:text-slate-300">UX Designer</span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer border-l-4 border-l-transparent">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<img alt="Charlie Davis" class="size-10 rounded-full object-cover border border-slate-200" data-alt="Portrait of Charlie Davis" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcneuczVjaXV2e44gfUNtA55VnPmss-jHCvUIzjkdTgA50anX_GKWmaCWQZUcOXIRQG06aCdEhE2X7iUBu48pkve00NS0SbNczdTiA9-mND9RTMxQXA--LsRx8IITYSMvdKbDLVyKElo00uhi6bgRb871hH9Ka6AzOflFzlqLqTQf7mYz37AH6DS7BfN0f5bbKorP-tbbGaxvwCg9qBiOR-jlHWy8GRY_XTcLzVUnY7PFkNMZsKEDP37mogAVlGzMYjgS5V6hGOkw"/>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Charlie Davis</p>
+<p class="text-xs text-slate-500 sm:hidden">Product Manager</p>
+</div>
+</div>
+</td>
+<td class="p-4 hidden sm:table-cell">
+<span class="text-sm text-slate-600 dark:text-slate-300">Product Manager</span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer border-l-4 border-l-transparent">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">DE</div>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Diana Evans</p>
+<p class="text-xs text-slate-500 sm:hidden">QA Engineer</p>
+</div>
+</div>
+</td>
+<td class="p-4 hidden sm:table-cell">
+<span class="text-sm text-slate-600 dark:text-slate-300">QA Engineer</span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer border-l-4 border-l-transparent">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<img alt="Evan Wright" class="size-10 rounded-full object-cover border border-slate-200" data-alt="Portrait of Evan Wright" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWYEHrcSxj5U4odIvwaxDZ8taTHA8iqldKyUgE0MsioiUGh-FN4k9zyMYVVMZDI9iIkrvFawfF4afI6KEROnKZi6y3Xe2p7qqt9qmtUqRMtJBI2F5ibdcM1ColRq_jIJU18B3EHE9OcYO7y4p3PO3rDzML-fOXIZRRIwrK9PCz22NIbXepOSW2a9lKBEBLEgPOXM117xMIkEo13M5Z0hMaZnjJ3bZlOENSNndXfFcWn_6cehUw6Ltr07fAOZSgIWh-lC7sLZtSMFY"/>
+<div>
+<p class="text-sm font-semibold text-slate-900 dark:text-white">Evan Wright</p>
+<p class="text-xs text-slate-500 sm:hidden">DevOps Engineer</p>
+</div>
+</div>
+</td>
+<td class="p-4 hidden sm:table-cell">
+<span class="text-sm text-slate-600 dark:text-slate-300">DevOps Engineer</span>
+</td>
+<td class="p-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right: Evaluation Form -->
+<div class="w-full xl:w-[60%] flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl ring-1 ring-slate-900/5">
+<!-- Form Header -->
+<div class="px-8 py-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800">
+<div>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Alice Johnson</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400">Senior Developer · Engineering Team</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-500">Self-Review:</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-bold">Submitted</span>
+</div>
+</div>
+<!-- Scrollable Form Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+<form action="#" class="space-y-8">
+<!-- Rating Section 1 -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<h4 class="font-semibold text-slate-900 dark:text-white text-base">Technical Competency</h4>
+<span class="text-sm text-primary font-bold">4/5</span>
+</div>
+<p class="text-sm text-slate-500 mb-2">Evaluates the depth of knowledge and ability to apply technical skills effectively.</p>
+<div class="relative pt-1">
+<input class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-primary" max="5" min="1" type="range" value="4"/>
+<div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+<span>Needs Improvement</span>
+<span>Outstanding</span>
+</div>
+</div>
+</div>
+<div class="h-px bg-slate-100 dark:bg-slate-700"></div>
+<!-- Rating Section 2 -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<h4 class="font-semibold text-slate-900 dark:text-white text-base">Collaboration &amp; Teamwork</h4>
+<span class="text-sm text-primary font-bold">5/5</span>
+</div>
+<p class="text-sm text-slate-500 mb-2">Willingness to help others, communication within the team, and conflict resolution.</p>
+<div class="relative pt-1">
+<input class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-primary" max="5" min="1" type="range" value="5"/>
+<div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+<span>Needs Improvement</span>
+<span>Outstanding</span>
+</div>
+</div>
+</div>
+<div class="h-px bg-slate-100 dark:bg-slate-700"></div>
+<!-- Rating Section 3 -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<h4 class="font-semibold text-slate-900 dark:text-white text-base">Productivity &amp; Efficiency</h4>
+<span class="text-sm text-primary font-bold">3/5</span>
+</div>
+<p class="text-sm text-slate-500 mb-2">Consistently meets deadlines and produces high-quality work.</p>
+<div class="relative pt-1">
+<input class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-primary" max="5" min="1" type="range" value="3"/>
+<div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+<span>Needs Improvement</span>
+<span>Outstanding</span>
+</div>
+</div>
+</div>
+<div class="h-px bg-slate-100 dark:bg-slate-700"></div>
+<!-- Qualitative Feedback -->
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-900 dark:text-white">Qualitative Feedback</label>
+<p class="text-xs text-slate-500 mb-2">Provide specific examples of strengths and areas for improvement.</p>
+<textarea class="w-full p-4 text-sm text-slate-900 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none h-32" placeholder="Write your detailed evaluation here..."></textarea>
+</div>
+<!-- Goals for Next Quarter -->
+<div class="space-y-3">
+<label class="block text-sm font-semibold text-slate-900 dark:text-white">Key Goals for Next Quarter</label>
+<div class="flex gap-2 mb-2">
+<input class="flex-1 p-3 text-sm text-slate-900 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Add a new goal..." type="text"/>
+<button class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 p-2.5 rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<ul class="space-y-2">
+<li class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg group">
+<span class="material-symbols-outlined text-primary text-sm">flag</span>
+<span class="text-sm text-slate-700 dark:text-slate-300 flex-1">Complete Advanced System Architecture certification</span>
+<button class="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</li>
+<li class="flex items-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg group">
+<span class="material-symbols-outlined text-primary text-sm">flag</span>
+<span class="text-sm text-slate-700 dark:text-slate-300 flex-1">Mentor two junior developers</span>
+<button class="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</li>
+</ul>
+</div>
+</form>
+</div>
+<!-- Footer Actions -->
+<div class="p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-b-xl flex justify-between items-center">
+<button class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-medium text-sm transition-colors" type="button">Save as Draft</button>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" type="button">Cancel</button>
+<button class="px-5 py-2.5 rounded-lg bg-primary hover:bg-indigo-600 text-white font-medium text-sm shadow-md shadow-indigo-500/20 transition-all transform active:scale-95 flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                                    Submit Evaluation
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
