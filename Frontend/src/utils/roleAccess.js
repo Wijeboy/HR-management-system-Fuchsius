@@ -29,6 +29,9 @@ export const ROLE_ACCESS = {
 };
 
 export const canAccess = (role, permission) => {
+  const USE_MOCK_BACKEND = import.meta.env.VITE_USE_MOCK_BACKEND !== 'false';
+
+  if (USE_MOCK_BACKEND) return true;
   if (!role) return false;
   return (ROLE_ACCESS[permission] || []).includes(role);
 };

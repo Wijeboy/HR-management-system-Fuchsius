@@ -91,68 +91,83 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="flex w-72 flex-col border-r border-gray-200 bg-white">
+    <aside className="flex h-screen w-64 flex-col overflow-hidden border-r border-gray-200 bg-white">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-6 border-b border-gray-200">
-        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-          <span className="material-symbols-outlined text-xl">hexagon</span>
+      <div className="flex h-12 items-center gap-2 border-b border-gray-200 px-4.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+          <span className="material-symbols-outlined text-[18px]">hexagon</span>
         </div>
-        <h1 className="text-lg font-bold tracking-tight text-gray-900">HRMS</h1>
+        <h1 className="text-base font-bold tracking-tight text-gray-900">HRMS</h1>
       </div>
 
       {/* Navigation */}
-      <div className="flex flex-1 flex-col justify-between overflow-y-auto px-4 py-6">
-        <div className="flex flex-col gap-6">
+      <div className="flex flex-1 flex-col justify-between overflow-hidden px-3 py-3">
+        <div className="flex flex-col gap-3">
           {/* User Profile */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
+          <div className="flex items-center gap-2.5 rounded-2xl bg-slate-50 px-3 py-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white font-semibold">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-900">{user?.name || 'Guest User'}</span>
-              <span className="text-xs text-gray-500 capitalize">{user?.role || 'Guest'}</span>
+              <span className="text-[13px] font-semibold leading-4 text-gray-900">{user?.name || 'Guest User'}</span>
+              <span className="text-[11px] text-gray-500 capitalize">{user?.role || 'Guest'}</span>
             </div>
           </div>
 
           {/* Main Menu */}
-          <nav className="flex flex-col gap-1">
-            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Main Menu</p>
+          <nav className="flex flex-col gap-0.5">
+            <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Main Menu</p>
             {mainMenuItems.map((item) => (
               <Link
                 key={item.label}
                 to={item.path}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                className={`flex items-center gap-2 rounded-xl px-3 py-1.5 transition-colors ${
                   isActive(item.path)
                     ? 'bg-indigo-600 text-white'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                <span className="text-sm font-medium">{item.label}</span>
+                <span className="material-symbols-outlined text-[17px]">{item.icon}</span>
+                <span className="text-[12px] font-medium leading-4">{item.label}</span>
               </Link>
             ))}
           </nav>
 
           {/* Management Section */}
           {managementItems.length > 0 && (
-            <nav className="flex flex-col gap-1">
-              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Management</p>
+            <nav className="flex flex-col gap-0.5">
+              <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Management</p>
               {managementItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  className={`flex items-center gap-2 rounded-xl px-3 py-1.5 transition-colors ${
                     isActive(item.path)
                       ? 'bg-indigo-600 text-white'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="material-symbols-outlined text-[17px]">{item.icon}</span>
+                  <span className="text-[12px] font-medium leading-4">{item.label}</span>
                 </Link>
               ))}
             </nav>
           )}
+        </div>
+
+        <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-2.5 shadow-sm">
+          <div className="flex items-start gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+              <span className="material-symbols-outlined text-[17px]">shield</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold leading-4 text-slate-900">Security Status</p>
+              <p className="mt-0.5 text-[10px] leading-4 text-slate-500">System audit completed successfully. No vulnerabilities found.</p>
+            </div>
+          </div>
+          <button className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-100">
+            View Report
+          </button>
         </div>
       </div>
     </aside>
