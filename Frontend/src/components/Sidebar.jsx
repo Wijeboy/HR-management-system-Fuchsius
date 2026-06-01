@@ -22,20 +22,10 @@ const Sidebar = () => {
       visible: canAccess(role, 'employeesView'),
     },
     {
-      // Employee → /attendance (check-in/out + own history)
-      // HR / Admin / Manager → /attendance/reports (daily overview of all employees)
       path: user?.role === 'employee' ? '/attendance' : '/attendance/reports',
       icon: 'schedule',
       label: 'Attendance',
       visible: canAccess(role, 'attendanceSelf') || canAccess(role, 'attendanceReports'),
-    },
-    {
-      // Employee → /leave/requests (balance cards + own history)
-      // HR → /leave/manage (approval inbox)
-      path: user?.role === 'employee' ? '/leave/requests' : '/leave/manage',
-      icon: 'event',
-      label: 'Leave Management',
-      visible: canAccess(role, 'leaveRequests') || canAccess(role, 'leaveManage'),
     },
     {
       path: user?.role === 'employee' ? '/payroll/payslips' : '/payroll',
@@ -44,8 +34,18 @@ const Sidebar = () => {
       visible: canAccess(role, 'payrollView') || canAccess(role, 'payrollPayslip'),
     },
     {
-      // Employee → /recruitment/applicants (job postings + apply + meeting calendar)
-      // HR / Admin / Manager → /recruitment/jobs (job vacancy portal + manage applicants)
+      path: '/departments',
+      icon: 'domain',
+      label: 'Departments',
+      visible: canAccess(role, 'departmentsView') || canAccess(role, 'departments'),
+    },
+    {
+      path: user?.role === 'employee' ? '/leave/requests' : '/leave/manage',
+      icon: 'event',
+      label: 'Leave Management',
+      visible: canAccess(role, 'leaveRequests') || canAccess(role, 'leaveManage'),
+    },
+    {
       path: user?.role === 'employee' ? '/recruitment/applicants' : '/recruitment/jobs',
       icon: 'work',
       label: 'Recruitment',

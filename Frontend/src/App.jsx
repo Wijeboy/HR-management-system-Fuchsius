@@ -16,6 +16,9 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 // Dashboard Pages
 import Dashboard from './pages/Dashboard/Dashboard';
 
+// Departments
+import DepartmentDirectory from './pages/Departments/DepartmentDirectory';
+
 // Employee Pages
 import EmployeeList from './pages/Employees/EmployeeList';
 import EmployeeDetails from './pages/Employees/EmployeeDetails';
@@ -76,6 +79,9 @@ function App() {
 
               {/* Dashboard */}
               <Route path="dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><Dashboard /></RoleGuard>} />
+
+              {/* Departments */}
+              <Route path="departments" element={<RoleGuard allowedRoles={ROLE_ACCESS.departmentsView}><DepartmentDirectory /></RoleGuard>} />
 
               {/* Employees */}
               <Route path="employees" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesView}><EmployeeList /></RoleGuard>} />

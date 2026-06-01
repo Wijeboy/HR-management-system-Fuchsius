@@ -4,6 +4,8 @@ export const ROLE_ACCESS = {
   employeesView: ['admin', 'hr', 'manager'],
   employeesEdit: ['admin', 'hr'],
 
+  departmentsView: ['admin', 'hr', 'manager'],
+
   attendanceSelf: ['admin', 'employee'],
   attendanceReports: ['admin', 'hr', 'manager'],
 
