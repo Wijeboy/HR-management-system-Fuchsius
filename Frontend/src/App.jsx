@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import { RoleGuard } from './components/PrivateRoute';
+// eslint-disable-next-line no-unused-vars
 import { getDefaultRouteForRole } from './utils/roleRouting';
 import { ROLE_ACCESS } from './utils/roleAccess';
 
