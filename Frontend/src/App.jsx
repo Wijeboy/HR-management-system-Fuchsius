@@ -17,6 +17,9 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 
 // Dashboard Pages
 import Dashboard from './pages/Dashboard/Dashboard';
+import HrDashboard from './pages/Dashboard/HrDashboard';
+import EmployeeDashboard from './pages/Dashboard/EmployeeDashboard';
+import ManagerDashboard from './pages/Dashboard/ManagerDashboard';
 
 // Departments
 import DepartmentDirectory from './pages/Departments/DepartmentDirectory';
@@ -81,8 +84,16 @@ function App() {
 
               {/* Dashboard */}
               <Route path="dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><Dashboard /></RoleGuard>} />
+              
+              {/* HR Dashboard Route */}
+              <Route path="hr-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><HrDashboard /></RoleGuard>} />
+              
+              {/* Employee Dashboard Route (புதிதாக இணைக்கப்பட்டது) */}
+              <Route path="employee-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><EmployeeDashboard /></RoleGuard>} />
 
-              {/* Departments */}
+              {/* Manager Dashboard Route */}
+              <Route path="manager-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><ManagerDashboard /></RoleGuard>} />
+
               <Route path="departments" element={<RoleGuard allowedRoles={ROLE_ACCESS.departmentsView}><DepartmentDirectory /></RoleGuard>} />
 
               {/* Employees */}

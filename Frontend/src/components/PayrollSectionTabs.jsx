@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const sections = [
   {
@@ -67,6 +68,13 @@ const PayrollSectionTabs = ({ title, description, helper, action }) => {
       </div>
     </div>
   );
+};
+
+PayrollSectionTabs.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  helper: PropTypes.node,
+  action: PropTypes.node,
 };
 
 export default PayrollSectionTabs;

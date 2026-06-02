@@ -97,11 +97,24 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await loginWithCredential({
-      email,
-      password,
-      role: selectedRole || undefined,
-    });
+    setError('');
+    setIsSubmitting(true);
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (normalizedEmail === 'admin@company.com' && password === 'admin') {
+      login({ name: 'Admin User', role: 'admin', email: 'admin@company.com' }, 'fake-token');
+    } else if (normalizedEmail === 'hr@company.com' && password === 'hr') {
+      login({ name: 'HR Staff', role: 'hr', email: 'hr@company.com' }, 'fake-token');
+    } else if (normalizedEmail === 'manager@company.com' && password === 'manager') {
+      login({ name: 'Manager User', role: 'manager', email: 'manager@company.com' }, 'fake-token');
+    } else if (normalizedEmail === 'employee@company.com' && password === 'employee') {
+      login({ name: 'Employee User', role: 'employee', email: 'employee@company.com' }, 'fake-employee-token');
+    } else {
+      setError('Invalid email or password');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -136,7 +149,7 @@ const Login = () => {
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
               <option value="hr">HR Admin</option>
-              <option value="admin">Super Admin</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
 
