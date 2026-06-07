@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+/* eslint-disable react/prop-types */
+import { useState, useCallback, useEffect } from 'react';
 import { attendanceService } from '../../services/attendanceService';
 import { useAuth } from '../../context/AuthContext';
 

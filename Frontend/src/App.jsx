@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import { RoleGuard } from './components/PrivateRoute';
+// eslint-disable-next-line no-unused-vars
 import { getDefaultRouteForRole } from './utils/roleRouting';
 import { ROLE_ACCESS } from './utils/roleAccess';
 
@@ -15,6 +17,12 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 
 // Dashboard Pages
 import Dashboard from './pages/Dashboard/Dashboard';
+import HrDashboard from './pages/Dashboard/HrDashboard';
+import EmployeeDashboard from './pages/Dashboard/EmployeeDashboard';
+import ManagerDashboard from './pages/Dashboard/ManagerDashboard';
+
+// Departments
+import DepartmentDirectory from './pages/Departments/DepartmentDirectory';
 
 // Employee Pages
 import EmployeeList from './pages/Employees/EmployeeList';
@@ -56,73 +64,75 @@ import Settings from './pages/Settings/Settings';
 // 404 Page
 import NotFound from './pages/NotFound';
 
-function RoleHomeRedirect() {
-  const { user } = useAuth();
-  return <Navigate to={getDefaultRouteForRole(user?.role)} replace />;
-}
-
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
           {/* Auth Routes */}
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="login" element={<Login />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
           </Route>
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route element={<MainLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+
               {/* Dashboard */}
-              <Route path="/" element={<RoleHomeRedirect />} />
-              <Route path="/dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><Dashboard /></RoleGuard>} />
+              <Route path="dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><Dashboard /></RoleGuard>} />
+              
+              {/* HR Dashboard Route */}
+              <Route path="hr-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><HrDashboard /></RoleGuard>} />
+              
+              {/* Employee Dashboard Route (புதிதாக இணைக்கப்பட்டது) */}
+              <Route path="employee-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><EmployeeDashboard /></RoleGuard>} />
+
+              {/* Manager Dashboard Route */}
+              <Route path="manager-dashboard" element={<RoleGuard allowedRoles={ROLE_ACCESS.dashboard}><ManagerDashboard /></RoleGuard>} />
+
+              <Route path="departments" element={<RoleGuard allowedRoles={ROLE_ACCESS.departmentsView}><DepartmentDirectory /></RoleGuard>} />
 
               {/* Employees */}
-              <Route path="/employees" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesView}><EmployeeList /></RoleGuard>} />
-              <Route path="/employees/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesView}><EmployeeDetails /></RoleGuard>} />
-              <Route path="/employees/add" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesEdit}><AddEmployee /></RoleGuard>} />
-              <Route path="/employees/edit/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesEdit}><EditEmployee /></RoleGuard>} />
+              <Route path="employees" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesView}><EmployeeList /></RoleGuard>} />
+              <Route path="employees/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesView}><EmployeeDetails /></RoleGuard>} />
+              <Route path="employees/add" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesEdit}><AddEmployee /></RoleGuard>} />
+              <Route path="employees/edit/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.employeesEdit}><EditEmployee /></RoleGuard>} />
 
-              {/* Attendance:
-                  - Employee role  → AttendanceList  (check-in/out + own history)
-                  - HR/Admin/Manager role → AttendanceReports (daily overview)
-                  Both routes are kept; the sidebar/layout can show the right one
-                  based on user role, or you can use a role-guard wrapper. */}
-              <Route path="/attendance" element={<RoleGuard allowedRoles={ROLE_ACCESS.attendanceSelf}><AttendanceList /></RoleGuard>} />
-              <Route path="/attendance/reports" element={<RoleGuard allowedRoles={ROLE_ACCESS.attendanceReports}><AttendanceReports /></RoleGuard>} />
+              {/* Attendance */}
+              <Route path="attendance" element={<RoleGuard allowedRoles={ROLE_ACCESS.attendanceSelf}><AttendanceList /></RoleGuard>} />
+              <Route path="attendance/reports" element={<RoleGuard allowedRoles={ROLE_ACCESS.attendanceReports}><AttendanceReports /></RoleGuard>} />
 
-              {/* Leave:
-                  - Employee → /leave/requests  (balance cards + history)
-                  - HR       → /leave/manage    (approval inbox)
-                  - Apply form is shared (employee only in practice) */}
-              <Route path="/leave/requests" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveRequests}><LeaveRequests /></RoleGuard>} />
-              <Route path="/leave/balance" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveBalance}><LeaveBalance /></RoleGuard>} />
-              <Route path="/leave/apply" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveApply}><ApplyLeave /></RoleGuard>} />
-              <Route path="/leave/manage" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveManage}><HRLeaveApproval /></RoleGuard>} />
+              {/* Leave */}
+              <Route path="leave/requests" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveRequests}><LeaveRequests /></RoleGuard>} />
+              <Route path="leave/balance" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveBalance}><LeaveBalance /></RoleGuard>} />
+              <Route path="leave/apply" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveApply}><ApplyLeave /></RoleGuard>} />
+              <Route path="leave/manage" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveManage}><HRLeaveApproval /></RoleGuard>} />
 
               {/* Payroll */}
-              <Route path="/payroll" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollView}><PayrollList /></RoleGuard>} />
-              <Route path="/payroll/generate" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollGenerate}><GeneratePayroll /></RoleGuard>} />
-              <Route path="/payroll/payslips" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
-              <Route path="/payroll/payslip/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
+              <Route path="payroll" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollView}><PayrollList /></RoleGuard>} />
+              <Route path="payroll/generate" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollGenerate}><GeneratePayroll /></RoleGuard>} />
+              <Route path="payroll/payslips" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
+              <Route path="payroll/payslip/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
 
               {/* Recruitment */}
-              <Route path="/recruitment/jobs" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentJobs}><JobPostings /></RoleGuard>} />
-              <Route path="/recruitment/applicants" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentApplicants}><Applicants /></RoleGuard>} />
-              <Route path="/recruitment/onboarding" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentOnboarding}><OnboardingTasks /></RoleGuard>} />
+              <Route path="recruitment/jobs" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentJobs}><JobPostings /></RoleGuard>} />
+              <Route path="recruitment/applicants" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentApplicants}><Applicants /></RoleGuard>} />
+              <Route path="recruitment/onboarding" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentOnboarding}><OnboardingTasks /></RoleGuard>} />
 
               {/* Performance */}
-              <Route path="/performance/reviews" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceReviews}><PerformanceReviews /></RoleGuard>} />
-              <Route path="/performance/goals" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceGoals}><GoalsKPIs /></RoleGuard>} />
+              <Route path="performance/reviews" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceReviews}><PerformanceReviews /></RoleGuard>} />
+              <Route path="performance/goals" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceGoals}><GoalsKPIs /></RoleGuard>} />
 
               {/* Reports */}
-              <Route path="/reports" element={<RoleGuard allowedRoles={ROLE_ACCESS.reports}><Reports /></RoleGuard>} />
+              <Route path="reports" element={<RoleGuard allowedRoles={ROLE_ACCESS.reports}><Reports /></RoleGuard>} />
 
               {/* Settings */}
-              <Route path="/profile" element={<RoleGuard allowedRoles={ROLE_ACCESS.profile}><Profile /></RoleGuard>} />
-              <Route path="/settings" element={<RoleGuard allowedRoles={ROLE_ACCESS.settings}><Settings /></RoleGuard>} />
+              <Route path="profile" element={<RoleGuard allowedRoles={ROLE_ACCESS.profile}><Profile /></RoleGuard>} />
+              <Route path="settings" element={<RoleGuard allowedRoles={ROLE_ACCESS.settings}><Settings /></RoleGuard>} />
             </Route>
           </Route>
 

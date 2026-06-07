@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { attendanceService } from '../../services/attendanceService';
 
@@ -35,7 +36,8 @@ const pad = (n) => String(n).padStart(2, '0');
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const AttendanceList = () => {
-  const { user } = useAuth();
+  // FIX 1: Added fallback empty object {} to prevent destructuring crash if context is empty
+  const { user } = useAuth() || {};
 
   // Clock state
   const [now, setNow] = useState(new Date());
@@ -57,7 +59,6 @@ const AttendanceList = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
 
   // Get employeeId from user context
-  // TODO: When real auth exists, user.employeeId will be from DB
   const employeeId = user?.employeeId || 'EMP004';
 
   // Live clock
@@ -70,32 +71,39 @@ const AttendanceList = () => {
   useEffect(() => {
     if (!employeeId) return;
     attendanceService
-      .getTodayStatus(employeeId)
-      .then((res) => setTodayRecord(res.data.record))
-      .catch(() => {});
+      ?.getTodayStatus(employeeId)
+      .then((res) => setTodayRecord(res?.data?.record || null))
+      .catch((err) => console.log('Today status error:', err));
   }, [employeeId]);
 
   // Fetch weekly attendance
   useEffect(() => {
     if (!employeeId) return;
     attendanceService
-      .getWeekly(employeeId)
-      .then((res) => setWeekData(res.data))
-      .catch(() => {});
+      ?.getWeekly(employeeId)
+      .then((res) => {
+        // FIX 2: Safely handle if res.data is missing or structured differently
+        setWeekData({
+          days: res?.data?.days || [],
+          totalWeekHours: res?.data?.totalWeekHours || 0
+        });
+      })
+      .catch((err) => console.log('Weekly data error:', err));
   }, [employeeId, todayRecord]);
 
   // Fetch history
   const fetchHistory = useCallback((page = 1) => {
     setHistoryLoading(true);
     attendanceService
-      .getHistory(employeeId, page, 10)
+      ?.getHistory(employeeId, page, 10)
       .then((res) => {
-        setHistory(res.data.records);
-        setHistoryTotal(res.data.total);
-        setHistoryTotalPages(res.data.totalPages);
+        // FIX 3: Safely handle history arrays to prevent length/map crashes
+        setHistory(res?.data?.records || []);
+        setHistoryTotal(res?.data?.total || 0);
+        setHistoryTotalPages(res?.data?.totalPages || 1);
         setHistoryPage(page);
       })
-      .catch(() => {})
+      .catch((err) => console.log('History data error:', err))
       .finally(() => setHistoryLoading(false));
   }, [employeeId]);
 
@@ -110,13 +118,13 @@ const AttendanceList = () => {
     try {
       if (!todayRecord || !todayRecord.checkIn) {
         const res = await attendanceService.checkIn(employeeId);
-        setTodayRecord(res.data.record);
+        setTodayRecord(res?.data?.record || null);
       } else if (!todayRecord.checkOut) {
         const res = await attendanceService.checkOut(employeeId);
-        setTodayRecord(res.data.record);
+        setTodayRecord(res?.data?.record || null);
       }
     } catch (err) {
-      setCheckinError(err.response?.data?.message || 'Something went wrong');
+      setCheckinError(err?.response?.data?.message || 'Something went wrong');
     } finally {
       setCheckinLoading(false);
     }
@@ -135,6 +143,10 @@ const AttendanceList = () => {
   const today = new Date();
   const todayDateStr = today.toISOString().split('T')[0];
 
+  // FIX 4: Safe fallbacks for rendering
+  const safeWeekDays = weekData?.days || [];
+  const safeHistory = history || [];
+
   return (
     <div className="space-y-8">
       {/* ── Page Title ─────────────────────────────────────────────────────── */}
@@ -148,7 +160,6 @@ const AttendanceList = () => {
 
         {/* Clock & Check-in Panel */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm p-8 flex flex-col items-start justify-center gap-4">
-          {/* Clock icon + time */}
           <div className="flex items-center gap-3 mb-1">
             <div className="flex items-center justify-center w-12 h-12 bg-indigo-50 rounded-xl">
               <span className="material-symbols-outlined text-3xl text-indigo-600">schedule</span>
@@ -156,7 +167,6 @@ const AttendanceList = () => {
             <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">Live Clock</span>
           </div>
 
-          {/* Time display */}
           <div className="font-mono">
             <span className="text-5xl font-bold text-gray-900 tabular-nums">
               {pad(now.getHours())}:{pad(now.getMinutes())}
@@ -166,22 +176,20 @@ const AttendanceList = () => {
             </span>
           </div>
 
-          {/* Date */}
           <p className="text-sm text-gray-500 font-medium">{currentDateStr}</p>
 
-          {/* Status badge */}
           {isCheckedOut ? (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
               <span className="text-sm font-medium text-blue-700">
-                Checked out at {formatTime(todayRecord.checkOut)}
+                Checked out at {formatTime(todayRecord?.checkOut)}
               </span>
             </div>
           ) : isCheckedIn ? (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span className="text-sm font-medium text-green-700">
-                Checked in at {formatTime(todayRecord.checkIn)}
+                Checked in at {formatTime(todayRecord?.checkIn)}
               </span>
             </div>
           ) : (
@@ -191,7 +199,6 @@ const AttendanceList = () => {
             </div>
           )}
 
-          {/* Check-in / Check-out button */}
           {!isCheckedOut && (
             <button
               onClick={handleCheckInOut}
@@ -230,50 +237,54 @@ const AttendanceList = () => {
             <div className="text-right">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total This Week</p>
               <p className="text-2xl font-bold text-indigo-600">
-                {formatHours(weekData.totalWeekHours)}
+                {formatHours(weekData?.totalWeekHours)}
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-7 gap-2">
-            {weekData.days.map((day, idx) => {
-              const isToday = day.date === todayDateStr;
-              const hasHours = day.hours > 0;
-              return (
-                <div
-                  key={idx}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
-                    isToday
-                      ? 'border-indigo-300 bg-indigo-50'
-                      : hasHours
-                      ? 'border-green-200 bg-green-50'
-                      : 'border-gray-100 bg-gray-50'
-                  }`}
-                >
-                  <span className={`text-xs font-bold uppercase tracking-wider ${
-                    isToday ? 'text-indigo-600' : 'text-gray-400'
-                  }`}>
-                    {day.label}
-                  </span>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    hasHours
-                      ? 'bg-green-500'
-                      : isToday
-                      ? 'bg-indigo-200'
-                      : 'bg-gray-200'
-                  }`}>
-                    <span className="material-symbols-outlined text-sm text-white">
-                      {hasHours ? 'check' : 'remove'}
+            {safeWeekDays.length === 0 ? (
+              <p className="col-span-7 text-sm text-gray-400 text-center py-4">No data for this week</p>
+            ) : (
+              safeWeekDays.map((day, idx) => {
+                const isToday = day?.date === todayDateStr;
+                const hasHours = (day?.hours || 0) > 0;
+                return (
+                  <div
+                    key={idx}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
+                      isToday
+                        ? 'border-indigo-300 bg-indigo-50'
+                        : hasHours
+                        ? 'border-green-200 bg-green-50'
+                        : 'border-gray-100 bg-gray-50'
+                    }`}
+                  >
+                    <span className={`text-xs font-bold uppercase tracking-wider ${
+                      isToday ? 'text-indigo-600' : 'text-gray-400'
+                    }`}>
+                      {day?.label || '—'}
+                    </span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      hasHours
+                        ? 'bg-green-500'
+                        : isToday
+                        ? 'bg-indigo-200'
+                        : 'bg-gray-200'
+                    }`}>
+                      <span className="material-symbols-outlined text-sm text-white">
+                        {hasHours ? 'check' : 'remove'}
+                      </span>
+                    </div>
+                    <span className={`text-xs font-semibold text-center leading-tight ${
+                      hasHours ? 'text-green-700' : 'text-gray-400'
+                    }`}>
+                      {hasHours ? formatHours(day.hours) : '—'}
                     </span>
                   </div>
-                  <span className={`text-xs font-semibold text-center leading-tight ${
-                    hasHours ? 'text-green-700' : 'text-gray-400'
-                  }`}>
-                    {hasHours ? formatHours(day.hours) : '—'}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -303,29 +314,29 @@ const AttendanceList = () => {
                     <span className="material-symbols-outlined animate-spin text-2xl">refresh</span>
                   </td>
                 </tr>
-              ) : history.length === 0 ? (
+              ) : safeHistory.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-10 text-center text-gray-400 text-sm">
                     No attendance records found.
                   </td>
                 </tr>
               ) : (
-                history.map((rec, idx) => (
+                safeHistory.map((rec, idx) => (
                   <tr key={idx} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {formatDate(rec.date)}
+                      {formatDate(rec?.date)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {formatTime(rec.checkIn)}
+                      {formatTime(rec?.checkIn)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {formatTime(rec.checkOut)}
+                      {formatTime(rec?.checkOut)}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {formatHours(rec.totalHours)}
+                      {formatHours(rec?.totalHours)}
                     </td>
                     <td className="px-6 py-4">
-                      <StatusBadge status={rec.status} />
+                      <StatusBadge status={rec?.status} />
                     </td>
                   </tr>
                 ))
@@ -348,7 +359,7 @@ const AttendanceList = () => {
             >
               Previous
             </button>
-            {Array.from({ length: historyTotalPages }, (_, i) => i + 1)
+            {Array.from({ length: historyTotalPages || 1 }, (_, i) => i + 1)
               .filter((p) => Math.abs(p - historyPage) <= 2)
               .map((p) => (
                 <button
@@ -386,9 +397,12 @@ const StatusBadge = ({ status }) => {
     on_leave: 'bg-blue-100 text-blue-700',
   };
   const labels = { present: 'Present', late: 'Late', absent: 'Absent', on_leave: 'On Leave' };
+  
+  // Safe fallback if status is missing
+  const safeStatus = status || 'unknown';
   return (
-    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${map[status] || 'bg-gray-100 text-gray-600'}`}>
-      {labels[status] || status}
+    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${map[safeStatus] || 'bg-gray-100 text-gray-600'}`}>
+      {labels[safeStatus] || safeStatus}
     </span>
   );
 };
