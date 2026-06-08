@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useCallback } from 'react';
 import { leaveService } from '../../services/leaveService';
 import { useAuth } from '../../context/AuthContext';
 
@@ -109,29 +108,6 @@ const Pagination = ({ page, totalPages, total, onPageChange }) => (
     </div>
   </div>
 );
-
-ViewModal.propTypes = {
-  record: PropTypes.shape({
-    supportingDocument: PropTypes.string,
-    documentMimeType: PropTypes.string,
-    employeeName: PropTypes.string,
-    employeeId: PropTypes.string,
-    leaveType: PropTypes.string,
-    startDate: PropTypes.string,
-    endDate: PropTypes.string,
-    durationDays: PropTypes.number,
-    department: PropTypes.string,
-    reason: PropTypes.string,
-  }).isRequired,
-  onClose: PropTypes.func.isRequired,
-};
-
-Pagination.propTypes = {
-  page: PropTypes.number.isRequired,
-  totalPages: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
-};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const HRLeaveApproval = () => {

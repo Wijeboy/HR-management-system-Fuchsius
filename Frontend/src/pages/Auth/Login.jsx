@@ -1,43 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
-
-const USE_MOCK_BACKEND = import.meta.env.VITE_USE_MOCK_BACKEND !== 'false';
-
-const demoCredentials = [
-  { role: 'admin', email: 'admin@company.com', password: 'admin' },
-  { role: 'hr', email: 'hr@company.com', password: 'hr' },
-  { role: 'manager', email: 'manager@company.com', password: 'manager' },
-  { role: 'employee', email: 'employee@company.com', password: 'employee' },
-];
-
-const buildMockUser = (credential) => ({
-  id: `mock-${credential.role || 'employee'}`,
-  _id: `mock-${credential.role || 'employee'}`,
-  employeeId: `MOCK-${String(credential.role || 'employee').toUpperCase()}`,
-  name:
-    credential.role === 'admin'
-      ? 'System Admin'
-      : credential.role === 'hr'
-        ? 'HR Manager'
-        : credential.role === 'manager'
-          ? 'Team Manager'
-          : 'Employee User',
-  email: credential.email.trim(),
-  department:
-    credential.role === 'admin'
-      ? 'Administration'
-      : credential.role === 'hr'
-        ? 'Human Resources'
-        : credential.role === 'manager'
-          ? 'Operations'
-          : 'General',
-  role: credential.role || 'employee',
-  status: 'Active',
-});
-
-const isBackendUnavailable = (error) => !error?.response || error?.code === 'ECONNREFUSED' || String(error?.message || '').includes('Network Error');
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -48,16 +12,18 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
 
+  const demoCredentials = [
+    { role: 'admin', email: 'admin@company.com', password: 'admin' },
+    { role: 'hr', email: 'hr@company.com', password: 'hr' },
+    { role: 'manager', email: 'manager@company.com', password: 'manager' },
+    { role: 'employee', email: 'employee@company.com', password: 'employee' },
+  ];
+
   const loginWithCredential = async (credential) => {
     setError('');
     setIsSubmitting(true);
 
     try {
-      if (USE_MOCK_BACKEND) {
-        login(buildMockUser(credential), `mock-token-${credential.role || 'employee'}`);
-        return;
-      }
-
       const response = await authService.login({
         email: credential.email.trim(),
         password: credential.password,
@@ -72,13 +38,8 @@ const Login = () => {
         return;
       }
 
-      login(buildMockUser(credential), `mock-token-${credential.role || 'employee'}`);
+      setError('Invalid login response from server');
     } catch (err) {
-      if (isBackendUnavailable(err)) {
-        login(buildMockUser(credential), `mock-token-${credential.role || 'employee'}`);
-        return;
-      }
-
       setError(err?.response?.data?.message || 'Invalid email or password');
     } finally {
       setIsSubmitting(false);
@@ -97,24 +58,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (normalizedEmail === 'admin@company.com' && password === 'admin') {
-      login({ name: 'Admin User', role: 'admin', email: 'admin@company.com' }, 'fake-token');
-    } else if (normalizedEmail === 'hr@company.com' && password === 'hr') {
-      login({ name: 'HR Staff', role: 'hr', email: 'hr@company.com' }, 'fake-token');
-    } else if (normalizedEmail === 'manager@company.com' && password === 'manager') {
-      login({ name: 'Manager User', role: 'manager', email: 'manager@company.com' }, 'fake-token');
-    } else if (normalizedEmail === 'employee@company.com' && password === 'employee') {
-      login({ name: 'Employee User', role: 'employee', email: 'employee@company.com' }, 'fake-employee-token');
-    } else {
-      setError('Invalid email or password');
-    }
-
-    setIsSubmitting(false);
+    await loginWithCredential({
+      email,
+      password,
+      role: selectedRole || undefined,
+    });
   };
 
   return (
@@ -149,7 +97,7 @@ const Login = () => {
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
               <option value="hr">HR Admin</option>
-              <option value="admin">Admin</option>
+              <option value="admin">Super Admin</option>
             </select>
           </div>
 
@@ -197,7 +145,7 @@ const Login = () => {
           </button>
 
           <div className="pt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-blue-900 mb-2">Demo Credentials:</p>
+            <p className="text-xs font-semibold text-blue-900 mb-2">Demo Credentials (must exist in DB):</p>
             <div className="space-y-1 text-xs text-blue-800">
               <div><strong>Admin:</strong> admin@company.com / admin</div>
               <div><strong>HR:</strong> hr@company.com / hr</div>

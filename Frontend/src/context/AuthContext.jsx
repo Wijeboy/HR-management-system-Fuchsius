@@ -3,18 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { getDefaultRouteForRole } from '../utils/roleRouting';
 
-const USE_MOCK_BACKEND = import.meta.env.VITE_USE_MOCK_BACKEND !== 'false';
-
 const AuthContext = createContext(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
-// eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,26 +18,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const bootstrapAuth = async () => {
-      if (USE_MOCK_BACKEND) {
-        try {
-          const storedUser = localStorage.getItem('user');
-          const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-          if (parsedUser) {
-            setUser(parsedUser);
-          } else {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-          }
-        } catch {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        } finally {
-          setIsLoading(false);
-        }
-
-        return;
-      }
-
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -77,14 +53,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    if (!USE_MOCK_BACKEND) {
-      try {
-        await authService.logout();
-      } catch {
-        // Ignore logout request failures and clear local state anyway.
-      }
+    try {
+      await authService.logout();
+    } catch {
+      // Ignore logout request failures and clear local state anyway.
     }
-
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     setUser(null);

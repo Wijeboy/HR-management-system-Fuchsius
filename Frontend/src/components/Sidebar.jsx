@@ -1,114 +1,160 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { canAccess } from '../utils/roleAccess';
 
 const Sidebar = () => {
-  const { user } = useAuth();
   const location = useLocation();
+  const { user } = useAuth();
 
-  // Determine correct dashboard path based on role
-  const getDashboardPath = () => {
-    switch (user?.role) {
-      case 'hr': return '/hr-dashboard';
-      case 'manager': return '/manager-dashboard';
-      case 'employee': return '/employee-dashboard';
-      default: return '/dashboard';
-    }
-  };
+  const role = user?.role;
 
-  // Centralized menu item configuration controlling role visibility
   const mainMenuItems = [
     {
-      name: 'Dashboard',
-      path: getDashboardPath(),
+      path: '/dashboard',
       icon: 'dashboard',
-      visible: ['admin', 'hr', 'manager', 'employee'].includes(user?.role),
+      label: 'Dashboard',
+      visible: canAccess(role, 'dashboard'),
     },
     {
-      name: 'My Leaves',
-      path: '/leave/requests',
-      icon: 'event_note',
-      visible: ['employee'].includes(user?.role),
-    },
-    {
-      name: 'My Payslips',
-      path: '/payroll/payslips',
-      icon: 'request_quote',
-      visible: ['employee'].includes(user?.role),
-    },
-    {
-      name: 'Team Directory',
       path: '/employees',
-      icon: 'groups',
-      visible: ['admin', 'hr', 'manager'].includes(user?.role),
+      icon: 'group',
+      label: 'Employees',
+      visible: canAccess(role, 'employeesView'),
     },
     {
-      name: 'Attendance',
+      // Employee → /attendance (check-in/out + own history)
+      // HR / Admin / Manager → /attendance/reports (daily overview of all employees)
       path: user?.role === 'employee' ? '/attendance' : '/attendance/reports',
-      icon: 'fact_check',
-      visible: ['admin', 'hr', 'manager', 'employee'].includes(user?.role),
+      icon: 'schedule',
+      label: 'Attendance',
+      visible: canAccess(role, 'attendanceSelf') || canAccess(role, 'attendanceReports'),
     },
     {
-      name: 'Leave Approvals',
-      path: '/leave/manage',
-      icon: 'event_available',
-      visible: ['admin', 'hr', 'manager'].includes(user?.role),
+      // Employee → /leave/requests (balance cards + own history)
+      // HR → /leave/manage (approval inbox)
+      path: user?.role === 'employee' ? '/leave/requests' : '/leave/manage',
+      icon: 'event',
+      label: 'Leave Management',
+      visible: canAccess(role, 'leaveRequests') || canAccess(role, 'leaveManage'),
     },
     {
-      name: 'Performance',
-      path: '/performance/reviews',
-      icon: 'assessment',
-      visible: ['admin', 'manager'].includes(user?.role),
-    },
-    {
-      name: 'Payroll',
-      path: '/payroll',
+      path: user?.role === 'employee' ? '/payroll/payslips' : '/payroll',
       icon: 'payments',
-      visible: ['admin', 'hr'].includes(user?.role),
+      label: 'Payroll',
+      visible: canAccess(role, 'payrollView') || canAccess(role, 'payrollPayslip'),
     },
     {
-      name: 'Recruitment',
-      path: '/recruitment/jobs',
+      // Employee → /recruitment/applicants (job postings + apply + meeting calendar)
+      // HR / Admin / Manager → /recruitment/jobs (job vacancy portal + manage applicants)
+      path: user?.role === 'employee' ? '/recruitment/applicants' : '/recruitment/jobs',
       icon: 'work',
-      visible: ['admin', 'hr'].includes(user?.role),
+      label: 'Recruitment',
+      visible: canAccess(role, 'recruitmentApplicants') || canAccess(role, 'recruitmentJobs'),
     },
     {
-      name: 'Departments',
-      path: '/departments',
-      icon: 'domain',
-      visible: ['admin'].includes(user?.role),
+      path: canAccess(role, 'performanceReviews') ? '/performance/reviews' : '/performance/goals',
+      icon: 'trending_up',
+      label: 'Performance',
+      visible: canAccess(role, 'performanceReviews') || canAccess(role, 'performanceGoals'),
     },
+  ].filter((item) => item.visible);
+
+  const managementItems = [
     {
-      name: 'Reports',
       path: '/reports',
       icon: 'bar_chart',
-      visible: ['admin', 'hr', 'manager'].includes(user?.role),
+      label: 'Reports',
+      visible: canAccess(role, 'reports'),
     },
     {
-      name: 'Settings',
       path: '/settings',
       icon: 'settings',
-      visible: ['admin'].includes(user?.role),
+      label: 'Settings',
+      visible: canAccess(role, 'settings'),
     },
-  ].filter(item => item.visible);
+  ].filter((item) => item.visible);
+
+  const isActive = (path) => {
+    // Attendance tab: highlight for both role paths
+    if (path === '/attendance' || path === '/attendance/reports') {
+      return location.pathname.startsWith('/attendance');
+    }
+    // Leave tab: highlight for both role paths
+    if (path === '/leave/requests' || path === '/leave/manage') {
+      return location.pathname.startsWith('/leave');
+    }
+    // Recruitment tab: highlight for both role paths
+    if (path === '/recruitment/applicants' || path === '/recruitment/jobs') {
+      return location.pathname.startsWith('/recruitment');
+    }
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
-      <div className="p-6">
-        <h2 className="text-xl font-bold text-gray-800">FUCHSIUS HRMS</h2>
-        <p className="text-xs text-gray-500 mt-1 capitalize">{user?.role} Workspace</p>
+    <aside className="flex w-72 flex-col border-r border-gray-200 bg-white">
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-3 px-6 border-b border-gray-200">
+        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+          <span className="material-symbols-outlined text-xl">hexagon</span>
+        </div>
+        <h1 className="text-lg font-bold tracking-tight text-gray-900">HRMS</h1>
       </div>
-      
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-        {mainMenuItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <Link key={item.name} to={item.path} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}>
-              <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
+
+      {/* Navigation */}
+      <div className="flex flex-1 flex-col justify-between overflow-y-auto px-4 py-6">
+        <div className="flex flex-col gap-6">
+          {/* User Profile */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-gray-900">{user?.name || 'Guest User'}</span>
+              <span className="text-xs text-gray-500 capitalize">{user?.role || 'Guest'}</span>
+            </div>
+          </div>
+
+          {/* Main Menu */}
+          <nav className="flex flex-col gap-1">
+            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Main Menu</p>
+            {mainMenuItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.path}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                  isActive(item.path)
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Management Section */}
+          {managementItems.length > 0 && (
+            <nav className="flex flex-col gap-1">
+              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Management</p>
+              {managementItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                    isActive(item.path)
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                  <span className="text-sm font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
+        </div>
+      </div>
     </aside>
   );
 };

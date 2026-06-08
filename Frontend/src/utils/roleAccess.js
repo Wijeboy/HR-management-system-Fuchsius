@@ -1,42 +1,34 @@
 export const ROLE_ACCESS = {
-  // Dashboard access
   dashboard: ['admin', 'hr', 'manager', 'employee'],
-  
-  // Department & Employee
-  departmentsView: ['admin'],
+
   employeesView: ['admin', 'hr', 'manager'],
   employeesEdit: ['admin', 'hr'],
 
-  // Attendance
-  attendanceSelf: ['admin', 'hr', 'manager', 'employee'], // Confirmed: 'employee' has access
+  attendanceSelf: ['admin', 'employee'],
   attendanceReports: ['admin', 'hr', 'manager'],
 
-  // Leave Management
   leaveRequests: ['admin', 'hr', 'manager', 'employee'],
   leaveBalance: ['admin', 'hr', 'manager', 'employee'],
   leaveApply: ['admin', 'hr', 'manager', 'employee'],
-  leaveManage: ['admin', 'hr', 'manager'],
+  leaveManage: ['admin', 'hr'],
 
-  // Payroll
-  payrollView: ['admin', 'hr'],
+  payrollView: ['admin', 'hr', 'manager', 'employee'],
   payrollGenerate: ['admin', 'hr'],
   payrollPayslip: ['admin', 'hr', 'manager', 'employee'],
 
-  // Recruitment
-  recruitmentJobs: ['admin', 'hr'],
-  recruitmentApplicants: ['admin', 'hr'],
-  recruitmentOnboarding: ['admin', 'hr'],
+  recruitmentJobs: ['admin', 'hr', 'manager'],
+  recruitmentApplicants: ['admin', 'employee'],
+  recruitmentOnboarding: ['admin', 'hr', 'manager'],
 
-  // Performance
-  performanceReviews: ['admin', 'manager'],
-  performanceGoals: ['admin', 'manager'],
+  performanceReviews: ['admin', 'hr', 'manager'],
+  performanceGoals: ['admin', 'hr', 'manager', 'employee'],
 
-  // System & Misc
   reports: ['admin', 'hr', 'manager'],
   profile: ['admin', 'hr', 'manager', 'employee'],
   settings: ['admin'],
 };
 
-export const canAccess = (role, resource) => {
-  return ROLE_ACCESS[resource]?.includes(role) ?? false;
+export const canAccess = (role, permission) => {
+  if (!role) return false;
+  return (ROLE_ACCESS[permission] || []).includes(role);
 };
