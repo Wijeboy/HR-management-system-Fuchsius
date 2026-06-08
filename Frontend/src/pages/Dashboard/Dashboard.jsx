@@ -1,6 +1,12 @@
-/* eslint-disable react/prop-types */
-import { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import apiClient from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { leaveService } from '../../services/leaveService';
+import { recruitmentService } from '../../services/recruitmentService';
+import { userService } from '../../services/userService';
+
+const POLL_INTERVAL_MS = 30000;
+
 const formatCurrencyCompact = (value) => {
   const amount = Number(value || 0);
   return new Intl.NumberFormat('en-US', {
@@ -13,240 +19,359 @@ const formatCurrencyCompact = (value) => {
 
 const formatCount = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
 
-const mockDashboard = {
-  metrics: [
-    { label: 'Total Employees', value: 1248, change: '+12%', icon: 'group', tone: 'emerald' },
-    { label: 'Monthly Payroll', value: 4200000, change: '+2.4%', icon: 'attach_money', tone: 'emerald', format: 'currency' },
-    { label: 'Active Requests', value: 145, change: '-5%', icon: 'pending_actions', tone: 'rose' },
-    { label: 'Open Positions', value: 12, change: '0%', icon: 'person_add', tone: 'slate' },
-  ],
-  departments: [
-    { name: 'Eng', count: 42, height: 54, tone: 'indigo' },
-    { name: 'Sales', count: 58, height: 78, tone: 'purple' },
-    { name: 'Mkt', count: 24, height: 36, tone: 'violet' },
-    { name: 'Ops', count: 67, height: 96, tone: 'purpleDark' },
-    { name: 'HR', count: 81, height: 120, tone: 'indigoDeep' },
-  ],
-  payrollTrend: [
-    { month: 'Jan', value: 28 },
-    { month: 'Feb', value: 27 },
-    { month: 'Mar', value: 30 },
-    { month: 'Apr', value: 33 },
-    { month: 'May', value: 35 },
-    { month: 'Jun', value: 36 },
-  ],
-  requests: [
-    { initials: 'SJ', name: 'Sarah Jenkins', type: 'Time Off', department: 'Engineering', date: 'Oct 24, 2023', status: 'Pending', action: 'Review' },
-    { initials: 'MR', name: 'Michael Ross', type: 'Expense', department: 'Sales', date: 'Oct 23, 2023', status: 'Approved', action: 'Details' },
-    { initials: 'AC', name: 'Anika Chen', type: 'Shift Change', department: 'Operations', date: 'Oct 22, 2023', status: 'Pending', action: 'Review' },
-    { initials: 'DP', name: 'Daniel Park', type: 'Leave', department: 'HR', date: 'Oct 21, 2023', status: 'Approved', action: 'Details' },
-  ],
+const buildDelta = (current, previous) => {
+  const curr = Number(current || 0);
+  const prev = Number(previous || 0);
+  if (prev <= 0) {
+    return { pct: 0, direction: 'flat' };
+  }
+
+  const raw = ((curr - prev) / prev) * 100;
+  const pct = Number(Math.abs(raw).toFixed(1));
+  const direction = raw > 0 ? 'up' : raw < 0 ? 'down' : 'flat';
+  return { pct, direction };
 };
 
-const statusPillClass = (status) => {
-  if (status === 'Approved') return 'bg-emerald-100 text-emerald-700';
-  if (status === 'Pending') return 'bg-amber-100 text-amber-700';
-  if (status === 'Rejected') return 'bg-rose-100 text-rose-700';
-  return 'bg-slate-100 text-slate-700';
-};
+const formatRelativeTime = (value) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
 
-const MetricCard = ({ label, value, change, icon, tone, format }) => {
-  const toneClasses = {
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    rose: 'bg-rose-50 text-rose-700 ring-rose-100',
-    slate: 'bg-slate-50 text-slate-700 ring-slate-100',
-  };
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_1px_rgba(15,23,42,0.03)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <div className="mt-3 flex items-end gap-3">
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {format === 'currency' ? formatCurrencyCompact(value) : formatCount(value)}
-            </span>
-            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${toneClasses[tone] || toneClasses.slate}`}>
-              {change}
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-slate-500">vs. last month</p>
-        </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-50 text-slate-500">
-          <span className="material-symbols-outlined text-[20px]">{icon}</span>
-        </div>
-      </div>
-    </div>
-  );
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs > 1 ? 's' : ''} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
 };
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [currentMetrics, setCurrentMetrics] = useState({
+    totalEmployees: 0,
+    monthlyPayroll: 0,
+    activeRequests: 0,
+    openPositions: 0,
+  });
+  const [previousMetrics, setPreviousMetrics] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
-  const dashboard = useMemo(() => mockDashboard, []);
-  const welcomeName = user?.name || 'Admin';
-  const roleLabel = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Admin';
+  const activityColorClasses = {
+    blue: { bg: 'bg-blue-50', text: 'text-blue-600' },
+    green: { bg: 'bg-green-50', text: 'text-green-600' },
+    purple: { bg: 'bg-purple-50', text: 'text-purple-600' },
+    orange: { bg: 'bg-orange-50', text: 'text-orange-600' },
+  };
 
-  const payrollPath = dashboard.payrollTrend;
-  const chartHeight = 180;
-  const chartWidth = 620;
-  const padding = 20;
-  const maxTrend = Math.max(...payrollPath.map((point) => point.value));
-  const minTrend = Math.min(...payrollPath.map((point) => point.value));
-  const trendRange = Math.max(maxTrend - minTrend, 1);
-  const pointStep = (chartWidth - padding * 2) / (payrollPath.length - 1);
+  const deptDotClasses = {
+    indigo: 'bg-indigo-500',
+    blue: 'bg-blue-500',
+    green: 'bg-green-500',
+    purple: 'bg-purple-500',
+    orange: 'bg-orange-500',
+  };
 
-  const linePoints = payrollPath
-    .map((point, index) => {
-      const x = padding + index * pointStep;
-      const normalized = (point.value - minTrend) / trendRange;
-      const y = chartHeight - padding - normalized * (chartHeight - padding * 2);
-      return `${x},${y}`;
-    })
-    .join(' ');
+  const fetchDashboard = useCallback(async () => {
+    try {
+      const [usersRes, payrollRes, pendingRes, approvedRes, rejectedRes, jobsRes] = await Promise.all([
+        userService.getUsers(),
+        apiClient.get('/payroll/records', { params: { page: 1, limit: 300 } }),
+        leaveService.getPending(1, 100),
+        leaveService.getApproved(1, 100),
+        leaveService.getRejected(1, 100),
+        recruitmentService.getAllJobs().catch(() => ({ data: { records: [], jobs: [] } })),
+      ]);
 
-  const areaPoints = `${padding},${chartHeight - padding} ${linePoints} ${chartWidth - padding},${chartHeight - padding}`;
+      const users = usersRes?.data?.users || [];
+      const totalEmployees = usersRes?.data?.total ?? users.length;
+
+      const payrollSummary = payrollRes?.data?.summary || {};
+      const monthlyPayroll = Number(payrollSummary.totalNet || 0);
+
+      const pending = pendingRes?.data || {};
+      const approved = approvedRes?.data || {};
+      const rejected = rejectedRes?.data || {};
+
+      const pendingTotal = Number(pending.total || 0);
+      const activeRequests = pendingTotal;
+
+      const jobs = jobsRes?.data?.records || jobsRes?.data?.jobs || jobsRes?.data?.data || [];
+      const openPositions = Array.isArray(jobs) ? jobs.length : 0;
+
+      const metricSnapshot = {
+        totalEmployees,
+        monthlyPayroll,
+        activeRequests,
+        openPositions,
+      };
+
+      setPreviousMetrics((prev) => prev || metricSnapshot);
+      setCurrentMetrics(metricSnapshot);
+
+      const departmentMap = users.reduce((acc, user) => {
+        const key = user.department || 'Unassigned';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+
+      const deptRows = Object.entries(departmentMap)
+        .map(([name, count], idx) => ({
+          name,
+          count,
+          color: ['indigo', 'blue', 'green', 'purple', 'orange'][idx % 5],
+          change: '+0',
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      setDepartments(deptRows);
+
+      const leaveActivities = [
+        ...(pending.records || []).map((item) => ({
+          user: item.employeeName,
+          action: `submitted a ${item.leaveType} leave request`,
+          time: formatRelativeTime(item.createdAt),
+          sortTime: item.createdAt,
+          icon: 'calendar_today',
+          color: 'blue',
+        })),
+        ...(approved.records || []).map((item) => ({
+          user: item.employeeName,
+          action: `leave request approved`,
+          time: formatRelativeTime(item.reviewedAt || item.updatedAt),
+          sortTime: item.reviewedAt || item.updatedAt,
+          icon: 'check_circle',
+          color: 'green',
+        })),
+        ...(rejected.records || []).map((item) => ({
+          user: item.employeeName,
+          action: `leave request rejected`,
+          time: formatRelativeTime(item.reviewedAt || item.updatedAt),
+          sortTime: item.reviewedAt || item.updatedAt,
+          icon: 'cancel',
+          color: 'orange',
+        })),
+      ]
+        .sort((a, b) => new Date(b.sortTime || 0) - new Date(a.sortTime || 0))
+        .slice(0, 4);
+
+      setActivities(leaveActivities);
+      setLastUpdated(new Date());
+      setLoadError('');
+    } catch {
+      setLoadError('Unable to load real-time dashboard data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboard();
+    const poll = setInterval(fetchDashboard, POLL_INTERVAL_MS);
+    return () => clearInterval(poll);
+  }, [fetchDashboard]);
+
+  const deltas = useMemo(() => {
+    const previous = previousMetrics || currentMetrics;
+    return {
+      totalEmployees: buildDelta(currentMetrics.totalEmployees, previous.totalEmployees),
+      monthlyPayroll: buildDelta(currentMetrics.monthlyPayroll, previous.monthlyPayroll),
+      activeRequests: buildDelta(currentMetrics.activeRequests, previous.activeRequests),
+      openPositions: buildDelta(currentMetrics.openPositions, previous.openPositions),
+    };
+  }, [currentMetrics, previousMetrics]);
+
+  const deltaBadge = (delta) => {
+    if (delta.direction === 'up') {
+      return {
+        className: 'bg-emerald-100 text-emerald-800',
+        icon: 'trending_up',
+        label: `${delta.pct}%`,
+      };
+    }
+    if (delta.direction === 'down') {
+      return {
+        className: 'bg-rose-100 text-rose-800',
+        icon: 'trending_down',
+        label: `${delta.pct}%`,
+      };
+    }
+    return {
+      className: 'bg-slate-100 text-slate-800',
+      icon: 'remove',
+      label: '0%',
+    };
+  };
+
+  const totalEmployeesDelta = deltaBadge(deltas.totalEmployees);
+  const payrollDelta = deltaBadge(deltas.monthlyPayroll);
+  const requestsDelta = deltaBadge(deltas.activeRequests);
+  const positionsDelta = deltaBadge(deltas.openPositions);
+
+  const roleLabel = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User';
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200 bg-white/70 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Dashboard Overview</h1>
-            <p className="mt-2 text-sm text-slate-500">Welcome back, {welcomeName}. Here&apos;s what&apos;s happening today.</p>
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard Overview</h2>
+        <p className="text-gray-500">Welcome back, {user?.name || roleLabel}. Here&apos;s what&apos;s happening for {roleLabel} today.</p>
+        <p className="text-xs text-gray-400">
+          {lastUpdated ? `Last updated ${formatRelativeTime(lastUpdated)}` : 'Loading...'}
+          {loadError ? ` • ${loadError}` : ''}
+        </p>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Card 1 - Total Employees */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-500">Total Employees</p>
+            <span className="material-symbols-outlined text-gray-500">group</span>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            {roleLabel} workspace active
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">{isLoading ? '...' : formatCount(currentMetrics.totalEmployees)}</span>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${totalEmployeesDelta.className}`}>
+              <span className="material-symbols-outlined text-[14px] mr-0.5">{totalEmployeesDelta.icon}</span>
+              {totalEmployeesDelta.label}
+            </span>
           </div>
+          <p className="mt-1 text-xs text-gray-500">vs. previous refresh</p>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {dashboard.metrics.map((metric) => (
-            <MetricCard key={metric.label} {...metric} />
-          ))}
+        {/* Card 2 - Monthly Payroll */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-500">Monthly Payroll</p>
+            <span className="material-symbols-outlined text-gray-500">attach_money</span>
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">{isLoading ? '...' : formatCurrencyCompact(currentMetrics.monthlyPayroll)}</span>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${payrollDelta.className}`}>
+              <span className="material-symbols-outlined text-[14px] mr-0.5">{payrollDelta.icon}</span>
+              {payrollDelta.label}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-gray-500">sum of payroll records</p>
+        </div>
+
+        {/* Card 3 - Active Requests */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-500">Active Requests</p>
+            <span className="material-symbols-outlined text-gray-500">pending_actions</span>
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">{isLoading ? '...' : formatCount(currentMetrics.activeRequests)}</span>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${requestsDelta.className}`}>
+              <span className="material-symbols-outlined text-[14px] mr-0.5">{requestsDelta.icon}</span>
+              {requestsDelta.label}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-gray-500">pending leave requests</p>
+        </div>
+
+        {/* Card 4 - Open Positions */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-500">Open Positions</p>
+            <span className="material-symbols-outlined text-gray-500">person_add</span>
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">{isLoading ? '...' : formatCount(currentMetrics.openPositions)}</span>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${positionsDelta.className}`}>
+              <span className="material-symbols-outlined text-[14px] mr-0.5">{positionsDelta.icon}</span>
+              {positionsDelta.label}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-gray-500">live recruitment jobs</p>
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.35fr]">
-        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Department Headcount</h2>
-              <p className="mt-1 text-sm text-slate-500">Live distribution across the company</p>
-            </div>
-            <button className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
-              <span className="material-symbols-outlined text-[18px] align-middle">more_horiz</span>
-            </button>
+      {/* Charts and Tables Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Activities */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold text-gray-900">Recent Activities</h2>
+            <button className="text-sm text-indigo-600 hover:text-indigo-700">View All</button>
           </div>
-
-          <div className="mt-8 grid h-[280px] grid-cols-5 items-end gap-1 px-1 sm:gap-2">
-            {dashboard.departments.map((dept) => (
-              <div key={dept.name} className="flex flex-col items-center justify-end gap-1.5">
-                <div className="flex h-7 items-end">
-                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold leading-none text-slate-600">
-                    {dept.count}
-                  </span>
+          <div className="space-y-4">
+            {activities.length === 0 ? (
+              <p className="text-sm text-gray-400">No recent activity data</p>
+            ) : activities.map((activity, idx) => (
+              <div key={idx} className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full ${activityColorClasses[activity.color]?.bg || 'bg-slate-50'}`}>
+                  <span className={`material-symbols-outlined ${activityColorClasses[activity.color]?.text || 'text-slate-600'}`}>{activity.icon}</span>
                 </div>
-                <div className="relative flex w-full justify-center">
-                  <div
-                    className={`w-full max-w-[44px] rounded-t-[18px] bg-gradient-to-t shadow-[0_10px_24px_rgba(99,102,241,0.12)] ${
-                      dept.tone === 'indigo'
-                        ? 'from-indigo-200 to-indigo-300'
-                        : dept.tone === 'purple'
-                          ? 'from-violet-300 to-indigo-500'
-                          : dept.tone === 'violet'
-                            ? 'from-violet-100 to-violet-200'
-                            : dept.tone === 'purpleDark'
-                              ? 'from-indigo-400 to-indigo-500'
-                              : 'from-indigo-500 to-violet-600'
-                    }`}
-                    style={{ height: `${dept.height}px` }}
-                  />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">{activity.user}</p>
+                  <p className="text-xs text-gray-500">{activity.action}</p>
                 </div>
-                      <p className="text-xs font-semibold tracking-tight text-slate-500">{dept.name}</p>
+                <span className="text-xs text-gray-400">{activity.time}</span>
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Payroll Trends (YTD)</h2>
-              <p className="mt-1 text-sm text-slate-500">Total Spend: $38,402,000</p>
-            </div>
-            <select className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
-              <option>Last 6 Months</option>
-            </select>
+        {/* Quick Stats */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold text-gray-900">Department Overview</h2>
+            <button className="text-sm text-indigo-600 hover:text-indigo-700">View All</button>
           </div>
-
-          <div className="mt-6 overflow-hidden rounded-2xl bg-gradient-to-b from-indigo-50/70 to-white p-4">
-            <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="h-[240px] w-full">
-              <defs>
-                <linearGradient id="payrollArea" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.24" />
-                  <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <line x1="20" y1="160" x2="600" y2="160" stroke="#e2e8f0" strokeDasharray="4 6" />
-              <line x1="20" y1="115" x2="600" y2="115" stroke="#eef2ff" />
-              <polygon points={areaPoints} fill="url(#payrollArea)" />
-              <polyline points={linePoints} fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              {payrollPath.map((point, index) => {
-                const x = padding + index * pointStep;
-                const normalized = (point.value - minTrend) / trendRange;
-                const y = chartHeight - padding - normalized * (chartHeight - padding * 2);
-                return <circle key={point.month} cx={x} cy={y} r="3.5" fill="#fff" stroke="#6366f1" strokeWidth="2" />;
-              })}
-              {payrollPath.map((point, index) => (
-                <text key={point.month} x={padding + index * pointStep} y={chartHeight - 4} textAnchor="middle" className="fill-slate-500 text-[11px] font-medium">
-                  {point.month}
-                </text>
-              ))}
-            </svg>
+          <div className="space-y-4">
+            {departments.length === 0 ? (
+              <p className="text-sm text-gray-400">No department data available</p>
+            ) : departments.map((dept, idx) => (
+              <div key={idx} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${deptDotClasses[dept.color] || 'bg-slate-500'}`}></div>
+                  <span className="text-sm font-medium text-gray-900">{dept.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-gray-900">{dept.count}</span>
+                  <span className="text-xs text-green-600 font-medium">{dept.change}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
       </div>
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">Recent Requests</h2>
-            <p className="mt-1 text-sm text-slate-500">Latest activity across the organization</p>
-          </div>
-          <button className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">View All</button>
-        </div>
-
-        <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200">
-          <div className="grid grid-cols-6 gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-            <span className="col-span-2">Employee</span>
-            <span>Type</span>
-            <span>Department</span>
-            <span>Date</span>
-            <span>Status</span>
-          </div>
-          {dashboard.requests.map((request) => (
-            <div key={`${request.name}-${request.date}`} className="grid grid-cols-6 items-center gap-4 border-b border-slate-100 px-4 py-4 last:border-b-0 hover:bg-slate-50/60">
-              <div className="col-span-2 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
-                  {request.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{request.name}</p>
-                </div>
-              </div>
-              <div className="text-sm text-slate-600">{request.type}</div>
-              <div className="text-sm text-slate-600">{request.department}</div>
-              <div className="text-sm text-slate-600">{request.date}</div>
-              <div className="flex items-center justify-between gap-3">
-                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusPillClass(request.status)}`}>{request.status}</span>
-                <button className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">{request.action}</button>
+      {/* Announcements */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Announcements</h2>
+        <div className="space-y-3">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-blue-600">campaign</span>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-gray-900">Company All-Hands Meeting</h3>
+                <p className="text-sm text-gray-600 mt-1">Join us this Friday at 3 PM for our quarterly company update.</p>
+                <p className="text-xs text-gray-500 mt-2">Posted 2 days ago</p>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-green-600">celebration</span>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-gray-900">New Employee Benefits</h3>
+                <p className="text-sm text-gray-600 mt-1">We&apos;re excited to announce enhanced health insurance and wellness programs.</p>
+                <p className="text-xs text-gray-500 mt-2">Posted 1 week ago</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 const sections = [
   {
@@ -49,12 +48,6 @@ const PerformanceSectionTabs = ({ title, description, helper }) => {
       </div>
     </div>
   );
-};
-
-PerformanceSectionTabs.propTypes = {
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  helper: PropTypes.node,
 };
 
 export default PerformanceSectionTabs;
