@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Payroll Employees
+method: GET
+url: '{{baseUrl}}/api/payroll/employees'
+order: 1000

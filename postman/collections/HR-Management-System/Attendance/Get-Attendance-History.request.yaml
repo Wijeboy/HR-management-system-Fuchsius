@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Attendance History
+method: GET
+url: '{{baseUrl}}/api/attendance/history/{{employeeId}}'
+order: 4000

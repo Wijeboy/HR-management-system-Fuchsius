@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /**
  * InterviewSchedule Model
@@ -24,4 +24,4 @@ const interviewScheduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('InterviewSchedule', interviewScheduleSchema);
+export default mongoose.model('InterviewSchedule', interviewScheduleSchema);

@@ -1,4 +1,4 @@
-const Notification = require('../models/Notification');
+import Notification from '../models/Notification.js';
 
 /**
  * GET /api/notifications/:userId?role=
@@ -42,4 +42,4 @@ const markAllRead = async (req, res) => {
   }
 };
 
-module.exports = { getNotifications, markRead, markAllRead };
+export default { getNotifications, markRead, markAllRead };

@@ -1,0 +1,5 @@
+$kind: http-request
+name: Download Job Attachment
+method: GET
+url: '{{baseUrl}}/api/recruitment/jobs/{{jobId}}/attachment'
+order: 3000

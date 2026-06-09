@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get Rejected Leaves (HR)'
+method: GET
+url: '{{baseUrl}}/api/leave/rejected'
+order: 8000

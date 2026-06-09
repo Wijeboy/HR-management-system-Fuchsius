@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
 
 const sanitizeUser = (user) => ({
   id: user.id,
@@ -161,7 +161,7 @@ const deleteUserByEmployeeId = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   listUsers,
   getUserByEmployeeId,
   createUser,

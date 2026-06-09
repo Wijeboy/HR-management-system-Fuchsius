@@ -1,0 +1,21 @@
+$kind: http-request
+name: Apply for Job
+method: POST
+url: '{{baseUrl}}/api/recruitment/apply/{{jobPostingId}}'
+order: 7000
+body:
+  type: formdata
+  content:
+    - key: name
+      type: text
+      value: ''
+    - key: email
+      type: text
+      value: ''
+    - key: phone
+      type: text
+      value: ''
+    - key: cv
+      type: file
+      src: ''
+      description: CV in PDF format

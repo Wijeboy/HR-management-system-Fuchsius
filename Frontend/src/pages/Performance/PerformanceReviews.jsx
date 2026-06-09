@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import apiClient from '../../services/api';
 import PerformanceSectionTabs from '../../components/PerformanceSectionTabs';
+import { userService } from '../../services/userService';
 
 const getDefaultCycle = () => {
   const now = new Date();
@@ -110,9 +111,9 @@ const PerformanceReviews = () => {
       setEmployeeLoadError('');
 
       try {
-        const response = await apiClient.get('/payroll/employees');
+        const response = await userService.getUsers();
         if (!isActive) return;
-        setEmployees(response.data?.data || []);
+        setEmployees(response.data?.users || []);
       } catch (requestError) {
         if (!isActive) return;
         setEmployees([]);
@@ -136,7 +137,7 @@ const PerformanceReviews = () => {
   }, [cycles, form.cycle]);
 
   const selectedEmployee = useMemo(
-    () => employees.find((employee) => employee.id === form.employeeId) || null,
+    () => employees.find((employee) => employee.employeeId === form.employeeId) || null,
     [employees, form.employeeId]
   );
 
@@ -199,7 +200,7 @@ const PerformanceReviews = () => {
 
   const handleEmployeeSelect = (event) => {
     const nextEmployeeId = event.target.value;
-    const employee = employees.find((item) => item.id === nextEmployeeId) || null;
+    const employee = employees.find((item) => item.employeeId === nextEmployeeId) || null;
 
     setForm((prev) => ({
       ...prev,
@@ -305,8 +306,8 @@ const PerformanceReviews = () => {
                       {loadingEmployees ? 'Loading employees...' : employees.length === 0 ? 'No employees found' : 'Select employee'}
                     </option>
                     {employees.map((employee) => (
-                      <option key={employee.id} value={employee.id}>
-                        {employee.name} ({employee.id})
+                      <option key={employee.id || employee.employeeId} value={employee.employeeId}>
+                        {employee.name} ({employee.employeeId})
                       </option>
                     ))}
                   </select>

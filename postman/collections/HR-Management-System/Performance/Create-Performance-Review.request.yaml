@@ -1,0 +1,17 @@
+$kind: http-request
+name: Create Performance Review
+method: POST
+url: '{{baseUrl}}/api/performance/reviews'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "employeeId": "EMP001",
+      "reviewPeriod": "Q2 2025",
+      "rating": 4,
+      "comments": "Good performance"
+    }

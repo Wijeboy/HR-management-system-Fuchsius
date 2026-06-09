@@ -1,8 +1,8 @@
-const LeaveRequest = require('../models/LeaveRequest');
-const LeaveBalance = require('../models/LeaveBalance');
-const Notification = require('../models/Notification');
-const User = require('../models/User');
-const { defaultLeaveBalances } = require('../data/dummyData');
+import LeaveRequest from '../models/LeaveRequest.js';
+import LeaveBalance from '../models/LeaveBalance.js';
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
+import { defaultLeaveBalances } from '../data/dummyData.js';
 
 /**
  * LeaveService
@@ -294,7 +294,7 @@ const getApprovedLeaveEmployeeIdsForDate = async (dateStr) => {
   return requests.map((r) => r.employeeId);
 };
 
-module.exports = {
+export default {
   submitLeave,
   updateLeave,
   deleteLeave,

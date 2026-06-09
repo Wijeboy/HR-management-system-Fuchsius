@@ -1,0 +1,20 @@
+$kind: http-request
+name: Update Leave Request
+method: PUT
+url: '{{baseUrl}}/api/leave/{{leaveId}}'
+order: 2000
+body:
+  type: formdata
+  content:
+    - key: leaveType
+      type: text
+      value: ''
+    - key: startDate
+      type: text
+      value: ''
+    - key: endDate
+      type: text
+      value: ''
+    - key: reason
+      type: text
+      value: ''

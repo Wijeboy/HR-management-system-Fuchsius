@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Reject Leave (HR)'
+method: POST
+url: '{{baseUrl}}/api/leave/{{leaveId}}/reject'
+order: 10000

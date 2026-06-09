@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Payslip by ID
+method: GET
+url: '{{baseUrl}}/api/payroll/payslips/{{payslipId}}'
+order: 5000

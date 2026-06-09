@@ -1,0 +1,5 @@
+$kind: http-request
+name: "Get Today's Status"
+method: GET
+url: '{{baseUrl}}/api/attendance/today/{{employeeId}}'
+order: 3000

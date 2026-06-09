@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Approve Leave (HR)'
+method: POST
+url: '{{baseUrl}}/api/leave/{{leaveId}}/approve'
+order: 9000

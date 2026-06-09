@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get Daily Stats (HR)'
+method: GET
+url: '{{baseUrl}}/api/attendance/stats'
+order: 7000

@@ -11,7 +11,7 @@ const seedEmployees = [
 export const getEmployees = () => {
   try {
     const raw = localStorage.getItem(EMPLOYEE_STORE_KEY);
-    if (!raw) {
+    if (!raw) { 
       localStorage.setItem(EMPLOYEE_STORE_KEY, JSON.stringify(seedEmployees));
       return seedEmployees;
     }

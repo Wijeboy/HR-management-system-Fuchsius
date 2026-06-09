@@ -1,0 +1,17 @@
+$kind: http-request
+name: Update Job Posting
+method: PUT
+url: '{{baseUrl}}/api/recruitment/jobs/{{jobId}}'
+order: 5000
+body:
+  type: formdata
+  content:
+    - key: title
+      type: text
+      value: ''
+    - key: department
+      type: text
+      value: ''
+    - key: description
+      type: text
+      value: ''

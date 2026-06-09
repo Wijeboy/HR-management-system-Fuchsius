@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /**
  * LeaveRequest Model
@@ -40,4 +40,4 @@ const leaveRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('LeaveRequest', leaveRequestSchema);
+export default mongoose.model('LeaveRequest', leaveRequestSchema);

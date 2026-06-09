@@ -1,0 +1,28 @@
+$kind: collection
+name: HR Management System
+variables:
+  - key: baseUrl
+    value: 'http://localhost:5020'
+  - key: employeeId
+    value: 'EMP001'
+  - key: leaveId
+    value: ''
+  - key: jobId
+    value: ''
+  - key: jobPostingId
+    value: ''
+  - key: applicantId
+    value: ''
+  - key: notificationId
+    value: ''
+  - key: userId
+    value: 'EMP001'
+  - key: payslipId
+    value: ''
+  - key: goalId
+    value: ''
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'

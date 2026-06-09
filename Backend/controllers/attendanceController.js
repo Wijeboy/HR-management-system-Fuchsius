@@ -1,5 +1,5 @@
-const attendanceService = require('../services/attendanceService');
-const leaveService = require('../services/leaveService');
+import attendanceService from '../services/attendanceService.js';
+import leaveService from '../services/leaveService.js';
 
 /**
  * POST /api/attendance/checkin
@@ -119,4 +119,4 @@ const getDailyStats = async (req, res) => {
   }
 };
 
-module.exports = { checkIn, checkOut, getTodayStatus, getHistory, getWeekly, getDailyAttendance, getDailyStats };
+export default { checkIn, checkOut, getTodayStatus, getHistory, getWeekly, getDailyAttendance, getDailyStats };

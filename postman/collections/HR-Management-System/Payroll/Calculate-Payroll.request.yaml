@@ -1,0 +1,15 @@
+$kind: http-request
+name: Calculate Payroll
+method: POST
+url: '{{baseUrl}}/api/payroll/calculate'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "month": 6,
+      "year": 2025
+    }

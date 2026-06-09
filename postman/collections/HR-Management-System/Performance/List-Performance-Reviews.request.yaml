@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Performance Reviews
+method: GET
+url: '{{baseUrl}}/api/performance/reviews'
+order: 1000

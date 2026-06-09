@@ -3,11 +3,11 @@ export const getDefaultRouteForRole = (role) => {
     case 'admin':
       return '/dashboard';
     case 'hr':
-      return '/leave/manage';
+      return '/dashboard';
     case 'manager':
-      return '/attendance/reports';
+      return '/dashboard';
     case 'employee':
-      return '/attendance';
+      return '/dashboard';
     default:
       return '/dashboard';
   }

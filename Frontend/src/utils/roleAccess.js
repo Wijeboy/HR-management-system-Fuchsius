@@ -10,7 +10,7 @@ export const ROLE_ACCESS = {
   leaveRequests: ['admin', 'hr', 'manager', 'employee'],
   leaveBalance: ['admin', 'hr', 'manager', 'employee'],
   leaveApply: ['admin', 'hr', 'manager', 'employee'],
-  leaveManage: ['admin', 'hr'],
+  leaveManage: ['admin', 'hr', 'manager'],
 
   payrollView: ['admin', 'hr', 'manager', 'employee'],
   payrollGenerate: ['admin', 'hr'],

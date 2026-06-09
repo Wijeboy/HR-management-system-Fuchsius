@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import ctrl from '../controllers/attendanceController.js';
+
 const router = express.Router();
-const ctrl = require('../controllers/attendanceController');
 
 // Employee routes
 router.post('/checkin', ctrl.checkIn);
@@ -13,4 +14,4 @@ router.get('/weekly/:employeeId', ctrl.getWeekly);
 router.get('/daily', ctrl.getDailyAttendance);
 router.get('/stats', ctrl.getDailyStats);
 
-module.exports = router;
+export default router;

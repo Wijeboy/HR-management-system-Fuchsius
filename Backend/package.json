@@ -15,10 +15,11 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.2",
     "morgan": "^1.10.0",
     "multer": "^2.1.1"

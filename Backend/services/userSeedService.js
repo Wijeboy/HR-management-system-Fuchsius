@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
 
 const DEFAULT_USERS = [
   {
@@ -66,4 +66,4 @@ const seedDefaultUsers = async () => {
   }
 };
 
-module.exports = { seedDefaultUsers };
+export default { seedDefaultUsers };

@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get Pending Leaves (HR)'
+method: GET
+url: '{{baseUrl}}/api/leave/pending'
+order: 6000

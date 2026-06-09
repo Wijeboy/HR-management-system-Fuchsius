@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import bcrypt from "bcryptjs";
 
 const defaultUsers = [
   {
@@ -61,49 +62,65 @@ export const ensureSystemUsers = async () => {
   });
 
   for (const seedUser of defaultUsers) {
-    const byEmail = existingUsers.find((user) => normalizeEmail(user.email) === normalizeEmail(seedUser.email));
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const byEmail = existingUsers.find((user) => normalizeEmail(user.email) === normalizeEmail(seedUser.email));
 
-    if (byEmail) {
-      await prisma.user.update({
-        where: { id: byEmail.id },
-        data: {
-          password: seedUser.password,
-          role: seedUser.role,
-          name: seedUser.name,
-          department: seedUser.department,
-          isActive: true,
-        },
-      });
-      continue;
+        const hashedPassword = await bcrypt.hash(seedUser.password, 10);
+
+        if (byEmail) {
+          await prisma.user.update({
+            where: { id: byEmail.id },
+            data: {
+              password: hashedPassword,
+              role: seedUser.role,
+              name: seedUser.name,
+              department: seedUser.department,
+              isActive: true,
+            },
+          });
+          break;
+        }
+
+        const preferredEmployeeIdInUse = existingUsers.some((user) => user.employeeId === seedUser.employeeId);
+        const employeeId = preferredEmployeeIdInUse ? nextEmployeeId(existingUsers) : seedUser.employeeId;
+
+        const created = await prisma.user.create({
+          data: {
+            id: `user_${seedUser.role}_${Date.now()}_${Math.floor(Math.random() * 100000)}`,
+            employeeId,
+            name: seedUser.name,
+            email: seedUser.email,
+            password: hashedPassword,
+            role: seedUser.role,
+            department: seedUser.department,
+            jobTitle: "",
+            phone: "",
+            location: "",
+            isActive: true,
+          },
+        });
+
+        existingUsers.push({
+          id: created.id,
+          email: created.email,
+          employeeId: created.employeeId,
+          name: created.name,
+          role: created.role,
+          department: created.department,
+          isActive: created.isActive,
+        });
+        break;
+      } catch (error) {
+        if (error.code === 'P2034') {
+          retries -= 1;
+          if (retries === 0) throw error;
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 500));
+        } else {
+          throw error;
+        }
+      }
     }
-
-    const preferredEmployeeIdInUse = existingUsers.some((user) => user.employeeId === seedUser.employeeId);
-    const employeeId = preferredEmployeeIdInUse ? nextEmployeeId(existingUsers) : seedUser.employeeId;
-
-    const created = await prisma.user.create({
-      data: {
-        id: `user_${seedUser.role}_${Date.now()}_${Math.floor(Math.random() * 100000)}`,
-        employeeId,
-        name: seedUser.name,
-        email: seedUser.email,
-        password: seedUser.password,
-        role: seedUser.role,
-        department: seedUser.department,
-        jobTitle: "",
-        phone: "",
-        location: "",
-        isActive: true,
-      },
-    });
-
-    existingUsers.push({
-      id: created.id,
-      email: created.email,
-      employeeId: created.employeeId,
-      name: created.name,
-      role: created.role,
-      department: created.department,
-      isActive: created.isActive,
-    });
   }
 };

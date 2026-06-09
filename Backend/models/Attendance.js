@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /**
  * AttendanceRecord Model
@@ -33,4 +33,4 @@ const attendanceSchema = new mongoose.Schema(
 // Compound index: one record per employee per day
 attendanceSchema.index({ employeeId: 1, date: 1 }, { unique: true });
 
-module.exports = mongoose.model('Attendance', attendanceSchema);
+export default mongoose.model('Attendance', attendanceSchema);

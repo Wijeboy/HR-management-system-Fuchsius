@@ -1,0 +1,14 @@
+$kind: http-request
+name: Update Goal Progress
+method: PATCH
+url: '{{baseUrl}}/api/performance/goals/{{goalId}}/current'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "current": 50
+    }

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Check Out
+method: POST
+url: '{{baseUrl}}/api/attendance/checkout'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "employeeId": "EMP001"
+    }

@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get All Applicants
+method: GET
+url: '{{baseUrl}}/api/recruitment/applicants'
+order: 8000

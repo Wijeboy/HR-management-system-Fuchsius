@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -49,12 +49,15 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Allow plain-text password fallback during development phase, 
+    // then check against bcrypt hash
+    const isPasswordValid = password === user.password || await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    if (role && user.role !== role) {
+    // Make role validation case-insensitive to handle 'Admin' vs 'admin'
+    if (role && String(user.role).toLowerCase() !== String(role).toLowerCase()) {
       return res.status(401).json({ message: `Selected role does not match account role (${user.role})` });
     }
 
@@ -79,7 +82,7 @@ const logout = async (req, res) => {
   return res.json({ success: true });
 };
 
-module.exports = {
+export default {
   login,
   getMe,
   logout,

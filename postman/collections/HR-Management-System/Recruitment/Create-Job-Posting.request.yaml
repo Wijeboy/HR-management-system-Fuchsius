@@ -1,0 +1,27 @@
+$kind: http-request
+name: Create Job Posting
+method: POST
+url: '{{baseUrl}}/api/recruitment/jobs'
+order: 4000
+body:
+  type: formdata
+  content:
+    - key: title
+      type: text
+      value: ''
+    - key: department
+      type: text
+      value: ''
+    - key: description
+      type: text
+      value: ''
+    - key: requirements
+      type: text
+      value: ''
+    - key: deadline
+      type: text
+      value: ''
+    - key: attachment
+      type: file
+      src: ''
+      description: PDF attachment

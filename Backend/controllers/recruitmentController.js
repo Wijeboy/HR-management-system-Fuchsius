@@ -1,4 +1,4 @@
-const recruitmentService = require('../services/recruitmentService');
+import recruitmentService from '../services/recruitmentService.js';
 
 // ── Job Postings ──────────────────────────────────────────────────────────────
 
@@ -146,7 +146,7 @@ const getEmployeeSchedules = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getAllJobs,
   getJobById,
   createJob,

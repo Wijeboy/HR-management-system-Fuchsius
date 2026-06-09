@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
 import { prisma } from "../../lib/prisma.js";
@@ -48,7 +49,8 @@ export const authService = {
       return { error: "Invalid email or password", status: 401 };
     }
 
-    if (String(user.password || "") !== passwordValue) {
+    const isPasswordValid = passwordValue === String(user.password) || await bcrypt.compare(passwordValue, String(user.password || ""));
+    if (!isPasswordValid) {
       return { error: "Invalid email or password", status: 401 };
     }
 
