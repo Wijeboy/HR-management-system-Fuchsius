@@ -10,6 +10,7 @@ const sanitizeUser = (user) => ({
   jobTitle: user.jobTitle || "",
   phone: user.phone || "",
   location: user.location || "",
+  profileImage: user.profileImage || "",
   status: user.isActive ? "Active" : "Inactive",
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
@@ -37,27 +38,29 @@ export const usersService = {
     let users = await prisma.user.findMany();
 
     if (department) {
-      users = users.filter((u) => u.department === department);
+      users = users.filter((user) => user.department === department);
     }
 
     if (role) {
-      users = users.filter((u) => u.role === role);
+      users = users.filter((user) => user.role === role);
     }
 
     if (status === "active") {
-      users = users.filter((u) => u.isActive);
+      users = users.filter((user) => user.isActive);
     } else if (status === "inactive") {
-      users = users.filter((u) => !u.isActive);
+      users = users.filter((user) => !user.isActive);
     }
 
     if (search) {
-      users = users.filter((u) => {
-        const haystack = `${u.name} ${u.email} ${u.employeeId} ${u.jobTitle || ""}`.toLowerCase();
+      users = users.filter((user) => {
+        const haystack = `${user.name} ${user.email} ${user.employeeId} ${user.jobTitle || ""}`.toLowerCase();
         return haystack.includes(search);
       });
     }
 
-    users.sort((a, b) => String(a.employeeId).localeCompare(String(b.employeeId)));
+    users.sort((a, b) =>
+      String(a.employeeId).localeCompare(String(b.employeeId))
+    );
 
     return {
       users: users.map(sanitizeUser),
@@ -66,7 +69,10 @@ export const usersService = {
   },
 
   async getByEmployeeId(employeeId) {
-    const user = await prisma.user.findUnique({ where: { employeeId } });
+    const user = await prisma.user.findUnique({
+      where: { employeeId },
+    });
+
     return user ? sanitizeUser(user) : null;
   },
 
@@ -78,23 +84,35 @@ export const usersService = {
     const department = String(payload.department || "").trim();
 
     if (!name || !email || !password || !role || !department) {
-      return { error: "name, email, password, role, and department are required", status: 400 };
+      return {
+        error: "name, email, password, role, and department are required",
+        status: 400,
+      };
     }
 
     const existingUsers = await prisma.user.findMany({
-      select: { employeeId: true, email: true },
+      select: {
+        employeeId: true,
+        email: true,
+      },
     });
 
-    if (existingUsers.some((u) => normalizeEmail(u.email) === email)) {
-      return { error: "Email already exists", status: 409 };
+    if (existingUsers.some((user) => normalizeEmail(user.email) === email)) {
+      return {
+        error: "Email already exists",
+        status: 409,
+      };
     }
 
     const employeeId = payload.employeeId || nextEmployeeIdFromUsers(existingUsers);
-    if (existingUsers.some((u) => u.employeeId === employeeId)) {
-      return { error: "Employee ID already exists", status: 409 };
+
+    if (existingUsers.some((user) => user.employeeId === employeeId)) {
+      return {
+        error: "Employee ID already exists",
+        status: 409,
+      };
     }
 
-    const now = new Date().toISOString();
     const userData = {
       id: `user_${role}_${Date.now()}`,
       employeeId,
@@ -106,64 +124,117 @@ export const usersService = {
       jobTitle: String(payload.jobTitle || "").trim(),
       phone: String(payload.phone || "").trim(),
       location: String(payload.location || "").trim(),
+      profileImage: String(payload.profileImage || "").trim() || null,
       isActive: String(payload.status || "Active").toLowerCase() !== "inactive",
-      createdAt: now,
-      updatedAt: now,
     };
 
-    const user = await prisma.user.create({ data: userData });
+    const user = await prisma.user.create({
+      data: userData,
+    });
 
-    return { user: sanitizeUser(user) };
+    return {
+      user: sanitizeUser(user),
+    };
   },
 
   async update(employeeId, payload) {
-    const user = await prisma.user.findUnique({ where: { employeeId } });
-
-    if (!user) return { error: "User not found", status: 404 };
-
-    if (payload.email && normalizeEmail(payload.email) !== normalizeEmail(user.email)) {
-      const existingUsers = await prisma.user.findMany({ select: { employeeId: true, email: true } });
-
-      const emailExists = existingUsers.some(
-        (u) => u.employeeId !== employeeId && normalizeEmail(u.email) === normalizeEmail(payload.email)
-      );
-      if (emailExists) return { error: "Email already exists", status: 409 };
-      user.email = normalizeEmail(payload.email);
-    }
-
-    if (payload.name !== undefined) user.name = String(payload.name).trim();
-    if (payload.role !== undefined) user.role = String(payload.role).trim();
-    if (payload.department !== undefined) user.department = String(payload.department).trim();
-    if (payload.jobTitle !== undefined) user.jobTitle = String(payload.jobTitle || "").trim();
-    if (payload.phone !== undefined) user.phone = String(payload.phone || "").trim();
-    if (payload.location !== undefined) user.location = String(payload.location || "").trim();
-    if (payload.status !== undefined) user.isActive = String(payload.status).toLowerCase() !== "inactive";
-    if (payload.password) user.password = String(payload.password);
-    const updated = await prisma.user.update({
+    const user = await prisma.user.findUnique({
       where: { employeeId },
-      data: {
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        role: user.role,
-        department: user.department,
-        jobTitle: user.jobTitle,
-        phone: user.phone,
-        location: user.location,
-        isActive: user.isActive,
-      },
     });
 
-    return { user: sanitizeUser(updated) };
+    if (!user) {
+      return {
+        error: "User not found",
+        status: 404,
+      };
+    }
+
+    const data = {};
+
+    if (payload.email && normalizeEmail(payload.email) !== normalizeEmail(user.email)) {
+      const existingUsers = await prisma.user.findMany({
+        select: {
+          employeeId: true,
+          email: true,
+        },
+      });
+
+      const emailExists = existingUsers.some(
+        (existingUser) =>
+          existingUser.employeeId !== employeeId &&
+          normalizeEmail(existingUser.email) === normalizeEmail(payload.email)
+      );
+
+      if (emailExists) {
+        return {
+          error: "Email already exists",
+          status: 409,
+        };
+      }
+
+      data.email = normalizeEmail(payload.email);
+    }
+
+    if (payload.name !== undefined) {
+      data.name = String(payload.name).trim();
+    }
+
+    if (payload.role !== undefined) {
+      data.role = String(payload.role).trim();
+    }
+
+    if (payload.department !== undefined) {
+      data.department = String(payload.department).trim();
+    }
+
+    if (payload.jobTitle !== undefined) {
+      data.jobTitle = String(payload.jobTitle || "").trim();
+    }
+
+    if (payload.phone !== undefined) {
+      data.phone = String(payload.phone || "").trim();
+    }
+
+    if (payload.location !== undefined) {
+      data.location = String(payload.location || "").trim();
+    }
+
+    if (payload.profileImage !== undefined) {
+      data.profileImage = String(payload.profileImage || "").trim() || null;
+    }
+
+    if (payload.status !== undefined) {
+      data.isActive = String(payload.status).toLowerCase() !== "inactive";
+    }
+
+    if (payload.password) {
+      data.password = String(payload.password);
+    }
+
+    const updated = await prisma.user.update({
+      where: { employeeId },
+      data,
+    });
+
+    return {
+      user: sanitizeUser(updated),
+    };
   },
 
   async remove(employeeId) {
     try {
-      await prisma.user.delete({ where: { employeeId } });
+      await prisma.user.delete({
+        where: { employeeId },
+      });
     } catch {
-      return { error: "User not found", status: 404 };
+      return {
+        error: "User not found",
+        status: 404,
+      };
     }
 
-    return { success: true };
+    return {
+      success: true,
+    };
   },
 };
