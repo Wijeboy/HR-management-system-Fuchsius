@@ -7,10 +7,15 @@ const EmployeeList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -30,11 +35,15 @@ const EmployeeList = () => {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, departmentFilter, statusFilter, itemsPerPage]);
+
   const filteredEmployees = useMemo(() => {
     return employees.filter((employee) => {
-      const matchesSearch = `${employee.name} ${employee.email} ${employee.employeeId} ${employee.jobTitle || ''}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      const searchableText = `${employee.name || ''} ${employee.email || ''} ${employee.employeeId || ''} ${employee.jobTitle || ''} ${employee.role || ''}`.toLowerCase();
+
+      const matchesSearch = searchableText.includes(searchTerm.toLowerCase());
 
       const matchesDepartment =
         departmentFilter === 'All' || employee.department === departmentFilter;
@@ -55,7 +64,51 @@ const EmployeeList = () => {
     ];
   }, [employees]);
 
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredEmployees.length / itemsPerPage)
+  );
+
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  const showingStart =
+    filteredEmployees.length === 0 ? 0 : startIndex + 1;
+
+  const showingEnd = Math.min(endIndex, filteredEmployees.length);
+
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, safeCurrentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let page = startPage; page <= endPage; page += 1) {
+      pages.push(page);
+    }
+
+    return pages;
+  }, [safeCurrentPage, totalPages]);
+
+  const goToPage = (page) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages);
+    setCurrentPage(nextPage);
+  };
+
   const removeEmployee = async (employeeId) => {
+    const confirmDelete = window.confirm(`Delete employee ${employeeId}?`);
+
+    if (!confirmDelete) return;
+
     try {
       await userService.deleteUser(employeeId);
 
@@ -121,6 +174,7 @@ const EmployeeList = () => {
     setSearchTerm('');
     setDepartmentFilter('All');
     setStatusFilter('All');
+    setCurrentPage(1);
   };
 
   const exportCsv = () => {
@@ -152,8 +206,17 @@ const EmployeeList = () => {
 
   return (
     <div className="space-y-6">
-      {error && <div className="text-sm text-red-600">{error}</div>}
-      {success && <div className="text-sm text-green-600">{success}</div>}
+      {error && (
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-600">
+          {success}
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -167,6 +230,7 @@ const EmployeeList = () => {
           <button
             onClick={exportCsv}
             className="h-10 px-4 rounded-lg border border-gray-200 bg-white text-gray-600 font-medium text-sm hover:bg-gray-50 flex items-center gap-2 transition-colors"
+            type="button"
           >
             <span
               className="material-symbols-outlined"
@@ -242,10 +306,21 @@ const EmployeeList = () => {
             <option value="Inactive">Inactive</option>
           </select>
 
+          <select
+            value={itemsPerPage}
+            onChange={(event) => setItemsPerPage(Number(event.target.value))}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:border-indigo-600/50 transition-colors text-gray-700"
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+          </select>
+
           <div className="ml-auto">
             <button
               onClick={clearFilters}
               className="text-sm text-indigo-600 font-medium hover:underline"
+              type="button"
             >
               Clear all
             </button>
@@ -304,7 +379,7 @@ const EmployeeList = () => {
               )}
 
               {!loading &&
-                filteredEmployees.map((employee) => (
+                paginatedEmployees.map((employee) => (
                   <tr
                     key={employee.employeeId}
                     className="group hover:bg-slate-50 transition-colors"
@@ -475,29 +550,78 @@ const EmployeeList = () => {
           </table>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <p className="text-sm text-gray-600">
-            Showing {filteredEmployees.length} of {employees.length} employees
+            Showing {showingStart} to {showingEnd} of{' '}
+            {filteredEmployees.length} filtered employees
+            {filteredEmployees.length !== employees.length && (
+              <span> from {employees.length} total</span>
+            )}
           </p>
 
           <div className="flex items-center gap-2">
-            <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+            <button
+              onClick={() => goToPage(safeCurrentPage - 1)}
+              disabled={safeCurrentPage === 1}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+            >
               Previous
             </button>
 
-            <button className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm">
-              1
-            </button>
+            {pageNumbers[0] > 1 && (
+              <>
+                <button
+                  onClick={() => goToPage(1)}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                  type="button"
+                >
+                  1
+                </button>
 
-            <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
-              2
-            </button>
+                {pageNumbers[0] > 2 && (
+                  <span className="px-2 text-sm text-gray-400">...</span>
+                )}
+              </>
+            )}
 
-            <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
-              3
-            </button>
+            {pageNumbers.map((page) => (
+              <button
+                key={page}
+                onClick={() => goToPage(page)}
+                className={`px-3 py-1 rounded-lg text-sm border ${
+                  safeCurrentPage === page
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+                type="button"
+              >
+                {page}
+              </button>
+            ))}
 
-            <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+            {pageNumbers[pageNumbers.length - 1] < totalPages && (
+              <>
+                {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
+                  <span className="px-2 text-sm text-gray-400">...</span>
+                )}
+
+                <button
+                  onClick={() => goToPage(totalPages)}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                  type="button"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={() => goToPage(safeCurrentPage + 1)}
+              disabled={safeCurrentPage === totalPages}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+            >
               Next
             </button>
           </div>
