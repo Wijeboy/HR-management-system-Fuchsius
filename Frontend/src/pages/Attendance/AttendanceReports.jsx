@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { attendanceService } from '../../services/attendanceService';
 import { useAuth } from '../../context/AuthContext';
+import UserAvatar from '../../components/UserAvatar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatTime = (date) => {
@@ -418,9 +419,11 @@ const AttendanceReports = () => {
                   <tr key={rec.employeeId || idx} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
-                          {rec.employeeName?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </div>
+                        <UserAvatar
+                          name={rec.employeeName}
+                          image={rec.profileImage}
+                          size="md"
+                        />
                         <span className="text-sm font-semibold text-gray-900">{rec.employeeName}</span>
                       </div>
                     </td>
