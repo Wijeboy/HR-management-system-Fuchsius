@@ -3,7 +3,13 @@ import { prisma } from "../../lib/prisma.js";
 const WORK_START_HOUR = 9;
 const LATE_THRESHOLD_MINUTES = 30;
 
-const dateOnly = (value = new Date()) => new Date(value).toISOString().split("T")[0];
+const dateOnly = (value = new Date()) => {
+  const date = value instanceof Date ? value : new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const paginate = (items, page = 1, limit = 10) => {
   const safePage = Math.max(1, page);
@@ -142,6 +148,7 @@ export const attendanceService = {
       employeeId: user.employeeId,
       name: user.name,
       department: user.department,
+      profileImage: user.profileImage || "",
       isActive: user.isActive,
     }));
     const filteredEmployees = department
@@ -152,12 +159,18 @@ export const attendanceService = {
     for (const employee of filteredEmployees) {
       const record = await findAttendanceRecord(employee.employeeId, dateStr);
       if (record) {
-        records.push({ ...record });
+        records.push({
+          ...record,
+          employeeName: record.employeeName || employee.name,
+          department: record.department || employee.department,
+          profileImage: employee.profileImage || "",
+        });
       } else {
         records.push({
           employeeId: employee.employeeId,
           employeeName: employee.name,
           department: employee.department,
+          profileImage: employee.profileImage || "",
           checkIn: null,
           checkOut: null,
           totalHours: 0,
