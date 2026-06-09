@@ -886,19 +886,3 @@ Attendance and leave modules connected with profile images
 ```
 
 ---
-
-## Author
-
-Developed by Shanuka Jayakodi.
-
-GitHub:
-
-```txt
-@shanukajayakodi56
-```
-
-Email:
-
-```txt
-shanukajayakodi56@gmail.com
-```
