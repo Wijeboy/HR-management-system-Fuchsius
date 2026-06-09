@@ -177,6 +177,31 @@ export const performanceService = {
     return prisma.performanceReview.create({ data: review });
   },
 
+  async updateReview(id, payload) {
+    const goalsScore = toNumber(payload.goalsScore);
+    const competencyScore = toNumber(payload.competencyScore);
+    const behaviorScore = toNumber(payload.behaviorScore);
+    const calculated = Number(((goalsScore + competencyScore + behaviorScore) / 3).toFixed(1));
+    const finalRating = payload.finalRating !== undefined ? toNumber(payload.finalRating) : calculated;
+
+    return prisma.performanceReview.update({
+      where: { id },
+      data: {
+        employeeName: payload.employeeName,
+        employeeId: payload.employeeId,
+        department: payload.department,
+        reviewer: payload.reviewer,
+        cycle: payload.cycle,
+        goalsScore,
+        competencyScore,
+        behaviorScore,
+        finalRating,
+        recommendation: payload.recommendation,
+        status: payload.status,
+      },
+    });
+  },
+
   async getGoals(query) {
     const allGoals = await prisma.performanceGoal.findMany({
       orderBy: [{ dueDate: "asc" }, { id: "asc" }],

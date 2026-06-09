@@ -150,7 +150,31 @@ export const payrollService = {
   },
 
   async calculatePayroll(payload) {
-    const employee = await prisma.payrollEmployee.findUnique({ where: { id: payload.employeeId } });
+    let employee = await prisma.payrollEmployee.findUnique({ where: { id: payload.employeeId } });
+    if (!employee) {
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { employeeId: payload.employeeId },
+            { id: payload.employeeId },
+          ],
+        },
+      });
+      if (user) {
+        employee = await prisma.payrollEmployee.create({
+          data: {
+            id: user.employeeId,
+            name: user.name,
+            department: user.department,
+            baseSalary: 5000,
+            fixedAllowance: 1000,
+            paymentMethod: "Bank Transfer",
+            bankName: "",
+            accountNo: "",
+          },
+        });
+      }
+    }
     if (!employee) return null;
 
     const calc = makePayrollCalculation(payload, employee);

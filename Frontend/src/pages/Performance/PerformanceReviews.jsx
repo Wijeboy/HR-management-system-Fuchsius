@@ -69,6 +69,14 @@ const PerformanceReviews = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [employeeLoadError, setEmployeeLoadError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentReviewId, setCurrentReviewId] = useState(null);
+
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(''), 3500);
+  };
 
   const loadReviews = useCallback(async () => {
     setLoading(true);
@@ -152,10 +160,22 @@ const PerformanceReviews = () => {
     ? 'Loading reviews...'
     : `${reviews.length} review${reviews.length === 1 ? '' : 's'} in this view`;
 
-  const handleCreateReview = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+    if (event) event.preventDefault();
 
-    if (!form.employeeName || !form.employeeId || !form.department || !form.reviewer || !form.cycle) {
+    // 1. Check if an Employee is selected
+    if (!form.employeeId) { 
+      alert("Please select an Employee before saving the review!");
+      return;
+    }
+
+    // 2. Check if the Reviewer Name is entered
+    if (!form.reviewer) {
+      alert("Please enter the Reviewer Name before saving the review!");
+      return;
+    }
+
+    if (!form.employeeName || !form.department || !form.reviewer || !form.cycle) {
       setError('Please fill all required review fields.');
       return;
     }
@@ -163,19 +183,28 @@ const PerformanceReviews = () => {
     setSubmitting(true);
     setError('');
 
+    const payload = {
+      employeeName: form.employeeName,
+      employeeId: form.employeeId,
+      department: form.department,
+      reviewer: form.reviewer,
+      cycle: form.cycle,
+      goalsScore: toNumber(form.goalsScore),
+      competencyScore: toNumber(form.competencyScore),
+      behaviorScore: toNumber(form.behaviorScore),
+      finalRating: calculatedRating,
+      recommendation: form.recommendation,
+      status: form.status,
+    };
+
     try {
-      await apiClient.post('/performance/reviews', {
-        employeeName: form.employeeName,
-        employeeId: form.employeeId,
-        department: form.department,
-        reviewer: form.reviewer,
-        cycle: form.cycle,
-        goalsScore: toNumber(form.goalsScore),
-        competencyScore: toNumber(form.competencyScore),
-        behaviorScore: toNumber(form.behaviorScore),
-        recommendation: form.recommendation,
-        status: form.status,
-      });
+      if (isEditing) {
+        await apiClient.put(`/performance/reviews/${currentReviewId}`, payload);
+        showSuccess('Performance review updated successfully.');
+      } else {
+        await apiClient.post('/performance/reviews', payload);
+        showSuccess('Performance review saved successfully.');
+      }
 
       setForm((prev) => ({
         ...prev,
@@ -190,9 +219,11 @@ const PerformanceReviews = () => {
         status: 'In Progress',
       }));
 
+      setIsEditing(false);
+      setCurrentReviewId(null);
       await loadReviews();
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Failed to create review');
+      setError(requestError.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} review`);
     } finally {
       setSubmitting(false);
     }
@@ -210,6 +241,23 @@ const PerformanceReviews = () => {
     }));
   };
 
+  const handleRowClick = (review) => {
+    setForm({
+      employeeName: review.employeeName,
+      employeeId: review.employeeId,
+      department: review.department,
+      reviewer: review.reviewer,
+      cycle: review.cycle,
+      goalsScore: review.goalsScore,
+      competencyScore: review.competencyScore,
+      behaviorScore: review.behaviorScore,
+      recommendation: review.recommendation,
+      status: review.status,
+    });
+    setIsEditing(true);
+    setCurrentReviewId(review.id);
+  };
+
   return (
     <div className="space-y-6">
       <PerformanceSectionTabs
@@ -217,6 +265,13 @@ const PerformanceReviews = () => {
         description="Review employees with a clear score breakdown, cycle context, and manager recommendation in one place."
         helper="Track progress during the quarter in Goals & KPIs, then use this page to complete the appraisal."
       />
+
+      {successMsg && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-xl text-sm font-medium">
+          <span className="material-symbols-outlined text-xl">check_circle</span>
+          {successMsg}
+        </div>
+      )}
 
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
@@ -271,7 +326,7 @@ const PerformanceReviews = () => {
         </div>
       </div>
 
-      <form onSubmit={handleCreateReview} className={`${sectionCardClass} space-y-6`}>
+      <form onSubmit={handleSubmit} className={`${sectionCardClass} space-y-6`}>
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Create New Appraisal</h2>
@@ -486,6 +541,7 @@ const PerformanceReviews = () => {
         <div className="flex justify-end">
           <button
             type="submit"
+            onClick={handleSubmit}
             disabled={submitting}
             className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
@@ -564,7 +620,7 @@ const PerformanceReviews = () => {
                 const ratingBand = hasRating ? getRatingBand(review.finalRating) : null;
 
                 return (
-                  <tr key={review.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={review.id} onClick={() => handleRowClick(review)} className="hover:bg-gray-50 transition-colors cursor-pointer">
                     <td className="px-6 py-4">
                       <p className="text-sm font-semibold text-gray-900">{review.employeeName}</p>
                       <p className="text-xs text-gray-500">

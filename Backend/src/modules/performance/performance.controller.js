@@ -30,6 +30,22 @@ export const performanceController = {
     }
   },
 
+  async updateReview(req, res, next) {
+    const required = ["employeeName", "employeeId", "department", "reviewer", "cycle"];
+    const missing = required.find((key) => !req.body?.[key]);
+    if (missing) {
+      res.status(400).json({ message: `${missing} is required` });
+      return;
+    }
+
+    try {
+      const updated = await performanceService.updateReview(req.params.id, req.body);
+      res.json({ data: updated });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async listGoals(req, res, next) {
     try {
       const result = await performanceService.getGoals(req.query);

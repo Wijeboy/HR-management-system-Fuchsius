@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../services/api';
 import PayrollSectionTabs from '../../components/PayrollSectionTabs';
+import { jsPDF } from 'jspdf';
 
 const formatCurrency = (amount) =>
   new Intl.NumberFormat('en-US', {
@@ -132,6 +133,111 @@ const PayslipView = () => {
     }
   };
 
+  const handleDownloadPDF = () => {
+    if (!activePayslip) return;
+
+    const doc = new jsPDF();
+
+    // Set professional styling
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(22);
+    doc.setTextColor(79, 70, 229); // Indigo-600
+    doc.text('FUCHSIUS CORPORATION', 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text('Human Resource Management - Payslip', 14, 26);
+
+    doc.setFontSize(18);
+    doc.setTextColor(17, 24, 39); // Gray-900
+    doc.text('PAYSLIP', 150, 20);
+
+    doc.setFontSize(10);
+    doc.text(`Period: ${activePayslip.periodLabel}`, 150, 26);
+    doc.text(`Payment Date: ${activePayslip.paymentDate}`, 150, 31);
+
+    // Horizontal line
+    doc.setDrawColor(226, 232, 240); // border-gray-200
+    doc.line(14, 36, 196, 36);
+
+    // Employee & Payment details columns
+    doc.setFontSize(12);
+    doc.setTextColor(71, 85, 105); // Gray-600
+    doc.text('Employee Details', 14, 46);
+    doc.text('Payment Details', 110, 46);
+
+    doc.setFontSize(10);
+    doc.setTextColor(17, 24, 39); // Gray-900
+    doc.text(`Name: ${activePayslip.employeeName}`, 14, 53);
+    doc.text(`Employee ID: ${activePayslip.employeeId}`, 14, 59);
+    doc.text(`Department: ${activePayslip.department}`, 14, 65);
+
+    doc.text(`Bank Name: ${activePayslip.bankName || '-'}`, 110, 53);
+    doc.text(`Account No: ${activePayslip.accountNo || '-'}`, 110, 59);
+    doc.text(`Payment Method: ${activePayslip.paymentMethod || '-'}`, 110, 65);
+
+    // Horizontal line
+    doc.line(14, 73, 196, 73);
+
+    // Table Headers
+    doc.setFontSize(11);
+    doc.setTextColor(79, 70, 229); // Indigo-600
+    doc.text('Earnings', 14, 82);
+    doc.text('Amount', 75, 82);
+    doc.text('Deductions', 110, 82);
+    doc.text('Amount', 170, 82);
+
+    doc.setDrawColor(79, 70, 229);
+    doc.line(14, 85, 196, 85);
+
+    // Table Data
+    let y = 92;
+    doc.setFontSize(10);
+    doc.setTextColor(17, 24, 39);
+
+    const maxItems = Math.max(activePayslip.earnings.length, activePayslip.deductions.length);
+    for (let i = 0; i < maxItems; i++) {
+      const earning = activePayslip.earnings[i];
+      const deduction = activePayslip.deductions[i];
+
+      if (earning) {
+        doc.text(earning.label, 14, y);
+        doc.text(formatCurrency(earning.amount), 75, y);
+      }
+      if (deduction) {
+        doc.text(deduction.label, 110, y);
+        doc.text(formatCurrency(deduction.amount), 170, y);
+      }
+      y += 8;
+    }
+
+    // Totals line
+    doc.setDrawColor(226, 232, 240);
+    doc.line(14, y - 2, 196, y - 2);
+
+    doc.setFontSize(10);
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Total Earnings', 14, y + 4);
+    doc.text(formatCurrency(totalEarnings), 75, y + 4);
+    doc.text('Total Deductions', 110, y + 4);
+    doc.text(formatCurrency(totalDeductions), 170, y + 4);
+
+    y += 12;
+    // Net Pay Block
+    doc.setFillColor(79, 70, 229);
+    doc.rect(14, y, 182, 25, 'F');
+
+    doc.setFont('Helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Net Salary (Take Home)', 20, y + 8);
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(formatCurrency(netSalary), 20, y + 18);
+
+    doc.save(`Payslip_${activePayslip.employeeName.replace(/\s+/g, '_')}_${activePayslip.period}.pdf`);
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -192,7 +298,7 @@ const PayslipView = () => {
             </button>
             <button
               type="button"
-              onClick={() => alert('PDF export can be connected to backend/document service.')}
+              onClick={handleDownloadPDF}
               className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100"
             >
               <span className="material-symbols-outlined text-xl">download</span>
