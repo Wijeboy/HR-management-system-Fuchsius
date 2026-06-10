@@ -210,11 +210,11 @@ const GeneratePayroll = () => {
       const payslipId = response.data?.data?.payslip?.id;
 
       if (payslipId) {
-        navigate(`/payroll/payslip/${payslipId}`);
+        navigate(`/dashboard/payroll/payslip/${payslipId}`);
         return;
       }
 
-      navigate('/payroll');
+      navigate('/dashboard/payroll/records');
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Failed to generate payroll');
     } finally {

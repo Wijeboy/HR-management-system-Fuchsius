@@ -113,7 +113,7 @@ const PayrollList = () => {
         action={
           (user?.role === 'admin' || user?.role === 'hr') && (
             <Link
-              to="/payroll/generate"
+              to="/dashboard/payroll/generate"
               className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100"
             >
               <span className="material-symbols-outlined text-xl">add</span>
@@ -283,14 +283,14 @@ const PayrollList = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="inline-flex items-center gap-2">
                       <Link
-                        to={`/payroll/payslip/${record.id}`}
+                        to={`/dashboard/payroll/payslip/${record.id}`}
                         className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
                       >
                         View Payslip
                       </Link>
                       {(user?.role === 'admin' || user?.role === 'hr') && (
                         <Link
-                          to={`/payroll/generate?employee=${record.employeeId?.empID || record.employeeId}`}
+                          to={`/dashboard/payroll/generate?employee=${record.employeeId?.empID || record.employeeId}`}
                           className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
                         >
                           Recalculate
@@ -327,7 +327,7 @@ const PayrollList = () => {
               : filteredCountLabel}
           </p>
           {(user?.role === 'admin' || user?.role === 'hr') && (
-            <Link to="/payroll/generate" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+            <Link to="/dashboard/payroll/generate" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
               Run New Payroll
             </Link>
           )}
