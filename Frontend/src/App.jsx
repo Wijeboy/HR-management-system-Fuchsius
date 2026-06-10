@@ -61,6 +61,22 @@ function RoleHomeRedirect() {
   return <Navigate to={getDefaultRouteForRole(user?.role)} replace />;
 }
 
+function PayrollRecordsGuard({ children }) {
+  const { user } = useAuth();
+  if (user?.role === 'manager' || user?.role === 'employee') {
+    return <Navigate to="/dashboard/payroll/payslips" replace />;
+  }
+  return children;
+}
+
+function PayrollRedirect() {
+  const { user } = useAuth();
+  if (user?.role === 'manager' || user?.role === 'employee') {
+    return <Navigate to="/dashboard/payroll/payslips" replace />;
+  }
+  return <Navigate to="/dashboard/payroll/records" replace />;
+}
+
 function App() {
   return (
     <Router>
@@ -103,10 +119,15 @@ function App() {
               <Route path="/leave/manage" element={<RoleGuard allowedRoles={ROLE_ACCESS.leaveManage}><HRLeaveApproval /></RoleGuard>} />
 
               {/* Payroll */}
-              <Route path="/payroll" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollView}><PayrollList /></RoleGuard>} />
-              <Route path="/payroll/generate" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollGenerate}><GeneratePayroll /></RoleGuard>} />
-              <Route path="/payroll/payslips" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
-              <Route path="/payroll/payslip/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
+              <Route path="/payroll" element={<PayrollRedirect />} />
+              <Route path="/payroll/generate" element={<Navigate to="/dashboard/payroll/generate" replace />} />
+              <Route path="/payroll/payslips" element={<Navigate to="/dashboard/payroll/payslips" replace />} />
+
+              <Route path="/dashboard/payroll" element={<PayrollRedirect />} />
+              <Route path="/dashboard/payroll/records" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollView}><PayrollRecordsGuard><PayrollList /></PayrollRecordsGuard></RoleGuard>} />
+              <Route path="/dashboard/payroll/generate" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollGenerate}><GeneratePayroll /></RoleGuard>} />
+              <Route path="/dashboard/payroll/payslips" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
+              <Route path="/dashboard/payroll/payslip/:id" element={<RoleGuard allowedRoles={ROLE_ACCESS.payrollPayslip}><PayslipView /></RoleGuard>} />
 
               {/* Recruitment */}
               <Route path="/recruitment/jobs" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentJobs}><JobPostings /></RoleGuard>} />

@@ -38,7 +38,7 @@ const Sidebar = () => {
       visible: canAccess(role, 'leaveRequests') || canAccess(role, 'leaveManage'),
     },
     {
-      path: user?.role === 'employee' ? '/payroll/payslips' : '/payroll',
+      path: user?.role === 'employee' ? '/dashboard/payroll/payslips' : '/dashboard/payroll/records',
       icon: 'payments',
       label: 'Payroll',
       visible: canAccess(role, 'payrollView') || canAccess(role, 'payrollPayslip'),
@@ -94,6 +94,10 @@ const Sidebar = () => {
     // Performance tab: highlight for both /performance and /dashboard/performance paths
     if (path.includes('/performance/')) {
       return location.pathname.startsWith('/dashboard/performance') || location.pathname.startsWith('/performance');
+    }
+    // Payroll tab: highlight for both /payroll and /dashboard/payroll paths
+    if (path.includes('/payroll/')) {
+      return location.pathname.startsWith('/dashboard/payroll') || location.pathname.startsWith('/payroll');
     }
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
