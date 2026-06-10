@@ -20,7 +20,7 @@ export const ROLE_ACCESS = {
   recruitmentApplicants: ['admin', 'employee'],
   recruitmentOnboarding: ['admin', 'hr', 'manager'],
 
-  performanceReviews: ['admin', 'hr', 'manager'],
+  performanceReviews: ['admin', 'hr', 'manager', 'employee'],
   performanceGoals: ['admin', 'hr', 'manager', 'employee'],
 
   reports: ['admin', 'hr', 'manager'],

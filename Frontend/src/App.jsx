@@ -114,8 +114,13 @@ function App() {
               <Route path="/recruitment/onboarding" element={<RoleGuard allowedRoles={ROLE_ACCESS.recruitmentOnboarding}><OnboardingTasks /></RoleGuard>} />
 
               {/* Performance */}
-              <Route path="/performance/reviews" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceReviews}><PerformanceReviews /></RoleGuard>} />
-              <Route path="/performance/goals" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceGoals}><GoalsKPIs /></RoleGuard>} />
+              <Route path="/performance" element={<Navigate to="/dashboard/performance/reviews" replace />} />
+              <Route path="/performance/reviews" element={<Navigate to="/dashboard/performance/reviews" replace />} />
+              <Route path="/performance/goals" element={<Navigate to="/dashboard/performance/goals" replace />} />
+
+              <Route path="/dashboard/performance" element={<Navigate to="/dashboard/performance/reviews" replace />} />
+              <Route path="/dashboard/performance/reviews" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceReviews}><PerformanceReviews /></RoleGuard>} />
+              <Route path="/dashboard/performance/goals" element={<RoleGuard allowedRoles={ROLE_ACCESS.performanceGoals}><GoalsKPIs /></RoleGuard>} />
 
               {/* Reports */}
               <Route path="/reports" element={<RoleGuard allowedRoles={ROLE_ACCESS.reports}><Reports /></RoleGuard>} />

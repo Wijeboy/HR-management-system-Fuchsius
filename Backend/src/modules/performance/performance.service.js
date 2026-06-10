@@ -136,7 +136,13 @@ const toBoolean = (value) => value === true || value === "true";
 
 export const performanceService = {
   async getReviews(query) {
+    const where = {};
+    if (query.employeeId) {
+      where.employeeId = query.employeeId;
+    }
+
     const allReviews = await prisma.performanceReview.findMany({
+      where,
       orderBy: [{ cycle: "desc" }, { id: "desc" }],
     });
 
