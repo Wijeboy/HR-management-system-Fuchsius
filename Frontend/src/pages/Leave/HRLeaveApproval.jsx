@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { leaveService } from '../../services/leaveService';
 import { useAuth } from '../../context/AuthContext';
+import UserAvatar from '../../components/UserAvatar';
+
+const backendUrl =
+  import.meta.env.VITE_BACKEND_URL ||
+  (import.meta.env.VITE_API_URL || 'http://localhost:5050/api').replace(/\/api\/?$/, '');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatDateRange = (startDate, endDate) => {
@@ -14,7 +19,7 @@ const formatDateRange = (startDate, endDate) => {
 // ─── View Document Modal ──────────────────────────────────────────────────────
 const ViewModal = ({ record, onClose }) => {
   const docUrl = record.supportingDocument
-    ? `http://localhost:5050/uploads/${record.supportingDocument}`
+    ? `${backendUrl}/uploads/${record.supportingDocument}`
     : null;
   const isImage = record.documentMimeType?.startsWith('image/');
   const isPdf = record.documentMimeType === 'application/pdf';
@@ -227,9 +232,11 @@ const HRLeaveApproval = () => {
                   {/* Employee */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0">
-                        {rec.employeeName?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </div>
+                      <UserAvatar
+                        name={rec.employeeName}
+                        image={rec.profileImage}
+                        size="md"
+                      />
                       <div>
                         <p className="text-xs text-gray-400">{rec.employeeId}</p>
                         <p className="text-sm font-bold text-gray-900">{rec.employeeName}</p>

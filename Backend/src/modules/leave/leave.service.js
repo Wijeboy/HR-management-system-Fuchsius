@@ -29,6 +29,35 @@ const nextId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() *
 const sortByDateDesc = (items, field) =>
   [...items].sort((left, right) => new Date(right[field] || 0) - new Date(left[field] || 0));
 
+const attachProfileImages = async (records = []) => {
+  const employeeIds = [...new Set(records.map((record) => record.employeeId).filter(Boolean))];
+
+  if (employeeIds.length === 0) {
+    return records;
+  }
+
+  const users = await prisma.user.findMany({
+    where: {
+      employeeId: {
+        in: employeeIds,
+      },
+    },
+    select: {
+      employeeId: true,
+      profileImage: true,
+    },
+  });
+
+  const imageMap = new Map(
+    users.map((user) => [user.employeeId, user.profileImage || ""])
+  );
+
+  return records.map((record) => ({
+    ...record,
+    profileImage: imageMap.get(record.employeeId) || "",
+  }));
+};
+
 export const leaveService = {
   async getOrCreateBalance(employeeId) {
     const year = new Date().getFullYear();
@@ -166,22 +195,22 @@ export const leaveService = {
 
   async getEmployeeLeaveHistory(employeeId, page = 1, limit = 10) {
     const records = await prisma.leaveRequest.findMany({ where: { employeeId }, orderBy: { createdAt: "desc" } });
-    return paginate(records, page, limit);
+    return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getPendingRequests(page = 1, limit = 10) {
     const records = await prisma.leaveRequest.findMany({ where: { status: "pending" }, orderBy: { createdAt: "desc" } });
-    return paginate(records, page, limit);
+    return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getApprovedRequests(page = 1, limit = 10) {
     const records = await prisma.leaveRequest.findMany({ where: { status: "approved" }, orderBy: { reviewedAt: "desc" } });
-    return paginate(records, page, limit);
+    return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getRejectedRequests(page = 1, limit = 10) {
     const records = await prisma.leaveRequest.findMany({ where: { status: "rejected" }, orderBy: { reviewedAt: "desc" } });
-    return paginate(records, page, limit);
+    return paginate(await attachProfileImages(records), page, limit);
   },
 
   async approveLeave(leaveId, hrId) {
@@ -268,6 +297,9 @@ export const leaveService = {
   },
 
   async getRequestById(leaveId) {
-    return prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    if (!request) return null;
+    const [record] = await attachProfileImages([request]);
+    return record;
   },
 };
