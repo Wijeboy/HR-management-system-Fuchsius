@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
     jobTitle: { type: String, default: '' },
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
+    profileImage: { type: String, default: null },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

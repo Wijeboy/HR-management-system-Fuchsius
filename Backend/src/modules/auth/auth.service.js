@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
-import { prisma } from "../../lib/prisma.js";
+import User from "../../../models/User.js";
 
 const sanitizeUser = (user) => ({
   id: user.id,
@@ -25,15 +25,14 @@ const normalize = (value) => String(value || "").trim().toLowerCase();
 
 const findUserByIdentifier = async (identifier) => {
   const lookup = normalize(identifier);
-
   if (!lookup) return null;
 
-  const users = await prisma.user.findMany();
+  const users = await User.find().lean();
 
   return (
-    users.find((user) => normalize(user.email) === lookup) ||
-    users.find((user) => normalize(user.employeeId) === lookup) ||
-    users.find((user) => normalize(user.name) === lookup) ||
+    users.find((u) => normalize(u.email) === lookup) ||
+    users.find((u) => normalize(u.employeeId) === lookup) ||
+    users.find((u) => normalize(u.name) === lookup) ||
     null
   );
 };
@@ -75,22 +74,18 @@ const deleteProfileImageFile = async (profileImage) => {
 
   const relativePath = profileImage.replace(/^\/+/, "");
 
-  if (!relativePath.startsWith("uploads/profiles/")) {
-    return;
-  }
+  if (!relativePath.startsWith("uploads/profiles/")) return;
 
   const absolutePath = path.resolve(process.cwd(), relativePath);
   const allowedDir = path.resolve(process.cwd(), "uploads", "profiles");
 
-  if (!absolutePath.startsWith(allowedDir)) {
-    return;
-  }
+  if (!absolutePath.startsWith(allowedDir)) return;
 
   try {
     await fs.unlink(absolutePath);
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      console.error("Failed to delete profile image:", error.message);
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error("Failed to delete profile image:", err.message);
     }
   }
 };
@@ -98,176 +93,107 @@ const deleteProfileImageFile = async (profileImage) => {
 export const authService = {
   async login({ identifier, password, role }) {
     const lookup = String(identifier || "").trim();
-    const passwordValue = String(password || "");
+    const pw = String(password || "");
     const selectedRole = normalize(role);
 
-    if (!lookup || !passwordValue) {
-      return {
-        error: "Identifier and password are required",
-        status: 400,
-      };
+    if (!lookup || !pw) {
+      return { error: "Identifier and password are required", status: 400 };
     }
 
     const user = await findUserByIdentifier(lookup);
 
     if (!user || !user.isActive) {
-      return {
-        error: "Invalid email or password",
-        status: 401,
-      };
+      return { error: "Invalid email or password", status: 401 };
     }
 
-    const isPasswordValid = passwordValue === String(user.password) || await bcrypt.compare(passwordValue, String(user.password || ""));
-    if (!isPasswordValid) {
-      return {
-        error: "Invalid email or password",
-        status: 401,
-      };
+    const valid = pw === String(user.password) || await bcrypt.compare(pw, String(user.password || ""));
+    if (!valid) {
+      return { error: "Invalid email or password", status: 401 };
     }
 
     if (selectedRole && normalize(user.role) !== selectedRole) {
-      return {
-        error: "Selected role does not match this account",
-        status: 401,
-      };
+      return { error: "Selected role does not match this account", status: 401 };
     }
 
     const token = jwt.sign(
-      {
-        sub: user.id,
-        role: user.role,
-        employeeId: user.employeeId,
-      },
+      { sub: user.id, role: user.role, employeeId: user.employeeId },
       env.jwtSecret,
-      {
-        expiresIn: env.jwtExpiresIn,
-      }
+      { expiresIn: env.jwtExpiresIn }
     );
 
-    return {
-      token,
-      user: sanitizeUser(user),
-    };
+    return { token, user: sanitizeUser(user) };
   },
 
   async getCurrentUser(userId) {
     if (!userId) return null;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
+    const user = await User.findOne({ id: userId }).lean();
     if (!user || !user.isActive) return null;
-
     return sanitizeUser(user);
   },
 
   async updateProfile(userId, payload = {}) {
     if (!userId) return null;
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!existingUser || !existingUser.isActive) {
-      return null;
-    }
+    const existing = await User.findOne({ id: userId }).lean();
+    if (!existing || !existing.isActive) return null;
 
     const data = buildProfileUpdateData(payload);
 
-    if (data.email && normalize(data.email) !== normalize(existingUser.email)) {
-      const emailOwner = await prisma.user.findUnique({
-        where: {
-          email: data.email,
-        },
-      });
-
+    if (data.email && normalize(data.email) !== normalize(existing.email)) {
+      const emailOwner = await User.findOne({ email: data.email }).lean();
       if (emailOwner && emailOwner.id !== userId) {
-        return {
-          error: "Email is already used by another user",
-          status: 409,
-        };
+        return { error: "Email is already used by another user", status: 409 };
       }
     }
 
     if (Object.keys(data).length === 0) {
-      return sanitizeUser(existingUser);
+      return sanitizeUser(existing);
     }
 
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data,
-    });
-
-    return sanitizeUser(updatedUser);
+    const updated = await User.findOneAndUpdate({ id: userId }, data, { new: true }).lean();
+    return sanitizeUser(updated);
   },
 
   async updateProfileImage(userId, profileImage) {
     if (!userId || !profileImage) return null;
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const existing = await User.findOne({ id: userId }).lean();
+    if (!existing || !existing.isActive) return null;
 
-    if (!existingUser || !existingUser.isActive) {
-      return null;
+    const oldImage = existing.profileImage || "";
+
+    const updated = await User.findOneAndUpdate(
+      { id: userId },
+      { profileImage },
+      { new: true }
+    ).lean();
+
+    if (oldImage && oldImage !== profileImage) {
+      await deleteProfileImageFile(oldImage);
     }
 
-    const oldProfileImage = existingUser.profileImage || "";
-
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        profileImage,
-      },
-    });
-
-    if (oldProfileImage && oldProfileImage !== profileImage) {
-      await deleteProfileImageFile(oldProfileImage);
-    }
-
-    return sanitizeUser(updatedUser);
+    return sanitizeUser(updated);
   },
 
   async deleteProfileImage(userId) {
     if (!userId) return null;
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const existing = await User.findOne({ id: userId }).lean();
+    if (!existing || !existing.isActive) return null;
 
-    if (!existingUser || !existingUser.isActive) {
-      return null;
+    const oldImage = existing.profileImage || "";
+
+    const updated = await User.findOneAndUpdate(
+      { id: userId },
+      { profileImage: null },
+      { new: true }
+    ).lean();
+
+    if (oldImage) {
+      await deleteProfileImageFile(oldImage);
     }
 
-    const oldProfileImage = existingUser.profileImage || "";
-
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        profileImage: null,
-      },
-    });
-
-    if (oldProfileImage) {
-      await deleteProfileImageFile(oldProfileImage);
-    }
-
-    return sanitizeUser(updatedUser);
+    return sanitizeUser(updated);
   },
 
   verifyToken(token) {

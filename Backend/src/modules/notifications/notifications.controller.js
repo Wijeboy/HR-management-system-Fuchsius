@@ -1,6 +1,6 @@
 import { notificationsService } from "./notifications.service.js";
 
-const mapNotification = (notification) => (notification ? { ...notification, _id: notification.id } : notification);
+const mapNotification = (notification) => (notification ? { ...notification, id: notification._id || notification.id } : notification);
 
 export const notificationsController = {
   async getNotifications(req, res, next) {

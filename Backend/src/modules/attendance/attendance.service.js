@@ -1,14 +1,16 @@
-import { prisma } from "../../lib/prisma.js";
+import User from "../../../models/User.js";
+import Attendance from "../../../models/Attendance.js";
+import LeaveRequest from "../../../models/LeaveRequest.js";
 
 const WORK_START_HOUR = 9;
 const LATE_THRESHOLD_MINUTES = 30;
 
 const dateOnly = (value = new Date()) => {
-  const date = value instanceof Date ? value : new Date(value);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const d = value instanceof Date ? value : new Date(value);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 };
 
 const paginate = (items, page = 1, limit = 10) => {
@@ -20,29 +22,29 @@ const paginate = (items, page = 1, limit = 10) => {
   return { records, total, page: safePage, totalPages };
 };
 
-const getApprovedLeaveEmployeeIdsForDate = async (dateStr) => {
-  const selectedDate = new Date(`${dateStr}T00:00:00`);
-  const requests = await prisma.leaveRequest.findMany({ where: { status: "approved" } });
+const getApprovedLeaveIdsForDate = async (dateStr) => {
+  const selected = new Date(`${dateStr}T00:00:00`);
+  const requests = await LeaveRequest.find({ status: "approved" }).lean();
   return requests
-    .filter((request) => {
-      const startDate = new Date(request.startDate);
-      const endDate = request.endDate ? new Date(request.endDate) : startDate;
-      return startDate <= selectedDate && selectedDate <= endDate;
+    .filter((r) => {
+      const start = new Date(r.startDate);
+      const end = r.endDate ? new Date(r.endDate) : start;
+      return start <= selected && selected <= end;
     })
-    .map((request) => request.employeeId);
+    .map((r) => r.employeeId);
 };
 
-const findAttendanceRecord = (employeeId, dateStr) =>
-  prisma.attendanceRecord.findFirst({ where: { employeeId, date: dateStr } });
+const findRecord = (employeeId, dateStr) =>
+  Attendance.findOne({ employeeId, date: dateStr }).lean();
 
 export const attendanceService = {
   async checkIn(employeeId) {
-    const employee = await prisma.user.findFirst({ where: { employeeId, isActive: true } });
+    const employee = await User.findOne({ employeeId, isActive: true }).lean();
     if (!employee) throw new Error("Employee not found");
 
     const today = new Date();
     const dateStr = dateOnly(today);
-    const existing = await findAttendanceRecord(employeeId, dateStr);
+    const existing = await findRecord(employeeId, dateStr);
 
     if (existing?.checkIn) throw new Error("Already checked in today");
 
@@ -52,38 +54,37 @@ export const attendanceService = {
         ? "late"
         : "present";
 
-    const nextRecord = {
-      id: existing?.id || `att-${employeeId.toLowerCase()}-${dateStr}`,
+    if (existing) {
+      return Attendance.findByIdAndUpdate(
+        existing._id,
+        {
+          employeeName: employee.name,
+          department: employee.department,
+          checkIn: today,
+          checkOut: null,
+          totalHours: 0,
+          status,
+        },
+        { new: true }
+      ).lean();
+    }
+
+    const created = await Attendance.create({
       employeeId,
       employeeName: employee.name,
       department: employee.department,
       date: dateStr,
-      checkIn: today.toISOString(),
+      checkIn: today,
       checkOut: null,
       totalHours: 0,
       status,
-    };
-
-    if (existing) {
-      return prisma.attendanceRecord.update({
-        where: { id: existing.id },
-        data: {
-          employeeName: nextRecord.employeeName,
-          department: nextRecord.department,
-          checkIn: nextRecord.checkIn,
-          checkOut: null,
-          totalHours: 0,
-          status: nextRecord.status,
-        },
-      });
-    }
-
-    return prisma.attendanceRecord.create({ data: nextRecord });
+    });
+    return created.toObject();
   },
 
   async checkOut(employeeId) {
     const dateStr = dateOnly(new Date());
-    const record = await findAttendanceRecord(employeeId, dateStr);
+    const record = await findRecord(employeeId, dateStr);
 
     if (!record?.checkIn) throw new Error("No check-in record found for today");
     if (record.checkOut) throw new Error("Already checked out today");
@@ -91,32 +92,26 @@ export const attendanceService = {
     const checkOut = new Date();
     const totalHours = Number(((checkOut.getTime() - new Date(record.checkIn).getTime()) / 3600000).toFixed(2));
 
-    return prisma.attendanceRecord.update({
-      where: { id: record.id },
-      data: {
-        checkOut: checkOut.toISOString(),
-        totalHours: Math.max(0, totalHours),
-      },
-    });
+    return Attendance.findByIdAndUpdate(
+      record._id,
+      { checkOut, totalHours: Math.max(0, totalHours) },
+      { new: true }
+    ).lean();
   },
 
   getTodayStatus(employeeId) {
-    return findAttendanceRecord(employeeId, dateOnly(new Date()));
+    return findRecord(employeeId, dateOnly(new Date()));
   },
 
   async getEmployeeHistory(employeeId, page = 1, limit = 10) {
-    const records = await prisma.attendanceRecord.findMany({
-      where: { employeeId },
-      orderBy: { date: "desc" },
-    });
-
+    const records = await Attendance.find({ employeeId }).sort({ date: -1 }).lean();
     return paginate(records, page, limit);
   },
 
   async getWeeklyAttendance(employeeId) {
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const dow = today.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
     const monday = new Date(today);
     monday.setDate(today.getDate() + mondayOffset);
     monday.setHours(0, 0, 0, 0);
@@ -125,62 +120,58 @@ export const attendanceService = {
     let totalWeekHours = 0;
     const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-    for (let index = 0; index < 7; index += 1) {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + index);
-      const dateStr = dateOnly(date);
-      const record = await findAttendanceRecord(employeeId, dateStr);
-      const hours = record?.totalHours || 0;
-      totalWeekHours += hours;
-      days.push({ label: labels[index], date: dateStr, hours });
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const ds = dateOnly(d);
+      const rec = await findRecord(employeeId, ds);
+      const hrs = rec?.totalHours || 0;
+      totalWeekHours += hrs;
+      days.push({ label: labels[i], date: ds, hours: hrs });
     }
 
-    return {
-      days,
-      totalWeekHours: Number(totalWeekHours.toFixed(2)),
-    };
+    return { days, totalWeekHours: Number(totalWeekHours.toFixed(2)) };
   },
 
   async getDailyAttendance(dateStr, department = "", status = "", page = 1, limit = 10) {
-    const approvedLeaveEmployeeIds = new Set(await getApprovedLeaveEmployeeIdsForDate(dateStr));
-    const users = await prisma.user.findMany({ where: { isActive: true } });
-    const employees = users.map((user) => ({
-      employeeId: user.employeeId,
-      name: user.name,
-      department: user.department,
-      profileImage: user.profileImage || "",
-      isActive: user.isActive,
+    const leaveIds = new Set(await getApprovedLeaveIdsForDate(dateStr));
+    const users = await User.find({ isActive: true }).lean();
+    const employees = users.map((u) => ({
+      employeeId: u.employeeId,
+      name: u.name,
+      department: u.department,
+      profileImage: u.profileImage || "",
+      isActive: u.isActive,
     }));
-    const filteredEmployees = department
-      ? employees.filter((employee) => employee.department === department)
-      : employees;
+
+    const filtered = department ? employees.filter((e) => e.department === department) : employees;
 
     let records = [];
-    for (const employee of filteredEmployees) {
-      const record = await findAttendanceRecord(employee.employeeId, dateStr);
-      if (record) {
+    for (const emp of filtered) {
+      const rec = await findRecord(emp.employeeId, dateStr);
+      if (rec) {
         records.push({
-          ...record,
-          employeeName: record.employeeName || employee.name,
-          department: record.department || employee.department,
-          profileImage: employee.profileImage || "",
+          ...rec,
+          employeeName: rec.employeeName || emp.name,
+          department: rec.department || emp.department,
+          profileImage: emp.profileImage || "",
         });
       } else {
         records.push({
-          employeeId: employee.employeeId,
-          employeeName: employee.name,
-          department: employee.department,
-          profileImage: employee.profileImage || "",
+          employeeId: emp.employeeId,
+          employeeName: emp.name,
+          department: emp.department,
+          profileImage: emp.profileImage || "",
           checkIn: null,
           checkOut: null,
           totalHours: 0,
-          status: approvedLeaveEmployeeIds.has(employee.employeeId) ? "on_leave" : "absent",
+          status: leaveIds.has(emp.employeeId) ? "on_leave" : "absent",
         });
       }
     }
 
     if (status) {
-      records = records.filter((record) => record.status === status);
+      records = records.filter((r) => r.status === status);
     }
 
     records.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
@@ -188,13 +179,13 @@ export const attendanceService = {
   },
 
   async getDailyStats(dateStr) {
-    const employees = await prisma.user.findMany({ where: { isActive: true } });
+    const employees = await User.find({ isActive: true }).lean();
     const attendance = await this.getDailyAttendance(dateStr, "", "", 1, employees.length || 1);
-    const records = attendance.records;
-    const total = records.length;
+    const recs = attendance.records;
+    const total = recs.length;
 
-    const count = (value) => records.filter((record) => record.status === value).length;
-    const ratio = (value) => (total === 0 ? "0.0" : ((value / total) * 100).toFixed(1));
+    const count = (val) => recs.filter((r) => r.status === val).length;
+    const ratio = (val) => (total === 0 ? "0.0" : ((val / total) * 100).toFixed(1));
 
     const present = count("present");
     const late = count("late");
@@ -215,7 +206,7 @@ export const attendanceService = {
   },
 
   async getDepartments() {
-    const users = await prisma.user.findMany({ where: { isActive: true }, select: { department: true } });
-    return [...new Set(users.map((user) => user.department))];
+    const users = await User.find({ isActive: true }, "department").lean();
+    return [...new Set(users.map((u) => u.department))];
   },
 };
