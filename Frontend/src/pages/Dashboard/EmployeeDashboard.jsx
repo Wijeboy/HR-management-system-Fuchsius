@@ -107,7 +107,23 @@ const EmployeeDashboard = () => {
 
       if (todayRes.status === 'fulfilled') setTodayRecord(todayRes.value.data?.record || null);
       if (weekRes.status === 'fulfilled') setWeekData(weekRes.value.data || { days: [], totalWeekHours: 0 });
-      if (balanceRes.status === 'fulfilled') setLeaveBalance(balanceRes.value.data || null);
+      if (balanceRes.status === 'fulfilled') {
+        const raw = balanceRes.value.data?.balance || balanceRes.value.data || null;
+        // Transform flat backend balance { medical, vacation, medicalUsed, vacationUsed }
+        // into the array format the dashboard UI expects
+        if (raw && (raw.medical !== undefined || raw.vacation !== undefined)) {
+          setLeaveBalance({
+            balances: [
+              { type: 'vacation', remaining: raw.vacation ?? 0, used: raw.vacationUsed ?? 0 },
+              { type: 'medical', remaining: raw.medical ?? 0, used: raw.medicalUsed ?? 0 },
+            ],
+          });
+        } else if (raw?.balances) {
+          setLeaveBalance(raw);
+        } else {
+          setLeaveBalance(null);
+        }
+      }
       if (historyRes.status === 'fulfilled') setLeaveHistory(historyRes.value.data?.records || []);
       if (schedulesRes.status === 'fulfilled') {
         const raw = schedulesRes.value.data;
