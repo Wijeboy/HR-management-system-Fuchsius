@@ -1,0 +1,5 @@
+$kind: http-request
+name: Download Applicant CV
+method: GET
+url: '{{baseUrl}}/api/recruitment/applicants/{{applicantId}}/cv'
+order: 9000

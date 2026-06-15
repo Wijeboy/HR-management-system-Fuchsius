@@ -1,0 +1,16 @@
+$kind: http-request
+name: Schedule Interview
+method: POST
+url: '{{baseUrl}}/api/recruitment/schedule/{{applicantId}}'
+order: 11000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "interviewDate": "2025-07-01T10:00:00Z",
+      "interviewerEmployeeId": "EMP002",
+      "notes": "Technical round"
+    }

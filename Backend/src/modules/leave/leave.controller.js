@@ -1,6 +1,6 @@
 import { leaveService } from "./leave.service.js";
 
-const mapLeaveRecord = (record) => (record ? { ...record, _id: record.id } : record);
+const mapLeaveRecord = (record) => (record ? { ...record, id: record._id || record.id } : record);
 const mapPaged = (data) => ({ ...data, records: (data.records || []).map(mapLeaveRecord) });
 
 export const leaveController = {

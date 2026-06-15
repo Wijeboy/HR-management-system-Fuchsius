@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /**
  * Applicant Model
@@ -25,4 +25,4 @@ const applicantSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Applicant', applicantSchema);
+export default mongoose.model('Applicant', applicantSchema);

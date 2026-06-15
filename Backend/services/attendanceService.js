@@ -1,5 +1,5 @@
-const Attendance = require('../models/Attendance');
-const User = require('../models/User');
+import Attendance from '../models/Attendance.js';
+import User from '../models/User.js';
 
 /**
  * AttendanceService
@@ -252,7 +252,7 @@ const getDepartments = async () => {
   return User.distinct('department', { isActive: true });
 };
 
-module.exports = {
+export default {
   checkIn,
   checkOut,
   getEmployeeHistory,

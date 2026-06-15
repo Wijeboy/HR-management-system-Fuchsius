@@ -1,9 +1,11 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import ctrl from '../controllers/leaveController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
+const { requireRoles } = authMiddleware;
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const ctrl = require('../controllers/leaveController');
-const { requireRoles } = require('../middleware/authMiddleware');
 
 // ─── Multer setup for supporting documents ────────────────────────────────────
 const storage = multer.diskStorage({
@@ -36,13 +38,13 @@ router.get('/balance/:employeeId', ctrl.getBalance);
 router.get('/history/:employeeId', ctrl.getHistory);
 
 // HR routes
-router.get('/pending', requireRoles('admin', 'hr'), ctrl.getPending);
-router.get('/approved', requireRoles('admin', 'hr'), ctrl.getApproved);
-router.get('/rejected', requireRoles('admin', 'hr'), ctrl.getRejected);
-router.post('/:id/approve', requireRoles('admin', 'hr'), ctrl.approveLeave);
-router.post('/:id/reject', requireRoles('admin', 'hr'), ctrl.rejectLeave);
+router.get('/pending', requireRoles('admin', 'hr', 'manager'), ctrl.getPending);
+router.get('/approved', requireRoles('admin', 'hr', 'manager'), ctrl.getApproved);
+router.get('/rejected', requireRoles('admin', 'hr', 'manager'), ctrl.getRejected);
+router.post('/:id/approve', requireRoles('admin', 'hr', 'manager'), ctrl.approveLeave);
+router.post('/:id/reject', requireRoles('admin', 'hr', 'manager'), ctrl.rejectLeave);
 
 // Single request view
 router.get('/:id', ctrl.getSingleRequest);
 
-module.exports = router;
+export default router;

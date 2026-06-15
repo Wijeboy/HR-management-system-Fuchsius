@@ -1,0 +1,27 @@
+$kind: http-request
+name: Submit Leave Request
+method: POST
+url: '{{baseUrl}}/api/leave/submit'
+order: 1000
+body:
+  type: formdata
+  content:
+    - key: leaveType
+      type: text
+      value: ''
+    - key: startDate
+      type: text
+      value: ''
+    - key: endDate
+      type: text
+      value: ''
+    - key: reason
+      type: text
+      value: ''
+    - key: employeeId
+      type: text
+      value: '{{employeeId}}'
+    - key: supportingDocument
+      type: file
+      src: ''
+      description: Optional supporting document

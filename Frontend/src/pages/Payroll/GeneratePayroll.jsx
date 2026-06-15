@@ -44,7 +44,7 @@ const GeneratePayroll = () => {
   const searchParams = new URLSearchParams(location.search);
   const preselectedEmployeeId = searchParams.get('employee');
 
-  const [employees, setEmployees] = useState([]);
+  const [activeEmployees, setActiveEmployees] = useState([]);
   const [employeeId, setEmployeeId] = useState('');
   const [payPeriod, setPayPeriod] = useState(defaultPayPeriod);
 
@@ -81,15 +81,25 @@ const GeneratePayroll = () => {
       setError('');
 
       try {
-        const response = await apiClient.get('/payroll/employees');
-        const list = response.data?.data || [];
-        setEmployees(list);
+        const response = await apiClient.get('/users');
+        const list = response.data?.users || [];
+        const mappedList = list.map((emp) => ({
+          ...emp,
+          _id: emp.id || emp.employeeId,
+          empID: emp.employeeId || emp.id,
+          baseSalary: emp.baseSalary ?? 5000,
+          fixedAllowance: emp.fixedAllowance ?? 1000,
+          paymentMethod: emp.paymentMethod ?? 'Bank Transfer',
+          bankName: emp.bankName ?? '',
+          accountNo: emp.accountNo ?? '',
+        }));
+        setActiveEmployees(mappedList);
 
-        if (list.length > 0) {
+        if (mappedList.length > 0) {
           const selectedId =
-            preselectedEmployeeId && list.some((employee) => employee.id === preselectedEmployeeId)
-              ? preselectedEmployeeId
-              : list[0].id;
+            preselectedEmployeeId && mappedList.some((emp) => emp.empID === preselectedEmployeeId)
+              ? mappedList.find((emp) => emp.empID === preselectedEmployeeId)?._id
+              : mappedList[0]._id;
           setEmployeeId(selectedId);
         }
       } catch (requestError) {
@@ -103,8 +113,8 @@ const GeneratePayroll = () => {
   }, [preselectedEmployeeId]);
 
   const selectedEmployee = useMemo(
-    () => employees.find((employee) => employee.id === employeeId) || null,
-    [employeeId, employees]
+    () => activeEmployees.find((employee) => employee._id === employeeId) || null,
+    [employeeId, activeEmployees]
   );
 
   const payroll = useMemo(() => {
@@ -181,7 +191,7 @@ const GeneratePayroll = () => {
 
     try {
       const payload = {
-        employeeId: selectedEmployee.id,
+        employeeId: selectedEmployee.empID || selectedEmployee.employeeId || selectedEmployee.id,
         payPeriod,
         attendanceDays: toNumber(attendanceDays),
         unpaidLeaveDays: toNumber(unpaidLeaveDays),
@@ -200,11 +210,11 @@ const GeneratePayroll = () => {
       const payslipId = response.data?.data?.payslip?.id;
 
       if (payslipId) {
-        navigate(`/payroll/payslip/${payslipId}`);
+        navigate(`/dashboard/payroll/payslip/${payslipId}`);
         return;
       }
 
-      navigate('/payroll');
+      navigate('/dashboard/payroll/records');
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Failed to generate payroll');
     } finally {
@@ -241,8 +251,13 @@ const GeneratePayroll = () => {
         return;
       }
 
-      setEmployees((prev) => [...prev, created].sort((a, b) => a.id.localeCompare(b.id)));
-      setEmployeeId(created.id);
+      const mappedCreated = {
+        ...created,
+        _id: created.id,
+        empID: created.id,
+      };
+      setActiveEmployees((prev) => [...prev, mappedCreated].sort((a, b) => a.name.localeCompare(b.name)));
+      setEmployeeId(mappedCreated._id);
       setNewEmployee({
         id: '',
         name: '',
@@ -309,7 +324,7 @@ const GeneratePayroll = () => {
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Add Payroll Employee</h2>
             <p className="mt-1 text-sm text-gray-600">
-              {employees.length === 0
+              {activeEmployees.length === 0
                 ? 'No payroll employees found. Create one below to start entering payroll inputs.'
                 : 'Create a new payroll employee if the person is not in the list.'}
             </p>
@@ -473,12 +488,12 @@ const GeneratePayroll = () => {
                 <select
                   value={employeeId}
                   onChange={(event) => setEmployeeId(event.target.value)}
-                  disabled={loadingEmployees || employees.length === 0}
+                  disabled={loadingEmployees || activeEmployees.length === 0}
                   className={inputClassName}
                 >
-                  {employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.name} ({employee.id})
+                  {activeEmployees.map((emp) => (
+                    <option key={emp._id} value={emp._id}>
+                      {emp.name} ({emp.empID})
                     </option>
                   ))}
                 </select>

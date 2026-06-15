@@ -1,12 +1,12 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
 
-const attendanceRoutes = require('./routes/attendanceRoutes');
-const leaveRoutes = require('./routes/leaveRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-const recruitmentRoutes = require('./routes/recruitmentRoutes');
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import leaveRoutes from './routes/leaveRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import recruitmentRoutes from './routes/recruitmentRoutes.js';
 
 const app = express();
 
@@ -19,6 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ message: 'backend Connected successfully' });
+});
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -34,7 +37,7 @@ mongoose
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050; 
 app.listen(PORT, () => {
-  console.log(`🚀 HRMS Backend running on http://localhost:${PORT}`);
+  console.log(`backend Connected successfully on http://localhost:${PORT}`);
 });

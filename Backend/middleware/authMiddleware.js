@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 
@@ -27,4 +27,4 @@ const requireRoles = (...roles) => {
   };
 };
 
-module.exports = { requireAuth, requireRoles };
+export default { requireAuth, requireRoles };

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
@@ -16,9 +16,10 @@ const userSchema = new mongoose.Schema(
     jobTitle: { type: String, default: '' },
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
+    profileImage: { type: String, default: null },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);

@@ -88,7 +88,7 @@ const defaultLeaveBalances = {
   vacation: 18,
 };
 
-module.exports = {
+export {
   dummyUsers,
   dummyEmployees,
   dummyDepartments,

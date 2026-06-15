@@ -38,6 +38,10 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api", apiRouter);
 
+app.get("/", (req, res) => {
+  res.json({ message: "hrms backend running successfully" });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 

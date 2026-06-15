@@ -1,0 +1,5 @@
+$kind: http-request
+name: Delete Job Posting
+method: DELETE
+url: '{{baseUrl}}/api/recruitment/jobs/{{jobId}}'
+order: 6000

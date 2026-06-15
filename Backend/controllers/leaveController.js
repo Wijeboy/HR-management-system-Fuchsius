@@ -1,4 +1,5 @@
-const leaveService = require('../services/leaveService');
+import leaveService from '../services/leaveService.js';
+import LeaveRequest from '../models/LeaveRequest.js';
 
 /**
  * POST /api/leave/submit
@@ -167,7 +168,6 @@ const rejectLeave = async (req, res) => {
  */
 const getSingleRequest = async (req, res) => {
   try {
-    const LeaveRequest = require('../models/LeaveRequest');
     const req2 = await LeaveRequest.findById(req.params.id);
     if (!req2) return res.status(404).json({ message: 'Not found' });
     res.json({ request: req2 });
@@ -176,7 +176,7 @@ const getSingleRequest = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   submitLeave,
   updateLeave,
   deleteLeave,

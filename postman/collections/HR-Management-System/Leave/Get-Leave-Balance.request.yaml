@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Leave Balance
+method: GET
+url: '{{baseUrl}}/api/leave/balance/{{employeeId}}'
+order: 4000

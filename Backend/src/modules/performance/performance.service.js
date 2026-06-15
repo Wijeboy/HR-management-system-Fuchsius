@@ -1,4 +1,5 @@
-import { prisma } from "../../lib/prisma.js";
+import PerformanceReview from "../../models/PerformanceReview.js";
+import PerformanceGoal from "../../models/PerformanceGoal.js";
 import { toNumber } from "../../utils/number.js";
 
 const getRatingBand = (rating) => {
@@ -13,7 +14,6 @@ const getGoalProgress = (goal) => {
     if (goal.current <= 0) return 0;
     return Math.min(140, (goal.target / goal.current) * 100);
   }
-
   if (goal.target <= 0) return 0;
   return Math.min(140, (goal.current / goal.target) * 100);
 };
@@ -29,78 +29,68 @@ const filterReviews = (reviews, query) => {
   const cycle = query.cycle || "All Cycles";
   const status = query.status || "All Status";
 
-  return reviews.filter((review) => {
-    const matchesSearch =
+  return reviews.filter((r) => {
+    const matchSearch =
       !search ||
-      review.employeeName.toLowerCase().includes(search) ||
-      review.employeeId.toLowerCase().includes(search) ||
-      review.department.toLowerCase().includes(search);
+      r.employeeName.toLowerCase().includes(search) ||
+      r.employeeId.toLowerCase().includes(search) ||
+      r.department.toLowerCase().includes(search);
 
-    const matchesCycle = cycle === "All Cycles" || review.cycle === cycle;
-    const matchesStatus = status === "All Status" || review.status === status;
-
-    return matchesSearch && matchesCycle && matchesStatus;
+    const matchCycle = cycle === "All Cycles" || r.cycle === cycle;
+    const matchStatus = status === "All Status" || r.status === status;
+    return matchSearch && matchCycle && matchStatus;
   });
 };
 
 const summarizeReviews = (reviews) => {
-  const completed = reviews.filter((review) => review.status === "Completed");
-  const avgRating =
+  const completed = reviews.filter((r) => r.status === "Completed");
+  const avg =
     completed.length === 0
       ? 0
-      : completed.reduce((sum, review) => sum + toNumber(review.finalRating), 0) / completed.length;
+      : completed.reduce((sum, r) => sum + toNumber(r.finalRating), 0) / completed.length;
 
   return {
     totalReviews: reviews.length,
     completed: completed.length,
-    promotions: reviews.filter((review) => review.recommendation === "Promotion").length,
-    bonuses: reviews.filter((review) => review.recommendation === "Bonus").length,
-    avgRating: Number(avgRating.toFixed(2)),
+    promotions: reviews.filter((r) => r.recommendation === "Promotion").length,
+    bonuses: reviews.filter((r) => r.recommendation === "Bonus").length,
+    avgRating: Number(avg.toFixed(2)),
   };
 };
 
 const decorateGoals = (goals) =>
-  goals.map((goal) => {
-    const progress = getGoalProgress(goal);
-    return {
-      ...goal,
-      progress: Number(progress.toFixed(2)),
-      status: getGoalStatus(progress),
-    };
+  goals.map((g) => {
+    const progress = getGoalProgress(g);
+    return { ...g, progress: Number(progress.toFixed(2)), status: getGoalStatus(progress) };
   });
 
 const filterGoals = (goals, query) => {
   const employee = query.employee || "All Employees";
   const status = query.status || "All Status";
 
-  return goals.filter((goal) => {
-    const employeeLabel = `${goal.employeeName} (${goal.employeeId})`;
-    const matchesEmployee = employee === "All Employees" || employee === employeeLabel;
-    const matchesStatus = status === "All Status" || goal.status === status;
-    return matchesEmployee && matchesStatus;
+  return goals.filter((g) => {
+    const label = `${g.employeeName} (${g.employeeId})`;
+    const matchEmp = employee === "All Employees" || employee === label;
+    const matchStatus = status === "All Status" || g.status === status;
+    return matchEmp && matchStatus;
   });
 };
 
 const summarizeGoals = (goals) => {
   if (goals.length === 0) {
-    return {
-      activeGoals: 0,
-      achieved: 0,
-      atRisk: 0,
-      weightedPerformance: 0,
-    };
+    return { activeGoals: 0, achieved: 0, atRisk: 0, weightedPerformance: 0 };
   }
 
-  const totalWeight = goals.reduce((sum, goal) => sum + toNumber(goal.weight), 0) || 1;
-  const weightedProgress = goals.reduce((sum, goal) => {
-    const normalized = Math.min(toNumber(goal.progress), 120);
-    return sum + normalized * toNumber(goal.weight);
+  const totalWeight = goals.reduce((sum, g) => sum + toNumber(g.weight), 0) || 1;
+  const weightedProgress = goals.reduce((sum, g) => {
+    const norm = Math.min(toNumber(g.progress), 120);
+    return sum + norm * toNumber(g.weight);
   }, 0);
 
   return {
     activeGoals: goals.length,
-    achieved: goals.filter((goal) => goal.status === "Achieved").length,
-    atRisk: goals.filter((goal) => goal.status === "At Risk").length,
+    achieved: goals.filter((g) => g.status === "Achieved").length,
+    atRisk: goals.filter((g) => g.status === "At Risk").length,
     weightedPerformance: Number((weightedProgress / totalWeight).toFixed(2)),
   };
 };
@@ -111,24 +101,19 @@ const nextReviewId = async (cycle) => {
     .replace(/[^a-zA-Z0-9-]/g, "")
     .toUpperCase();
 
-  const count = await prisma.performanceReview.count({
-    where: { id: { startsWith: `PRV-${token}-` } },
+  const count = await PerformanceReview.countDocuments({
+    _id: { $regex: `^PRV-${token}-` },
   });
-
   return `PRV-${token}-${String(count + 1).padStart(3, "0")}`;
 };
 
 const nextGoalId = async () => {
-  const existing = await prisma.performanceGoal.findMany({
-    select: { id: true },
-  });
-
-  const maxId = existing.reduce((max, goal) => {
-    const raw = goal.id.startsWith("KPI-") ? goal.id.slice(4) : "";
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
+  const goals = await PerformanceGoal.find({}, "_id").lean();
+  const maxId = goals.reduce((max, g) => {
+    const raw = g._id.startsWith("KPI-") ? g._id.slice(4) : "";
+    const num = Number(raw);
+    return Number.isFinite(num) ? Math.max(max, num) : max;
   }, 0);
-
   return `KPI-${String(maxId + 1).padStart(3, "0")}`;
 };
 
@@ -136,19 +121,23 @@ const toBoolean = (value) => value === true || value === "true";
 
 export const performanceService = {
   async getReviews(query) {
-    const allReviews = await prisma.performanceReview.findMany({
-      orderBy: [{ cycle: "desc" }, { id: "desc" }],
-    });
+    const filter = {};
+    if (query.employeeId) filter.employeeId = query.employeeId;
+
+    const allReviews = await PerformanceReview.find(filter)
+      .sort({ cycle: -1, _id: -1 })
+      .lean();
 
     const reviews = filterReviews(allReviews, query);
 
     return {
-      reviews: reviews.map((item) => ({
-        ...item,
-        ratingBand: item.finalRating ? getRatingBand(item.finalRating) : "Not Rated",
+      reviews: reviews.map((r) => ({
+        ...r,
+        id: r._id,
+        ratingBand: r.finalRating ? getRatingBand(r.finalRating) : "Not Rated",
       })),
       summary: summarizeReviews(reviews),
-      cycles: [...new Set(allReviews.map((review) => review.cycle))],
+      cycles: [...new Set(allReviews.map((r) => r.cycle))],
     };
   },
 
@@ -160,7 +149,7 @@ export const performanceService = {
     const finalRating = payload.finalRating !== undefined ? toNumber(payload.finalRating) : calculated;
 
     const review = {
-      id: await nextReviewId(payload.cycle),
+      _id: await nextReviewId(payload.cycle),
       employeeName: payload.employeeName,
       employeeId: payload.employeeId,
       department: payload.department,
@@ -174,27 +163,56 @@ export const performanceService = {
       status: payload.status || "In Progress",
     };
 
-    return prisma.performanceReview.create({ data: review });
+    const created = await PerformanceReview.create(review);
+    return created.toObject();
+  },
+
+  async updateReview(id, payload) {
+    const goalsScore = toNumber(payload.goalsScore);
+    const competencyScore = toNumber(payload.competencyScore);
+    const behaviorScore = toNumber(payload.behaviorScore);
+    const calculated = Number(((goalsScore + competencyScore + behaviorScore) / 3).toFixed(1));
+    const finalRating = payload.finalRating !== undefined ? toNumber(payload.finalRating) : calculated;
+
+    const updated = await PerformanceReview.findByIdAndUpdate(
+      id,
+      {
+        employeeName: payload.employeeName,
+        employeeId: payload.employeeId,
+        department: payload.department,
+        reviewer: payload.reviewer,
+        cycle: payload.cycle,
+        goalsScore,
+        competencyScore,
+        behaviorScore,
+        finalRating,
+        recommendation: payload.recommendation,
+        status: payload.status,
+      },
+      { new: true }
+    ).lean();
+
+    return updated;
   },
 
   async getGoals(query) {
-    const allGoals = await prisma.performanceGoal.findMany({
-      orderBy: [{ dueDate: "asc" }, { id: "asc" }],
-    });
+    const allGoals = await PerformanceGoal.find()
+      .sort({ dueDate: 1, _id: 1 })
+      .lean();
 
     const decorated = decorateGoals(allGoals);
     const filtered = filterGoals(decorated, query);
 
     return {
-      goals: filtered,
+      goals: filtered.map((g) => ({ ...g, id: g._id })),
       summary: summarizeGoals(filtered),
-      employees: [...new Set(allGoals.map((goal) => `${goal.employeeName} (${goal.employeeId})`))],
+      employees: [...new Set(allGoals.map((g) => `${g.employeeName} (${g.employeeId})`))],
     };
   },
 
   async createGoal(payload) {
     const goal = {
-      id: await nextGoalId(),
+      _id: await nextGoalId(),
       employeeName: payload.employeeName,
       employeeId: payload.employeeId,
       goal: payload.goal,
@@ -206,17 +224,17 @@ export const performanceService = {
       lowerIsBetter: toBoolean(payload.lowerIsBetter),
     };
 
-    return prisma.performanceGoal.create({ data: goal });
+    const created = await PerformanceGoal.create(goal);
+    return created.toObject();
   },
 
   async updateGoalCurrent(id, payload) {
-    const result = await prisma.performanceGoal.updateMany({
-      where: { id },
-      data: { current: toNumber(payload.current) },
-    });
+    const updated = await PerformanceGoal.findByIdAndUpdate(
+      id,
+      { current: toNumber(payload.current) },
+      { new: true }
+    ).lean();
 
-    if (result.count === 0) return null;
-
-    return prisma.performanceGoal.findUnique({ where: { id } });
+    return updated || null;
   },
 };

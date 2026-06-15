@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Payslips
+method: GET
+url: '{{baseUrl}}/api/payroll/payslips'
+order: 4000

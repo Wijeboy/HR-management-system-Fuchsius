@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getDefaultRouteForRole } from '../utils/roleRouting';
+import PropTypes from 'prop-types';
 
 const PrivateRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -32,6 +33,11 @@ export const RoleGuard = ({ allowedRoles = [], children }) => {
   }
 
   return children;
+};
+
+RoleGuard.propTypes = {
+  allowedRoles: PropTypes.arrayOf(PropTypes.string),
+  children: PropTypes.node,
 };
 
 export default PrivateRoute;

@@ -1,0 +1,17 @@
+$kind: http-request
+name: Create Payroll Employee
+method: POST
+url: '{{baseUrl}}/api/payroll/employees'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "employeeId": "EMP001",
+      "baseSalary": 5000,
+      "allowances": 500,
+      "deductions": 200
+    }

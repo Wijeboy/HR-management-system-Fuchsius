@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import ctrl from '../controllers/recruitmentController.js';
+
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const ctrl = require('../controllers/recruitmentController');
 
 // ── Multer setup ──────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -38,4 +39,4 @@ router.delete('/applicants/:id', ctrl.cancelApplicant);
 router.post('/schedule/:applicantId', ctrl.scheduleInterview);
 router.get('/schedules/:employeeId', ctrl.getEmployeeSchedules);
 
-module.exports = router;
+export default router;

@@ -1,28 +1,38 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const sections = [
   {
-    to: '/payroll',
+    to: '/dashboard/payroll/records',
     label: 'Payroll Records',
     description: 'Review processed runs, totals, and payroll status by period.',
-    matches: ['/payroll'],
+    match: '/records',
   },
   {
-    to: '/payroll/generate',
+    to: '/dashboard/payroll/generate',
     label: 'Generate Payroll',
     description: 'Create a new payroll run using attendance, allowances, and deductions.',
-    matches: ['/payroll/generate'],
+    match: '/generate',
   },
   {
-    to: '/payroll/payslips',
+    to: '/dashboard/payroll/payslips',
     label: 'Payslips',
     description: 'Open salary statements and compare earnings, deductions, and take-home pay.',
-    matches: ['/payroll/payslips', '/payroll/payslip/'],
-  },
+    match: '/payslips',
+  }
 ];
 
 const PayrollSectionTabs = ({ title, description, helper, action }) => {
+  const { user } = useAuth();
   const location = useLocation();
+  const canManagePayroll = user?.role === 'admin' || user?.role === 'hr';
+
+  const visibleSections = sections.filter((section) => {
+    if (section.match === '/records' || section.match === '/generate') {
+      return canManagePayroll;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-4">
@@ -39,20 +49,18 @@ const PayrollSectionTabs = ({ title, description, helper, action }) => {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
-        <div className="grid gap-2 md:grid-cols-3">
-          {sections.map((section) => {
-            const isActive = section.matches.some((match) =>
-              match.endsWith('/') ? location.pathname.startsWith(match) : location.pathname === match
-            );
+        <div className={`grid gap-2 ${visibleSections.length > 1 ? 'md:grid-cols-3' : 'grid-cols-1'}`}>
+          {visibleSections.map((section) => {
+            const isActive = location.pathname.includes(section.match) || (section.match === '/payslips' && location.pathname.includes('/payslip/'));
 
             return (
-              <NavLink
+              <Link
                 key={section.to}
                 to={section.to}
                 className={`flex items-center justify-between rounded-lg border px-4 py-4 transition-colors ${
                   isActive
-                    ? 'border-cyan-200 bg-cyan-50 text-cyan-800'
-                    : 'border-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50/50'
                 }`}
               >
                 <div>
@@ -60,7 +68,7 @@ const PayrollSectionTabs = ({ title, description, helper, action }) => {
                   <p className="mt-1 text-xs leading-5 text-inherit opacity-80">{section.description}</p>
                 </div>
                 <span className="material-symbols-outlined text-xl">arrow_forward</span>
-              </NavLink>
+              </Link>
             );
           })}
         </div>

@@ -1,0 +1,5 @@
+$kind: http-request
+name: Cancel Applicant
+method: DELETE
+url: '{{baseUrl}}/api/recruitment/applicants/{{applicantId}}'
+order: 10000

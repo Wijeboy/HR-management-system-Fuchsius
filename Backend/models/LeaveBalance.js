@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 /**
  * LeaveBalance Model
@@ -24,4 +24,4 @@ const leaveBalanceSchema = new mongoose.Schema(
 
 leaveBalanceSchema.index({ employeeId: 1, year: 1 }, { unique: true });
 
-module.exports = mongoose.model('LeaveBalance', leaveBalanceSchema);
+export default mongoose.model('LeaveBalance', leaveBalanceSchema);

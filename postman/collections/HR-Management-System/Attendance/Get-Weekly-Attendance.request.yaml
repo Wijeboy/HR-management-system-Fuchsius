@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Weekly Attendance
+method: GET
+url: '{{baseUrl}}/api/attendance/weekly/{{employeeId}}'
+order: 5000

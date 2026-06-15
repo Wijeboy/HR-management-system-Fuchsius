@@ -6,7 +6,9 @@ import { notificationRouter } from "../modules/notifications/notifications.route
 import { payrollRouter } from "../modules/payroll/payroll.routes.js";
 import { performanceRouter } from "../modules/performance/performance.routes.js";
 import { recruitmentRouter } from "../modules/recruitment/recruitment.routes.js";
+import { searchRouter } from "../modules/search/search.routes.js";
 import { usersRouter } from "../modules/users/users.routes.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const apiRouter = Router();
 
@@ -31,6 +33,7 @@ apiRouter.use("/notifications", notificationRouter);
 apiRouter.use("/payroll", payrollRouter);
 apiRouter.use("/performance", performanceRouter);
 apiRouter.use("/recruitment", recruitmentRouter);
+apiRouter.use("/search", requireAuth, searchRouter);
 apiRouter.use("/users", usersRouter);
 
 export { apiRouter };

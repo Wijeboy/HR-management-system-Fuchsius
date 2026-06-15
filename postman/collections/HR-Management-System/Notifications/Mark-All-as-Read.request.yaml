@@ -1,0 +1,5 @@
+$kind: http-request
+name: Mark All as Read
+method: PUT
+url: '{{baseUrl}}/api/notifications/mark-all-read'
+order: 2000

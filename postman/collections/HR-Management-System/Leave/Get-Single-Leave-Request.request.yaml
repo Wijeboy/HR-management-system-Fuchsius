@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Single Leave Request
+method: GET
+url: '{{baseUrl}}/api/leave/{{leaveId}}'
+order: 11000

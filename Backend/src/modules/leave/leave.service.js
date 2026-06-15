@@ -1,4 +1,7 @@
-import { prisma } from "../../lib/prisma.js";
+import User from "../../../models/User.js";
+import LeaveRequest from "../../../models/LeaveRequest.js";
+import LeaveBalance from "../../../models/LeaveBalance.js";
+import Notification from "../../../models/Notification.js";
 
 const DEFAULT_BALANCE = {
   medical: 12,
@@ -26,56 +29,35 @@ const calcDuration = (startDate, endDate) => {
 
 const nextId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
-const sortByDateDesc = (items, field) =>
-  [...items].sort((left, right) => new Date(right[field] || 0) - new Date(left[field] || 0));
-
 const attachProfileImages = async (records = []) => {
-  const employeeIds = [...new Set(records.map((record) => record.employeeId).filter(Boolean))];
+  const empIds = [...new Set(records.map((r) => r.employeeId).filter(Boolean))];
+  if (empIds.length === 0) return records;
 
-  if (employeeIds.length === 0) {
-    return records;
-  }
+  const users = await User.find({ employeeId: { $in: empIds } }, "employeeId profileImage").lean();
+  const imageMap = new Map(users.map((u) => [u.employeeId, u.profileImage || ""]));
 
-  const users = await prisma.user.findMany({
-    where: {
-      employeeId: {
-        in: employeeIds,
-      },
-    },
-    select: {
-      employeeId: true,
-      profileImage: true,
-    },
-  });
-
-  const imageMap = new Map(
-    users.map((user) => [user.employeeId, user.profileImage || ""])
-  );
-
-  return records.map((record) => ({
-    ...record,
-    profileImage: imageMap.get(record.employeeId) || "",
+  return records.map((r) => ({
+    ...r,
+    profileImage: imageMap.get(r.employeeId) || "",
   }));
 };
 
 export const leaveService = {
   async getOrCreateBalance(employeeId) {
     const year = new Date().getFullYear();
-    const existing = await prisma.leaveBalance.findFirst({ where: { employeeId, year } });
+    const existing = await LeaveBalance.findOne({ employeeId, year }).lean();
     if (existing) return existing;
 
-    return prisma.leaveBalance.create({
-      data: {
-        id: nextId("leave-balance"),
-        employeeId,
-        year,
-        ...DEFAULT_BALANCE,
-      },
+    const created = await LeaveBalance.create({
+      employeeId,
+      year,
+      ...DEFAULT_BALANCE,
     });
+    return created.toObject();
   },
 
   async submitLeave(employeeId, data, file) {
-    const employee = await prisma.user.findFirst({ where: { employeeId, isActive: true } });
+    const employee = await User.findOne({ employeeId, isActive: true }).lean();
     if (!employee) throw new Error("Employee not found");
 
     const { leaveType, startDate, endDate, reason } = data;
@@ -85,22 +67,20 @@ export const leaveService = {
     const remaining = leaveType === "medical" ? balance.medical : balance.vacation;
 
     if (remaining < duration) {
-      const error = new Error(
+      const err = new Error(
         `You have exceeded your ${leaveType} leave limit. Only ${remaining} day(s) remaining.`
       );
-      error.code = "LEAVE_EXCEEDED";
-      throw error;
+      err.code = "LEAVE_EXCEEDED";
+      throw err;
     }
 
-    const request = await prisma.leaveRequest.create({
-      data: {
-        id: nextId("leave"),
+    const request = await LeaveRequest.create({
       employeeId,
       employeeName: employee.name,
       department: employee.department,
       leaveType,
-      startDate: new Date(startDate).toISOString(),
-      endDate: endDate ? new Date(endDate).toISOString() : null,
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : null,
       durationDays: duration,
       reason,
       status: "pending",
@@ -109,29 +89,26 @@ export const leaveService = {
       reviewedBy: null,
       reviewedAt: null,
       hrComment: "",
-      },
     });
 
-    const hrUsers = await prisma.user.findMany({ where: { role: "hr", isActive: true } });
+    // notify HR
+    const hrUsers = await User.find({ role: "hr", isActive: true }).lean();
     for (const hr of hrUsers) {
-      await prisma.notification.create({
-        data: {
-        id: nextId("notif"),
+      await Notification.create({
         recipientId: hr.id,
         recipientRole: "hr",
         message: `${employee.name} submitted a ${leaveType} leave request (${duration} day${duration > 1 ? "s" : ""}).`,
         type: "leave_submitted",
-        relatedLeaveId: request.id,
+        relatedLeaveId: String(request._id),
         read: false,
-        },
       });
     }
 
-    return request;
+    return request.toObject();
   },
 
   async updateLeave(leaveId, employeeId, data, file) {
-    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await LeaveRequest.findById(leaveId).lean();
     if (!request) throw new Error("Leave request not found");
     if (request.employeeId !== employeeId) throw new Error("Unauthorized");
     if (request.status !== "pending") throw new Error("Only pending requests can be updated");
@@ -141,80 +118,79 @@ export const leaveService = {
 
     if (leaveType !== request.leaveType || duration !== request.durationDays) {
       const balance = await this.getOrCreateBalance(employeeId);
-      const adjustedRemaining =
+      const adjusted =
         (leaveType === "medical" ? balance.medical : balance.vacation) + request.durationDays;
 
-      if (adjustedRemaining < duration) {
-        const error = new Error(`You have exceeded your ${leaveType} leave limit.`);
-        error.code = "LEAVE_EXCEEDED";
-        throw error;
+      if (adjusted < duration) {
+        const err = new Error(`You have exceeded your ${leaveType} leave limit.`);
+        err.code = "LEAVE_EXCEEDED";
+        throw err;
       }
     }
 
-    return prisma.leaveRequest.update({
-      where: { id: leaveId },
-      data: {
-        leaveType,
-        startDate: new Date(startDate).toISOString(),
-        endDate: endDate ? new Date(endDate).toISOString() : null,
-        durationDays: duration,
-        reason,
-        ...(file ? { supportingDocument: file.filename, documentMimeType: file.mimetype } : {}),
-      },
-    });
+    const updateData = {
+      leaveType,
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : null,
+      durationDays: duration,
+      reason,
+    };
+
+    if (file) {
+      updateData.supportingDocument = file.filename;
+      updateData.documentMimeType = file.mimetype;
+    }
+
+    const updated = await LeaveRequest.findByIdAndUpdate(leaveId, updateData, { new: true }).lean();
+    return updated;
   },
 
   async deleteLeave(leaveId, employeeId) {
-    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await LeaveRequest.findById(leaveId).lean();
     if (!request) throw new Error("Leave request not found");
     if (request.employeeId !== employeeId) throw new Error("Unauthorized");
 
     if (request.status === "approved") {
       const balance = await this.getOrCreateBalance(employeeId);
+      const update = {};
+
       if (request.leaveType === "medical") {
-        balance.medical += request.durationDays;
-        balance.medicalUsed = Math.max(0, balance.medicalUsed - request.durationDays);
+        update.medical = balance.medical + request.durationDays;
+        update.medicalUsed = Math.max(0, balance.medicalUsed - request.durationDays);
       } else {
-        balance.vacation += request.durationDays;
-        balance.vacationUsed = Math.max(0, balance.vacationUsed - request.durationDays);
+        update.vacation = balance.vacation + request.durationDays;
+        update.vacationUsed = Math.max(0, balance.vacationUsed - request.durationDays);
       }
-      await prisma.leaveBalance.update({
-        where: { id: balance.id },
-        data: {
-          medical: balance.medical,
-          vacation: balance.vacation,
-          medicalUsed: balance.medicalUsed,
-          vacationUsed: balance.vacationUsed,
-        },
-      });
+
+      await LeaveBalance.findByIdAndUpdate(balance._id, update);
     }
 
-    await prisma.leaveRequest.delete({ where: { id: leaveId } });
+    await LeaveRequest.findByIdAndDelete(leaveId);
     return { success: true };
   },
 
   async getEmployeeLeaveHistory(employeeId, page = 1, limit = 10) {
-    const records = await prisma.leaveRequest.findMany({ where: { employeeId }, orderBy: { createdAt: "desc" } });
+    const records = await LeaveRequest.find({ employeeId }).sort({ createdAt: -1 }).lean();
     return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getPendingRequests(page = 1, limit = 10) {
-    const records = await prisma.leaveRequest.findMany({ where: { status: "pending" }, orderBy: { createdAt: "desc" } });
+    const records = await LeaveRequest.find({ status: "pending" }).sort({ createdAt: -1 }).lean();
     return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getApprovedRequests(page = 1, limit = 10) {
-    const records = await prisma.leaveRequest.findMany({ where: { status: "approved" }, orderBy: { reviewedAt: "desc" } });
+    const records = await LeaveRequest.find({ status: "approved" }).sort({ reviewedAt: -1 }).lean();
     return paginate(await attachProfileImages(records), page, limit);
   },
 
   async getRejectedRequests(page = 1, limit = 10) {
-    const records = await prisma.leaveRequest.findMany({ where: { status: "rejected" }, orderBy: { reviewedAt: "desc" } });
+    const records = await LeaveRequest.find({ status: "rejected" }).sort({ reviewedAt: -1 }).lean();
     return paginate(await attachProfileImages(records), page, limit);
   },
 
   async approveLeave(leaveId, hrId) {
-    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await LeaveRequest.findById(leaveId).lean();
     if (!request) throw new Error("Leave request not found");
     if (request.status !== "pending") throw new Error("Request is not pending");
 
@@ -222,82 +198,63 @@ export const leaveService = {
 
     if (request.leaveType === "medical") {
       if (balance.medical < request.durationDays) throw new Error("Insufficient medical leave balance");
-      balance.medical -= request.durationDays;
-      balance.medicalUsed += request.durationDays;
+      await LeaveBalance.findByIdAndUpdate(balance._id, {
+        medical: balance.medical - request.durationDays,
+        medicalUsed: balance.medicalUsed + request.durationDays,
+      });
     } else {
       if (balance.vacation < request.durationDays) throw new Error("Insufficient vacation leave balance");
-      balance.vacation -= request.durationDays;
-      balance.vacationUsed += request.durationDays;
+      await LeaveBalance.findByIdAndUpdate(balance._id, {
+        vacation: balance.vacation - request.durationDays,
+        vacationUsed: balance.vacationUsed + request.durationDays,
+      });
     }
 
-    await prisma.leaveBalance.update({
-      where: { id: balance.id },
-      data: {
-        medical: balance.medical,
-        vacation: balance.vacation,
-        medicalUsed: balance.medicalUsed,
-        vacationUsed: balance.vacationUsed,
-      },
-    });
+    const updated = await LeaveRequest.findByIdAndUpdate(
+      leaveId,
+      { status: "approved", reviewedBy: hrId, reviewedAt: new Date() },
+      { new: true }
+    ).lean();
 
-    const updated = await prisma.leaveRequest.update({
-      where: { id: leaveId },
-      data: {
-        status: "approved",
-        reviewedBy: hrId,
-        reviewedAt: new Date().toISOString(),
-      },
-    });
-
-    const employeeUser = await prisma.user.findFirst({ where: { employeeId: request.employeeId, isActive: true } });
-    await prisma.notification.create({
-      data: {
-        id: nextId("notif"),
-        recipientId: employeeUser?.id || request.employeeId,
-        recipientRole: "employee",
-        message: `Your ${request.leaveType} leave request has been approved.`,
-        type: "leave_approved",
-        relatedLeaveId: request.id,
-        read: false,
-      },
+    const empUser = await User.findOne({ employeeId: request.employeeId, isActive: true }).lean();
+    await Notification.create({
+      recipientId: empUser?.id || request.employeeId,
+      recipientRole: "employee",
+      message: `Your ${request.leaveType} leave request has been approved.`,
+      type: "leave_approved",
+      relatedLeaveId: String(request._id),
+      read: false,
     });
 
     return updated;
   },
 
   async rejectLeave(leaveId, hrId, comment = "") {
-    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await LeaveRequest.findById(leaveId).lean();
     if (!request) throw new Error("Leave request not found");
     if (request.status !== "pending") throw new Error("Request is not pending");
 
-    const updated = await prisma.leaveRequest.update({
-      where: { id: leaveId },
-      data: {
-        status: "rejected",
-        reviewedBy: hrId,
-        reviewedAt: new Date().toISOString(),
-        hrComment: comment,
-      },
-    });
+    const updated = await LeaveRequest.findByIdAndUpdate(
+      leaveId,
+      { status: "rejected", reviewedBy: hrId, reviewedAt: new Date(), hrComment: comment },
+      { new: true }
+    ).lean();
 
-    const employeeUser = await prisma.user.findFirst({ where: { employeeId: request.employeeId, isActive: true } });
-    await prisma.notification.create({
-      data: {
-        id: nextId("notif"),
-        recipientId: employeeUser?.id || request.employeeId,
-        recipientRole: "employee",
-        message: `Your ${request.leaveType} leave request has been rejected.${comment ? ` Reason: ${comment}` : ""}`,
-        type: "leave_rejected",
-        relatedLeaveId: request.id,
-        read: false,
-      },
+    const empUser = await User.findOne({ employeeId: request.employeeId, isActive: true }).lean();
+    await Notification.create({
+      recipientId: empUser?.id || request.employeeId,
+      recipientRole: "employee",
+      message: `Your ${request.leaveType} leave request has been rejected.${comment ? ` Reason: ${comment}` : ""}`,
+      type: "leave_rejected",
+      relatedLeaveId: String(request._id),
+      read: false,
     });
 
     return updated;
   },
 
   async getRequestById(leaveId) {
-    const request = await prisma.leaveRequest.findUnique({ where: { id: leaveId } });
+    const request = await LeaveRequest.findById(leaveId).lean();
     if (!request) return null;
     const [record] = await attachProfileImages([request]);
     return record;

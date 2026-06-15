@@ -1,8 +1,10 @@
-import { prisma } from "../../lib/prisma.js";
+import PayrollEmployee from "../../models/PayrollEmployee.js";
+import PayrollRecord from "../../models/PayrollRecord.js";
+import Payslip from "../../models/Payslip.js";
 
 const seedEmployees = [
   {
-    id: "EMP-0034",
+    _id: "EMP-0034",
     name: "Sarah Williams",
     department: "Sales & Marketing",
     baseSalary: 8500,
@@ -12,7 +14,7 @@ const seedEmployees = [
     accountNo: "**** 4567",
   },
   {
-    id: "EMP-0012",
+    _id: "EMP-0012",
     name: "John Davis",
     department: "Engineering",
     baseSalary: 7800,
@@ -22,7 +24,7 @@ const seedEmployees = [
     accountNo: "**** 1220",
   },
   {
-    id: "EMP-0028",
+    _id: "EMP-0028",
     name: "Emily Chen",
     department: "Finance",
     baseSalary: 7300,
@@ -35,7 +37,7 @@ const seedEmployees = [
 
 const seedRecords = [
   {
-    id: "PR-202603-0001",
+    _id: "PR-202603-0001",
     employeeId: "EMP-0034",
     employeeName: "Sarah Williams",
     department: "Sales & Marketing",
@@ -49,7 +51,7 @@ const seedRecords = [
     paymentDate: "2026-03-31",
   },
   {
-    id: "PR-202603-0002",
+    _id: "PR-202603-0002",
     employeeId: "EMP-0012",
     employeeName: "John Davis",
     department: "Engineering",
@@ -63,7 +65,7 @@ const seedRecords = [
     paymentDate: "2026-03-31",
   },
   {
-    id: "PR-202602-0001",
+    _id: "PR-202602-0001",
     employeeId: "EMP-0028",
     employeeName: "Emily Chen",
     department: "Finance",
@@ -80,7 +82,7 @@ const seedRecords = [
 
 const seedPayslips = [
   {
-    id: "PR-202603-0001",
+    _id: "PR-202603-0001",
     payrollId: "PR-202603-0001",
     employeeId: "EMP-0034",
     employeeName: "Sarah Williams",
@@ -110,7 +112,7 @@ const seedPayslips = [
     leaveDays: 0,
   },
   {
-    id: "PR-202603-0002",
+    _id: "PR-202603-0002",
     payrollId: "PR-202603-0002",
     employeeId: "EMP-0012",
     employeeName: "John Davis",
@@ -140,7 +142,7 @@ const seedPayslips = [
     leaveDays: 1,
   },
   {
-    id: "PR-202602-0001",
+    _id: "PR-202602-0001",
     payrollId: "PR-202602-0001",
     employeeId: "EMP-0028",
     employeeName: "Emily Chen",
@@ -172,12 +174,10 @@ const seedPayslips = [
 ];
 
 export const ensurePayrollSeed = async () => {
-  const existingEmployees = await prisma.payrollEmployee.count();
-  if (existingEmployees > 0) {
-    return;
-  }
+  const count = await PayrollEmployee.countDocuments();
+  if (count > 0) return;
 
-  await prisma.payrollEmployee.createMany({ data: seedEmployees });
-  await prisma.payrollRecord.createMany({ data: seedRecords });
-  await prisma.payslip.createMany({ data: seedPayslips });
+  await PayrollEmployee.insertMany(seedEmployees);
+  await PayrollRecord.insertMany(seedRecords);
+  await Payslip.insertMany(seedPayslips);
 };

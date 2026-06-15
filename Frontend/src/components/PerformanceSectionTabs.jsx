@@ -1,19 +1,24 @@
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const sections = [
   {
-    to: '/performance/reviews',
+    to: '/dashboard/performance/reviews',
     label: 'Performance Reviews',
     description: 'Finalize ratings, recommendations, and review status by cycle.',
+    match: '/reviews',
   },
   {
-    to: '/performance/goals',
+    to: '/dashboard/performance/goals',
     label: 'Goals & KPIs',
     description: 'Track progress against targets and keep KPI updates current.',
+    match: '/goals',
   },
 ];
 
 const PerformanceSectionTabs = ({ title, description, helper }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 p-6 text-white shadow-sm">
@@ -25,25 +30,26 @@ const PerformanceSectionTabs = ({ title, description, helper }) => {
 
       <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
         <div className="grid gap-2 md:grid-cols-2">
-          {sections.map((section) => (
-            <NavLink
-              key={section.to}
-              to={section.to}
-              className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg border px-4 py-4 transition-colors ${
+          {sections.map((section) => {
+            const isActive = currentPath.includes(section.match);
+            return (
+              <Link
+                key={section.to}
+                to={section.to}
+                className={`flex items-center justify-between rounded-lg border px-4 py-4 transition-colors ${
                   isActive
-                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                    : 'border-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900'
-                }`
-              }
-            >
-              <div>
-                <p className="text-sm font-semibold">{section.label}</p>
-                <p className="mt-1 text-xs leading-5 text-inherit opacity-80">{section.description}</p>
-              </div>
-              <span className="material-symbols-outlined text-xl">arrow_forward</span>
-            </NavLink>
-          ))}
+                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-900'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50/50'
+                }`}
+              >
+                <div>
+                  <p className="text-sm font-semibold">{section.label}</p>
+                  <p className="mt-1 text-xs leading-5 text-inherit opacity-80">{section.description}</p>
+                </div>
+                <span className="material-symbols-outlined text-xl">arrow_forward</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

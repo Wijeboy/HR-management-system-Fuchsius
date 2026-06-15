@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get Approved Leaves (HR)'
+method: GET
+url: '{{baseUrl}}/api/leave/approved'
+order: 7000

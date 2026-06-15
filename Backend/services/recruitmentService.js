@@ -1,6 +1,6 @@
-const JobPosting = require('../models/JobPosting');
-const Applicant = require('../models/Applicant');
-const InterviewSchedule = require('../models/InterviewSchedule');
+import JobPosting from '../models/JobPosting.js';
+import Applicant from '../models/Applicant.js';
+import InterviewSchedule from '../models/InterviewSchedule.js';
 
 /**
  * RecruitmentService
@@ -151,7 +151,7 @@ const getEmployeeSchedules = async (employeeId, search = '') => {
   return await InterviewSchedule.find(query).sort({ interviewDate: 1 });
 };
 
-module.exports = {
+export default {
   createJobPosting,
   updateJobPosting,
   deleteJobPosting,

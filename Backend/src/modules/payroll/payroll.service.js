@@ -1,14 +1,19 @@
-import { prisma } from "../../lib/prisma.js";
+import PayrollEmployee from "../../models/PayrollEmployee.js";
+import PayrollRecord from "../../models/PayrollRecord.js";
+import Payslip from "../../models/Payslip.js";
+import User from "../../../models/User.js";
 import { monthLabelFromPeriod, paydayFromPeriod, periodFromLabel } from "../../utils/date.js";
 import { toNumber } from "../../utils/number.js";
 
+const withId = (doc) => (doc ? { ...doc, id: doc._id } : doc);
+
 const computeSummary = (records) =>
   records.reduce(
-    (acc, record) => {
-      acc.totalGross += record.gross;
-      acc.totalDeductions += record.deductions;
-      acc.totalNet += record.net;
-      if (record.status === "Pending") acc.pending += 1;
+    (acc, r) => {
+      acc.totalGross += r.gross;
+      acc.totalDeductions += r.deductions;
+      acc.totalNet += r.net;
+      if (r.status === "Pending") acc.pending += 1;
       return acc;
     },
     { totalGross: 0, totalDeductions: 0, totalNet: 0, pending: 0 }
@@ -21,11 +26,10 @@ const toWholeNumber = (value, fallback = 0) => {
 
 const nextPayrollId = async (period) => {
   const token = String(period || "").replace("-", "");
-  const countInPeriod = await prisma.payrollRecord.count({
-    where: { id: { startsWith: `PR-${token}-` } },
+  const count = await PayrollRecord.countDocuments({
+    _id: { $regex: `^PR-${token}-` },
   });
-
-  return `PR-${token}-${String(countInPeriod + 1).padStart(4, "0")}`;
+  return `PR-${token}-${String(count + 1).padStart(4, "0")}`;
 };
 
 const makePayrollCalculation = (payload, employee) => {
@@ -80,54 +84,49 @@ const filterRecords = (records, query) => {
   const status = query.status || "All Status";
   const period = query.period || "All Periods";
 
-  return records.filter((record) => {
-    const matchesSearch =
+  return records.filter((r) => {
+    const matchSearch =
       !search ||
-      record.employeeName.toLowerCase().includes(search) ||
-      record.employeeId.toLowerCase().includes(search) ||
-      record.id.toLowerCase().includes(search);
+      r.employeeName.toLowerCase().includes(search) ||
+      r.employeeId.toLowerCase().includes(search) ||
+      r._id.toLowerCase().includes(search);
 
-    const matchesStatus = status === "All Status" || record.status === status;
-    const matchesPeriod = period === "All Periods" || record.period === period;
+    const matchStatus = status === "All Status" || r.status === status;
+    const matchPeriod = period === "All Periods" || r.period === period;
 
-    return matchesSearch && matchesStatus && matchesPeriod;
+    return matchSearch && matchStatus && matchPeriod;
   });
 };
 
 export const payrollService = {
   async getEmployees() {
-    return prisma.payrollEmployee.findMany({
-      orderBy: { id: "asc" },
-    });
+    const docs = await PayrollEmployee.find().sort({ _id: 1 }).lean();
+    return docs.map(withId);
   },
 
   async createEmployee(payload) {
-    const existing = await prisma.payrollEmployee.findUnique({
-      where: { id: payload.id },
-    });
-
+    const existing = await PayrollEmployee.findById(payload.id).lean();
     if (existing) return null;
 
-    return prisma.payrollEmployee.create({
-      data: {
-        id: payload.id,
-        name: payload.name,
-        department: payload.department,
-        baseSalary: toNumber(payload.baseSalary),
-        fixedAllowance: toNumber(payload.fixedAllowance),
-        paymentMethod: payload.paymentMethod || "Bank Transfer",
-        bankName: payload.bankName || "",
-        accountNo: payload.accountNo || "",
-      },
+    const created = await PayrollEmployee.create({
+      _id: payload.id,
+      name: payload.name,
+      department: payload.department,
+      baseSalary: toNumber(payload.baseSalary),
+      fixedAllowance: toNumber(payload.fixedAllowance),
+      paymentMethod: payload.paymentMethod || "Bank Transfer",
+      bankName: payload.bankName || "",
+      accountNo: payload.accountNo || "",
     });
+    return withId(created.toObject());
   },
 
   async getRecords(query) {
-    const records = await prisma.payrollRecord.findMany({
-      orderBy: [{ paymentDate: "desc" }, { id: "desc" }],
-    });
+    const records = await PayrollRecord.find()
+      .sort({ paymentDate: -1, _id: -1 })
+      .lean();
 
-    const filtered = filterRecords(records, query);
+    const filtered = filterRecords(records, query).map(withId);
     return {
       records: filtered,
       summary: computeSummary(filtered),
@@ -135,22 +134,40 @@ export const payrollService = {
   },
 
   async getPayslips(query) {
-    const where = {};
-    if (query.employeeId) where.employeeId = String(query.employeeId);
-    if (query.period) where.period = String(query.period);
+    const filter = {};
+    if (query.employeeId) filter.employeeId = String(query.employeeId);
+    if (query.period) filter.period = String(query.period);
 
-    return prisma.payslip.findMany({
-      where,
-      orderBy: [{ paymentDate: "desc" }, { id: "desc" }],
-    });
+    const docs = await Payslip.find(filter).sort({ paymentDate: -1, _id: -1 }).lean();
+    return docs.map(withId);
   },
 
   async getPayslipById(id) {
-    return prisma.payslip.findUnique({ where: { id } });
+    const doc = await Payslip.findById(id).lean();
+    return withId(doc);
   },
 
   async calculatePayroll(payload) {
-    const employee = await prisma.payrollEmployee.findUnique({ where: { id: payload.employeeId } });
+    let employee = await PayrollEmployee.findById(payload.employeeId).lean();
+    if (!employee) {
+      const user = await User.findOne({
+        $or: [{ employeeId: payload.employeeId }, { id: payload.employeeId }],
+      }).lean();
+
+      if (user) {
+        const created = await PayrollEmployee.create({
+          _id: user.employeeId,
+          name: user.name,
+          department: user.department,
+          baseSalary: 5000,
+          fixedAllowance: 1000,
+          paymentMethod: "Bank Transfer",
+          bankName: "",
+          accountNo: "",
+        });
+        employee = created.toObject();
+      }
+    }
     if (!employee) return null;
 
     const calc = makePayrollCalculation(payload, employee);
@@ -159,8 +176,8 @@ export const payrollService = {
     const paymentDate = payload.paymentDate || paydayFromPeriod(calc.payPeriod);
 
     const payrollRecord = {
-      id: payrollId,
-      employeeId: employee.id,
+      _id: payrollId,
+      employeeId: employee._id,
       employeeName: employee.name,
       department: employee.department,
       period: periodLabel,
@@ -174,9 +191,9 @@ export const payrollService = {
     };
 
     const payslip = {
-      id: payrollId,
+      _id: payrollId,
       payrollId,
-      employeeId: employee.id,
+      employeeId: employee._id,
       employeeName: employee.name,
       department: employee.department,
       period: calc.payPeriod,
@@ -206,10 +223,8 @@ export const payrollService = {
       leaveDays: calc.unpaidLeaveDays,
     };
 
-    await prisma.$transaction([
-      prisma.payrollRecord.create({ data: payrollRecord }),
-      prisma.payslip.create({ data: payslip }),
-    ]);
+    await PayrollRecord.create(payrollRecord);
+    await Payslip.create(payslip);
 
     return {
       payrollRecord,

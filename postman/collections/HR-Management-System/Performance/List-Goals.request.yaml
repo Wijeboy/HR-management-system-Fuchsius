@@ -1,0 +1,5 @@
+$kind: http-request
+name: List Goals
+method: GET
+url: '{{baseUrl}}/api/performance/goals'
+order: 3000

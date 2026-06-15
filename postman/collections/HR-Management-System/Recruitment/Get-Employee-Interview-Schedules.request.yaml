@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Employee Interview Schedules
+method: GET
+url: '{{baseUrl}}/api/recruitment/schedules/{{employeeId}}'
+order: 12000

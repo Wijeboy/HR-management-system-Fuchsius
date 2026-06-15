@@ -1,4 +1,5 @@
-import { prisma } from "../../lib/prisma.js";
+import bcrypt from "bcryptjs";
+import User from "../../../models/User.js";
 
 const defaultUsers = [
   {
@@ -38,8 +39,8 @@ const defaultUsers = [
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 
 const nextEmployeeId = (users) => {
-  const maxNum = users.reduce((max, user) => {
-    const match = String(user.employeeId || "").match(/DEMO(\d+)/i);
+  const maxNum = users.reduce((max, u) => {
+    const match = String(u.employeeId || "").match(/DEMO(\d+)/i);
     const num = match ? Number(match[1]) : 0;
     return Math.max(max, num);
   }, 0);
@@ -48,52 +49,35 @@ const nextEmployeeId = (users) => {
 };
 
 export const ensureSystemUsers = async () => {
-  const existingUsers = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      employeeId: true,
-      name: true,
-      role: true,
-      department: true,
-      isActive: true,
-    },
-  });
+  const existingUsers = await User.find({}, "id email employeeId name role department isActive").lean();
 
-  for (const seedUser of defaultUsers) {
-    const byEmail = existingUsers.find((user) => normalizeEmail(user.email) === normalizeEmail(seedUser.email));
+  for (const seed of defaultUsers) {
+    const byEmail = existingUsers.find((u) => normalizeEmail(u.email) === normalizeEmail(seed.email));
+    const hashed = await bcrypt.hash(seed.password, 10);
 
     if (byEmail) {
-      await prisma.user.update({
-        where: { id: byEmail.id },
-        data: {
-          password: seedUser.password,
-          role: seedUser.role,
-          name: seedUser.name,
-          department: seedUser.department,
-          isActive: true,
-        },
-      });
+      await User.findOneAndUpdate(
+        { id: byEmail.id },
+        { password: hashed, role: seed.role, name: seed.name, department: seed.department, isActive: true }
+      );
       continue;
     }
 
-    const preferredEmployeeIdInUse = existingUsers.some((user) => user.employeeId === seedUser.employeeId);
-    const employeeId = preferredEmployeeIdInUse ? nextEmployeeId(existingUsers) : seedUser.employeeId;
+    const idTaken = existingUsers.some((u) => u.employeeId === seed.employeeId);
+    const empId = idTaken ? nextEmployeeId(existingUsers) : seed.employeeId;
 
-    const created = await prisma.user.create({
-      data: {
-        id: `user_${seedUser.role}_${Date.now()}_${Math.floor(Math.random() * 100000)}`,
-        employeeId,
-        name: seedUser.name,
-        email: seedUser.email,
-        password: seedUser.password,
-        role: seedUser.role,
-        department: seedUser.department,
-        jobTitle: "",
-        phone: "",
-        location: "",
-        isActive: true,
-      },
+    const created = await User.create({
+      id: `user_${seed.role}_${Date.now()}_${Math.floor(Math.random() * 100000)}`,
+      employeeId: empId,
+      name: seed.name,
+      email: seed.email,
+      password: hashed,
+      role: seed.role,
+      department: seed.department,
+      jobTitle: "",
+      phone: "",
+      location: "",
+      isActive: true,
     });
 
     existingUsers.push({

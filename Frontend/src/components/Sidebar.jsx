@@ -35,7 +35,7 @@ const Sidebar = () => {
       visible: canAccess(role, 'leaveRequests') || canAccess(role, 'leaveManage'),
     },
     {
-      path: user?.role === 'employee' ? '/payroll/payslips' : '/payroll',
+      path: user?.role === 'employee' ? '/dashboard/payroll/payslips' : '/dashboard/payroll/records',
       icon: 'payments',
       label: 'Payroll',
       visible: canAccess(role, 'payrollView') || canAccess(role, 'payrollPayslip'),
@@ -47,9 +47,7 @@ const Sidebar = () => {
       visible: canAccess(role, 'recruitmentApplicants') || canAccess(role, 'recruitmentJobs'),
     },
     {
-      path: canAccess(role, 'performanceReviews')
-        ? '/performance/reviews'
-        : '/performance/goals',
+      path: canAccess(role, 'performanceReviews') ? '/performance/reviews' : '/performance/goals',
       icon: 'trending_up',
       label: 'Performance',
       visible: canAccess(role, 'performanceReviews') || canAccess(role, 'performanceGoals'),
@@ -72,6 +70,12 @@ const Sidebar = () => {
   ].filter((item) => item.visible);
 
   const isActive = (path) => {
+    // Dashboard tab: exact match only, do not highlight for sub-routes
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname === '/dashboard/';
+    }
+
+    // Attendance tab: highlight for both role paths
     if (path === '/attendance' || path === '/attendance/reports') {
       return location.pathname.startsWith('/attendance');
     }
@@ -82,6 +86,16 @@ const Sidebar = () => {
 
     if (path === '/recruitment/applicants' || path === '/recruitment/jobs') {
       return location.pathname.startsWith('/recruitment');
+    }
+
+    // Performance tab: highlight for both /performance and /dashboard/performance paths
+    if (path.includes('/performance/')) {
+      return location.pathname.startsWith('/dashboard/performance') || location.pathname.startsWith('/performance');
+    }
+
+    // Payroll tab: highlight for both /payroll and /dashboard/payroll paths
+    if (path.includes('/payroll/')) {
+      return location.pathname.startsWith('/dashboard/payroll') || location.pathname.startsWith('/payroll');
     }
 
     return location.pathname === path || location.pathname.startsWith(path + '/');

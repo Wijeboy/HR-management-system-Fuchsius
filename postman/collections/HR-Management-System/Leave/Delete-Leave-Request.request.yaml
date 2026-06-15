@@ -1,0 +1,5 @@
+$kind: http-request
+name: Delete Leave Request
+method: DELETE
+url: '{{baseUrl}}/api/leave/{{leaveId}}'
+order: 3000
