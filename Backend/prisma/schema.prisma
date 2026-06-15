@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id         String   @id @map("_id")
-  employeeId String   @unique
-  name       String
-  email      String   @unique
-  password   String
-  role       String
-  department String
-  jobTitle   String?
-  phone      String?
-  location   String?
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String   @id @map("_id")
+  employeeId   String   @unique
+  name         String
+  email        String   @unique
+  password     String
+  role         String
+  department   String
+  jobTitle     String?
+  phone        String?
+  location     String?
+  profileImage String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([role])
   @@index([department])
