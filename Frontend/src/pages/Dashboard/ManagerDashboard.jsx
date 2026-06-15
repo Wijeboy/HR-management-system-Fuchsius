@@ -7,6 +7,7 @@ import { userService } from '../../services/userService';
 import { attendanceService } from '../../services/attendanceService';
 import apiClient from '../../services/api';
 import UserAvatar from '../../components/UserAvatar';
+import AnnouncementsSection from '../../components/AnnouncementsSection';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -556,31 +557,7 @@ const ManagerDashboard = () => {
       {/* ════════════════════════════════════════════════════════════════════════
           SECTION 6 — Announcements
           ════════════════════════════════════════════════════════════════════════ */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Announcements</h2>
-        <div className="space-y-3">
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-blue-600">campaign</span>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-gray-900">Company All-Hands Meeting</h3>
-                <p className="text-sm text-gray-600 mt-1">Join us this Friday at 3 PM for our quarterly company update.</p>
-                <p className="text-xs text-gray-500 mt-2">Posted 2 days ago</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-green-600">celebration</span>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-gray-900">New Employee Benefits</h3>
-                <p className="text-sm text-gray-600 mt-1">We&apos;re excited to announce enhanced health insurance and wellness programs.</p>
-                <p className="text-xs text-gray-500 mt-2">Posted 1 week ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AnnouncementsSection />
     </div>
   );
 };

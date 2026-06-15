@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { announcementRouter } from "../modules/announcements/announcement.routes.js";
 import { attendanceRouter } from "../modules/attendance/attendance.routes.js";
 import { authRouter } from "../modules/auth/auth.routes.js";
 import { leaveRouter } from "../modules/leave/leave.routes.js";
@@ -26,6 +27,7 @@ apiRouter.get("/health", (_req, res) => {
   });
 });
 
+apiRouter.use("/announcements", announcementRouter);
 apiRouter.use("/attendance", attendanceRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/leave", leaveRouter);
