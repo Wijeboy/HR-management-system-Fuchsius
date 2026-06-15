@@ -64,6 +64,15 @@ const GeneratePayroll = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCreatingEmployee, setIsCreatingEmployee] = useState(false);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editData, setEditData] = useState({
+    baseSalary: '',
+    fixedAllowance: '',
+    paymentMethod: 'Bank Transfer',
+    bankName: '',
+    accountNo: '',
+  });
   const [newEmployee, setNewEmployee] = useState({
     id: '',
     name: '',
@@ -81,18 +90,36 @@ const GeneratePayroll = () => {
       setError('');
 
       try {
-        const response = await apiClient.get('/users');
-        const list = response.data?.users || [];
-        const mappedList = list.map((emp) => ({
-          ...emp,
-          _id: emp.id || emp.employeeId,
-          empID: emp.employeeId || emp.id,
-          baseSalary: emp.baseSalary ?? 5000,
-          fixedAllowance: emp.fixedAllowance ?? 1000,
-          paymentMethod: emp.paymentMethod ?? 'Bank Transfer',
-          bankName: emp.bankName ?? '',
-          accountNo: emp.accountNo ?? '',
-        }));
+        // Fetch both user list and payroll employee data
+        const [usersRes, payrollRes] = await Promise.all([
+          apiClient.get('/users'),
+          apiClient.get('/payroll/employees').catch(() => ({ data: { data: [] } })),
+        ]);
+
+        const list = usersRes.data?.users || [];
+        const payrollEmployees = payrollRes.data?.data || [];
+
+        // Build a lookup map from payroll employees by their _id (which is employeeId)
+        const payrollMap = {};
+        payrollEmployees.forEach((pe) => {
+          payrollMap[pe.id || pe._id] = pe;
+        });
+
+        const mappedList = list.map((emp) => {
+          const empId = emp.employeeId || emp.id;
+          const pe = payrollMap[empId]; // match payroll record
+
+          return {
+            ...emp,
+            _id: emp.id || emp.employeeId,
+            empID: empId,
+            baseSalary: pe?.baseSalary ?? emp.baseSalary ?? 5000,
+            fixedAllowance: pe?.fixedAllowance ?? emp.fixedAllowance ?? 1000,
+            paymentMethod: pe?.paymentMethod ?? emp.paymentMethod ?? 'Bank Transfer',
+            bankName: pe?.bankName ?? emp.bankName ?? '',
+            accountNo: pe?.accountNo ?? emp.accountNo ?? '',
+          };
+        });
         setActiveEmployees(mappedList);
 
         if (mappedList.length > 0) {
@@ -272,6 +299,54 @@ const GeneratePayroll = () => {
       setError(requestError.response?.data?.message || 'Failed to create employee');
     } finally {
       setIsCreatingEmployee(false);
+    }
+  };
+
+  const handleStartEdit = () => {
+    if (!selectedEmployee) return;
+    setEditData({
+      baseSalary: selectedEmployee.baseSalary ?? '',
+      fixedAllowance: selectedEmployee.fixedAllowance ?? '',
+      paymentMethod: selectedEmployee.paymentMethod || 'Bank Transfer',
+      bankName: selectedEmployee.bankName || '',
+      accountNo: selectedEmployee.accountNo || '',
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedEmployee) return;
+    setIsSavingEdit(true);
+    setError('');
+
+    const empId = selectedEmployee.empID || selectedEmployee.employeeId || selectedEmployee._id;
+
+    try {
+      const response = await apiClient.put(`/payroll/employees/${encodeURIComponent(empId)}`, {
+        name: selectedEmployee.name,
+        department: selectedEmployee.department,
+        baseSalary: toNumber(editData.baseSalary),
+        fixedAllowance: toNumber(editData.fixedAllowance),
+        paymentMethod: editData.paymentMethod,
+        bankName: editData.bankName,
+        accountNo: editData.accountNo,
+      });
+
+      const updated = response.data?.data;
+      if (updated) {
+        setActiveEmployees((prev) =>
+          prev.map((emp) =>
+            emp._id === selectedEmployee._id
+              ? { ...emp, baseSalary: updated.baseSalary, fixedAllowance: updated.fixedAllowance, paymentMethod: updated.paymentMethod, bankName: updated.bankName, accountNo: updated.accountNo }
+              : emp
+          )
+        );
+      }
+      setIsEditing(false);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Failed to update employee salary');
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -682,28 +757,121 @@ const GeneratePayroll = () => {
           </div>
 
           <div className={`${sectionCardClass} space-y-4`}>
-            <p className="text-sm font-semibold text-gray-900">Selected Employee Snapshot</p>
-            <p className="text-sm leading-6 text-gray-600">
-              Use this card to sanity-check the payroll setup before you generate the run.
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Base Salary</span>
-                <span className="font-semibold text-gray-900">
-                  {selectedEmployee ? formatCurrency(selectedEmployee.baseSalary) : '-'}
-                </span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Selected Employee Snapshot</p>
+                <p className="text-sm leading-6 text-gray-600">
+                  {isEditing ? 'Edit salary and payment details below.' : 'Use this card to sanity-check the payroll setup.'}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Fixed Allowance</span>
-                <span className="font-semibold text-gray-900">
-                  {selectedEmployee ? formatCurrency(selectedEmployee.fixedAllowance) : '-'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Payment Method</span>
-                <span className="font-semibold text-gray-900">{selectedEmployee?.paymentMethod || '-'}</span>
-              </div>
+              {selectedEmployee && !isEditing && (
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">edit</span>
+                  Edit Salary
+                </button>
+              )}
             </div>
+
+            {isEditing ? (
+              <div className="space-y-3">
+                <label className="space-y-1 text-sm font-medium text-gray-700">
+                  <span>Base Salary</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editData.baseSalary}
+                    onChange={(e) => setEditData((p) => ({ ...p, baseSalary: e.target.value }))}
+                    className={inputClassName}
+                  />
+                </label>
+                <label className="space-y-1 text-sm font-medium text-gray-700">
+                  <span>Fixed Allowance</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={editData.fixedAllowance}
+                    onChange={(e) => setEditData((p) => ({ ...p, fixedAllowance: e.target.value }))}
+                    className={inputClassName}
+                  />
+                </label>
+                <label className="space-y-1 text-sm font-medium text-gray-700">
+                  <span>Payment Method</span>
+                  <select
+                    value={editData.paymentMethod}
+                    onChange={(e) => setEditData((p) => ({ ...p, paymentMethod: e.target.value }))}
+                    className={inputClassName}
+                  >
+                    <option>Bank Transfer</option>
+                    <option>Direct Deposit</option>
+                    <option>Cash</option>
+                  </select>
+                </label>
+                <label className="space-y-1 text-sm font-medium text-gray-700">
+                  <span>Bank Name</span>
+                  <input
+                    value={editData.bankName}
+                    onChange={(e) => setEditData((p) => ({ ...p, bankName: e.target.value }))}
+                    className={inputClassName}
+                  />
+                </label>
+                <label className="space-y-1 text-sm font-medium text-gray-700">
+                  <span>Account No</span>
+                  <input
+                    value={editData.accountNo}
+                    onChange={(e) => setEditData((p) => ({ ...p, accountNo: e.target.value }))}
+                    className={inputClassName}
+                  />
+                </label>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveEdit}
+                    disabled={isSavingEdit}
+                    className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Base Salary</span>
+                  <span className="font-semibold text-gray-900">
+                    {selectedEmployee ? formatCurrency(selectedEmployee.baseSalary) : '-'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Fixed Allowance</span>
+                  <span className="font-semibold text-gray-900">
+                    {selectedEmployee ? formatCurrency(selectedEmployee.fixedAllowance) : '-'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Payment Method</span>
+                  <span className="font-semibold text-gray-900">{selectedEmployee?.paymentMethod || '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Bank Name</span>
+                  <span className="font-semibold text-gray-900">{selectedEmployee?.bankName || '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Account No</span>
+                  <span className="font-semibold text-gray-900">{selectedEmployee?.accountNo || '-'}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

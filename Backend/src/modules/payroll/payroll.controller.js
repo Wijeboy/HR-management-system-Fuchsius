@@ -31,6 +31,25 @@ export const payrollController = {
     }
   },
 
+  async updateEmployee(req, res, next) {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ message: "Employee ID is required" });
+      return;
+    }
+
+    try {
+      const updated = await payrollService.updateEmployee(id, req.body);
+      if (!updated) {
+        res.status(404).json({ message: "Payroll employee not found" });
+        return;
+      }
+      res.json({ data: updated });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async listRecords(req, res, next) {
     try {
       const result = await payrollService.getRecords(req.query);
@@ -76,6 +95,38 @@ export const payrollController = {
       }
 
       res.status(201).json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async deleteRecord(req, res, next) {
+    try {
+      const deleted = await payrollService.deleteRecord(req.params.id);
+      if (!deleted) {
+        res.status(404).json({ message: "Payroll record not found" });
+        return;
+      }
+      res.json({ message: "Payroll record and payslip deleted", data: deleted });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateRecordStatus(req, res, next) {
+    const { status } = req.body;
+    if (!status) {
+      res.status(400).json({ message: "status is required" });
+      return;
+    }
+
+    try {
+      const updated = await payrollService.updateRecordStatus(req.params.id, status);
+      if (!updated) {
+        res.status(404).json({ message: "Payroll record not found" });
+        return;
+      }
+      res.json({ data: updated });
     } catch (error) {
       next(error);
     }

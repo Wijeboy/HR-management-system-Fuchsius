@@ -21,6 +21,7 @@ const formatCurrency = (amount) =>
 const getStatusClass = (status) => {
   if (status === 'Processed') return 'bg-green-100 text-green-700';
   if (status === 'Pending') return 'bg-amber-100 text-amber-700';
+  if (status === 'On Hold') return 'bg-blue-100 text-blue-700';
   return 'bg-red-100 text-red-700';
 };
 
@@ -41,6 +42,8 @@ const PayrollList = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const loadPeriods = useCallback(async () => {
     try {
@@ -64,7 +67,6 @@ const PayrollList = () => {
       if (periodFilter !== 'All Periods') params.period = periodFilter;
 
       const response = await apiClient.get('/payroll/records', { params });
-      console.log("Payroll API Response Data:", response.data);
       setPayrollRecords(response.data?.data || []);
       setSummary(response.data?.summary || defaultSummary);
     } catch (requestError) {
@@ -88,6 +90,35 @@ const PayrollList = () => {
     return () => clearTimeout(timeoutId);
   }, [loadRecords]);
 
+  const handleDelete = async (id) => {
+    setActionLoading(`delete_${id}`);
+    setError('');
+    try {
+      await apiClient.delete(`/payroll/records/${encodeURIComponent(id)}`);
+      setDeleteConfirm(null);
+      loadRecords();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete payroll record');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    setActionLoading(`status_${id}`);
+    setError('');
+    try {
+      await apiClient.patch(`/payroll/records/${encodeURIComponent(id)}/status`, { status: newStatus });
+      setPayrollRecords((prev) =>
+        prev.map((r) => (r.id === id || r._id === id ? { ...r, status: newStatus } : r))
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update status');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
   const filteredCountLabel = useMemo(() => {
     if (loading) return 'Loading payroll records...';
     if (payrollRecords.length === 0) return 'No payroll records found';
@@ -104,6 +135,8 @@ const PayrollList = () => {
     return payrollRecords;
   }, [payrollRecords, user]);
 
+  const isAdmin = user?.role === 'admin' || user?.role === 'hr';
+
   return (
     <div className="space-y-6">
       <PayrollSectionTabs
@@ -111,7 +144,7 @@ const PayrollList = () => {
         description="Review payroll runs with clearer totals, payment details, and a faster path to the right payslip."
         helper="Use Generate Payroll for a new run, then open Payslips when you need the employee-facing statement."
         action={
-          (user?.role === 'admin' || user?.role === 'hr') && (
+          isAdmin && (
             <Link
               to="/dashboard/payroll/generate"
               className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100"
@@ -127,7 +160,41 @@ const PayrollList = () => {
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       ) : null}
 
-      {(user?.role === 'admin' || user?.role === 'hr') && (
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 flex-shrink-0">
+                <span className="material-symbols-outlined text-2xl text-red-600">warning</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900">Delete Payroll Record</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Are you sure you want to delete payroll record <strong>{deleteConfirm.id}</strong> for <strong>{deleteConfirm.name}</strong>? This will also delete the linked payslip. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm.id)}
+                disabled={actionLoading === `delete_${deleteConfirm.id}`}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {actionLoading === `delete_${deleteConfirm.id}` ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAdmin && (
         <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div className={sectionCardClass}>
@@ -168,7 +235,7 @@ const PayrollList = () => {
             <div className={sectionCardClass}>
               <p className="text-sm font-semibold text-gray-900">3. Take the next action</p>
               <p className="mt-2 text-sm leading-6 text-gray-600">
-                Open the payslip for employee-facing details or recalculate if payroll inputs changed.
+                Open the payslip, change the status, or delete records that are no longer needed.
               </p>
             </div>
           </div>
@@ -276,9 +343,22 @@ const PayrollList = () => {
                     <p className="mt-1 font-bold text-indigo-700">Net {formatCurrency(record.netPay !== undefined ? record.netPay : record.net)}</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(record.status)}`}>
-                      {record.status}
-                    </span>
+                    {isAdmin ? (
+                      <select
+                        value={record.status}
+                        onChange={(e) => handleStatusChange(record.id, e.target.value)}
+                        disabled={!!actionLoading}
+                        className={`rounded-full px-3 py-1 text-xs font-medium border-0 cursor-pointer ${getStatusClass(record.status)} disabled:opacity-50`}
+                      >
+                        <option value="Processed">Processed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="On Hold">On Hold</option>
+                      </select>
+                    ) : (
+                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(record.status)}`}>
+                        {record.status}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="inline-flex items-center gap-2">
@@ -288,13 +368,23 @@ const PayrollList = () => {
                       >
                         View Payslip
                       </Link>
-                      {(user?.role === 'admin' || user?.role === 'hr') && (
-                        <Link
-                          to={`/dashboard/payroll/generate?employee=${record.employeeId?.empID || record.employeeId}`}
-                          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
-                        >
-                          Recalculate
-                        </Link>
+                      {isAdmin && (
+                        <>
+                          <Link
+                            to={`/dashboard/payroll/generate?employee=${record.employeeId?.empID || record.employeeId}`}
+                            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
+                          >
+                            Recalculate
+                          </Link>
+                          <button
+                            onClick={() => setDeleteConfirm({ id: record.id, name: record.employeeName || record.employeeId?.name || record.employeeId })}
+                            disabled={!!actionLoading}
+                            className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                            title="Delete"
+                          >
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
@@ -326,7 +416,7 @@ const PayrollList = () => {
               ? `Showing ${displayRecords.length} payslip${displayRecords.length === 1 ? '' : 's'}`
               : filteredCountLabel}
           </p>
-          {(user?.role === 'admin' || user?.role === 'hr') && (
+          {isAdmin && (
             <Link to="/dashboard/payroll/generate" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
               Run New Payroll
             </Link>

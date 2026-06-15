@@ -121,6 +121,43 @@ export const payrollService = {
     return withId(created.toObject());
   },
 
+  async updateEmployee(id, payload) {
+    const update = {};
+    if (payload.baseSalary !== undefined) update.baseSalary = toNumber(payload.baseSalary);
+    if (payload.fixedAllowance !== undefined) update.fixedAllowance = toNumber(payload.fixedAllowance);
+    if (payload.paymentMethod !== undefined) update.paymentMethod = payload.paymentMethod;
+    if (payload.bankName !== undefined) update.bankName = payload.bankName;
+    if (payload.accountNo !== undefined) update.accountNo = payload.accountNo;
+    if (payload.name !== undefined) update.name = payload.name;
+    if (payload.department !== undefined) update.department = payload.department;
+
+    // Try updating first
+    let doc = await PayrollEmployee.findByIdAndUpdate(id, update, { new: true }).lean();
+
+    // If document doesn't exist, create it (upsert)
+    if (!doc) {
+      const user = await User.findOne({
+        $or: [{ employeeId: id }, { id: id }],
+      }).lean();
+
+      const newDoc = {
+        _id: id,
+        name: payload.name || user?.name || "Unknown",
+        department: payload.department || user?.department || "Unknown",
+        baseSalary: toNumber(payload.baseSalary ?? 5000),
+        fixedAllowance: toNumber(payload.fixedAllowance ?? 1000),
+        paymentMethod: payload.paymentMethod || "Bank Transfer",
+        bankName: payload.bankName || "",
+        accountNo: payload.accountNo || "",
+      };
+
+      const created = await PayrollEmployee.create(newDoc);
+      doc = created.toObject();
+    }
+
+    return withId(doc);
+  },
+
   async getRecords(query) {
     const records = await PayrollRecord.find()
       .sort({ paymentDate: -1, _id: -1 })
@@ -235,5 +272,18 @@ export const payrollService = {
 
   findPeriodFromLabel(periodLabel) {
     return periodFromLabel(periodLabel);
+  },
+
+  async deleteRecord(id) {
+    const record = await PayrollRecord.findByIdAndDelete(id).lean();
+    if (!record) return null;
+    // Also delete the linked payslip (same _id)
+    await Payslip.findByIdAndDelete(id).catch(() => {});
+    return record;
+  },
+
+  async updateRecordStatus(id, status) {
+    const updated = await PayrollRecord.findByIdAndUpdate(id, { status }, { new: true }).lean();
+    return updated ? withId(updated) : null;
   },
 };
