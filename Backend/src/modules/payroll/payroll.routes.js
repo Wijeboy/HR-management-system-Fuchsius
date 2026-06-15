@@ -1,0 +1,13 @@
+import { Router } from "express";
+import { payrollController } from "./payroll.controller.js";
+
+const payrollRouter = Router();
+
+payrollRouter.get("/employees", payrollController.listEmployees);
+payrollRouter.post("/employees", payrollController.createEmployee);
+payrollRouter.get("/records", payrollController.listRecords);
+payrollRouter.get("/payslips", payrollController.listPayslips);
+payrollRouter.get("/payslips/:id", payrollController.getPayslipById);
+payrollRouter.post("/calculate", payrollController.calculate);
+
+export { payrollRouter };
