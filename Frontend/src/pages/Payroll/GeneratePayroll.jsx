@@ -109,6 +109,11 @@ const GeneratePayroll = () => {
           const empId = emp.employeeId || emp.id;
           const pe = payrollMap[empId]; // match payroll record
 
+          // Remove matched from payrollMap so we know what's left
+          if (pe) {
+            delete payrollMap[empId];
+          }
+
           return {
             ...emp,
             _id: emp.id || emp.employeeId,
@@ -120,6 +125,21 @@ const GeneratePayroll = () => {
             accountNo: pe?.accountNo ?? emp.accountNo ?? '',
           };
         });
+
+        // Add any remaining payroll employees that weren't in the User list
+        Object.values(payrollMap).forEach((pe) => {
+          mappedList.push({
+            ...pe,
+            _id: pe.id || pe._id,
+            empID: pe.id || pe._id,
+            baseSalary: pe.baseSalary ?? 5000,
+            fixedAllowance: pe.fixedAllowance ?? 1000,
+            paymentMethod: pe.paymentMethod ?? 'Bank Transfer',
+            bankName: pe.bankName ?? '',
+            accountNo: pe.accountNo ?? '',
+          });
+        });
+
         setActiveEmployees(mappedList);
 
         if (mappedList.length > 0) {

@@ -26,10 +26,23 @@ const toWholeNumber = (value, fallback = 0) => {
 
 const nextPayrollId = async (period) => {
   const token = String(period || "").replace("-", "");
-  const count = await PayrollRecord.countDocuments({
-    _id: { $regex: `^PR-${token}-` },
-  });
-  return `PR-${token}-${String(count + 1).padStart(4, "0")}`;
+  const prefix = `PR-${token}-`;
+  const lastRecord = await PayrollRecord.findOne({ _id: { $regex: `^${prefix}` } })
+    .sort({ _id: -1 })
+    .lean();
+
+  let nextSeq = 1;
+  if (lastRecord && lastRecord._id) {
+    const parts = lastRecord._id.split("-");
+    if (parts.length === 3) {
+      const lastSeq = parseInt(parts[2], 10);
+      if (!isNaN(lastSeq)) {
+        nextSeq = lastSeq + 1;
+      }
+    }
+  }
+
+  return `${prefix}${String(nextSeq).padStart(4, "0")}`;
 };
 
 const makePayrollCalculation = (payload, employee) => {

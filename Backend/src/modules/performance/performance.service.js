@@ -101,10 +101,25 @@ const nextReviewId = async (cycle) => {
     .replace(/[^a-zA-Z0-9-]/g, "")
     .toUpperCase();
 
-  const count = await PerformanceReview.countDocuments({
-    _id: { $regex: `^PRV-${token}-` },
-  });
-  return `PRV-${token}-${String(count + 1).padStart(3, "0")}`;
+  const prefix = `PRV-${token}-`;
+  const lastReview = await PerformanceReview.findOne({ _id: { $regex: `^${prefix}` } })
+    .sort({ _id: -1 })
+    .lean();
+
+  let nextSeq = 1;
+  if (lastReview && lastReview._id) {
+    const parts = lastReview._id.split("-");
+    if (parts.length >= 3) {
+      // Handle potential extra hyphens in token
+      const seqStr = parts[parts.length - 1];
+      const lastSeq = parseInt(seqStr, 10);
+      if (!isNaN(lastSeq)) {
+        nextSeq = lastSeq + 1;
+      }
+    }
+  }
+
+  return `${prefix}${String(nextSeq).padStart(3, "0")}`;
 };
 
 const nextGoalId = async () => {
