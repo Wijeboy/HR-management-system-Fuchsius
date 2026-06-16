@@ -5,6 +5,7 @@ const performanceRouter = Router();
 
 performanceRouter.get("/reviews", performanceController.listReviews);
 performanceRouter.post("/reviews", performanceController.createReview);
+performanceRouter.delete("/reviews/clear-test", performanceController.clearTestReviews);
 performanceRouter.put("/reviews/:id", performanceController.updateReview);
 
 performanceRouter.get("/goals", performanceController.listGoals);

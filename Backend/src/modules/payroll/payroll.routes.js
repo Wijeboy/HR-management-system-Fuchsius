@@ -9,5 +9,6 @@ payrollRouter.get("/records", payrollController.listRecords);
 payrollRouter.get("/payslips", payrollController.listPayslips);
 payrollRouter.get("/payslips/:id", payrollController.getPayslipById);
 payrollRouter.post("/calculate", payrollController.calculate);
+payrollRouter.get("/recommendation/:employeeId", payrollController.getRecommendation);
 
 export { payrollRouter };

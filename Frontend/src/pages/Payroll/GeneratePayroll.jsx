@@ -74,6 +74,8 @@ const GeneratePayroll = () => {
     bankName: '',
     accountNo: '',
   });
+  const [recommendation, setRecommendation] = useState(null);
+  const [recommendationLoading, setRecommendationLoading] = useState(false);
 
   useEffect(() => {
     const loadEmployees = async () => {
@@ -116,6 +118,65 @@ const GeneratePayroll = () => {
     () => activeEmployees.find((employee) => employee._id === employeeId) || null,
     [employeeId, activeEmployees]
   );
+
+  // The empID field (e.g. "EMP001") is what PerformanceReview.employeeId stores.
+  // We must use this — NOT the internal Mongoose _id or the user's `id` field.
+  const selectedEmpID = selectedEmployee?.empID || selectedEmployee?.employeeId || '';
+
+  // Fetch performance recommendation whenever the selected employee changes
+  useEffect(() => {
+    if (!selectedEmpID) {
+      setRecommendation(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchRecommendation = async () => {
+      setRecommendationLoading(true);
+      console.log('[Payroll] Fetching recommendation for employeeId:', selectedEmpID);
+
+      try {
+        const response = await apiClient.get(`/payroll/recommendation/${selectedEmpID}`);
+        if (cancelled) return;
+
+        const data = response.data?.data || null;
+        console.log('[Payroll] Recommendation response:', data);
+        setRecommendation(data);
+
+        // Auto-fill bonus amount if a Bonus recommendation is pending
+        if (data?.recommendation === 'Bonus') {
+          const bonusVal = Number(data.bonusAmount) || 500;
+          console.log('[Payroll] Auto-filling performance bonus:', bonusVal);
+          setPerformanceBonus(bonusVal);
+        }
+
+        // For Promotion: update the employee's baseSalary in local state
+        // so the payroll preview reflects the new promoted salary.
+        if (data?.recommendation === 'Promotion' && data.updatedBaseSalary) {
+          console.log('[Payroll] Promotion detected — updating local baseSalary to:', data.updatedBaseSalary);
+          setActiveEmployees((prev) =>
+            prev.map((emp) =>
+              emp.empID === selectedEmpID
+                ? { ...emp, baseSalary: data.updatedBaseSalary }
+                : emp
+            )
+          );
+        }
+      } catch (err) {
+        console.error('[Payroll] Failed to fetch recommendation:', err?.response?.data || err.message);
+        if (!cancelled) setRecommendation(null);
+      } finally {
+        if (!cancelled) setRecommendationLoading(false);
+      }
+    };
+
+    fetchRecommendation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedEmpID]);
 
   const payroll = useMemo(() => {
     if (!selectedEmployee) {
@@ -318,6 +379,41 @@ const GeneratePayroll = () => {
           </p>
         </div>
       </div>
+
+      {recommendation?.recommendation === 'Bonus' && (
+        <div className="flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-4">
+          <span className="material-symbols-outlined text-xl text-indigo-600 mt-0.5">stars</span>
+          <div>
+            <p className="text-sm font-semibold text-indigo-900">Performance Bonus Recommended</p>
+            <p className="mt-1 text-sm text-indigo-700">
+              {recommendation.cycle} review by <span className="font-medium">{recommendation.reviewer}</span>{' '}
+              (Rating: {recommendation.finalRating?.toFixed(1)}/5). Suggested bonus:{' '}
+              <span className="font-semibold">{formatCurrency(recommendation.bonusAmount || 500)}</span>.
+              The Performance Bonus field has been auto-filled — you can still adjust it.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {recommendation && recommendation.recommendation === 'Promotion' && !recommendation.payrollProcessed && (
+        <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+          <span className="material-symbols-outlined text-xl text-emerald-600 mt-0.5">trending_up</span>
+          <div>
+            <p className="text-sm font-semibold text-emerald-900">🎉 Promotion Applied — Salary Updated</p>
+            <p className="mt-1 text-sm text-emerald-700">
+              Base salary has been permanently increased by 10% to{' '}
+              <span className="font-semibold">
+                {recommendation.updatedBaseSalary
+                  ? formatCurrency(recommendation.updatedBaseSalary)
+                  : 'updated amount'}
+              </span>{' '}
+              based on the {recommendation.cycle} review by{' '}
+              <span className="font-medium">{recommendation.reviewer}</span>{' '}
+              (Rating: {recommendation.finalRating?.toFixed(1)}/5). The updated salary is reflected in the calculation below.
+            </p>
+          </div>
+        </div>
+      )}
 
       {!loadingEmployees ? (
         <div className={`${sectionCardClass} space-y-6`}>

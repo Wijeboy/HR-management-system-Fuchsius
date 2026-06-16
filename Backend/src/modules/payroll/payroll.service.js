@@ -1,6 +1,7 @@
 import PayrollEmployee from "../../models/PayrollEmployee.js";
 import PayrollRecord from "../../models/PayrollRecord.js";
 import Payslip from "../../models/Payslip.js";
+import PerformanceReview from "../../models/PerformanceReview.js";
 import User from "../../../models/User.js";
 import { monthLabelFromPeriod, paydayFromPeriod, periodFromLabel } from "../../utils/date.js";
 import { toNumber } from "../../utils/number.js";
@@ -170,6 +171,34 @@ export const payrollService = {
     }
     if (!employee) return null;
 
+    // --- Performance → Payroll integration ---
+    // Look for a completed, unprocessed review (Bonus OR Promotion) for this employee.
+    // Try both the PayrollEmployee _id and the original payload employeeId,
+    // because PerformanceReview stores the employeeId from the User model (e.g. "EMP001")
+    // while PayrollEmployee._id may be in a different format (e.g. "EMP-0034").
+    const candidateIds = [...new Set([employee._id, payload.employeeId].filter(Boolean))];
+    console.log("[Payroll] Looking for pending review for IDs:", candidateIds);
+
+    const pendingReview = await PerformanceReview.findOne({
+      employeeId: { $in: candidateIds },
+      status: "Completed",
+      recommendation: { $in: ["Bonus", "Promotion"] },
+      payrollProcessed: { $ne: true },
+    }).sort({ _id: -1 }).lean();
+
+    console.log("[Payroll] Pending review found:", pendingReview ? { id: pendingReview._id, type: pendingReview.recommendation } : "none");
+
+    // If a bonus review exists and the caller didn't explicitly set a bonus,
+    // use the review's bonusAmount (falls back to 500 if not specified).
+    if (pendingReview && pendingReview.recommendation === "Bonus") {
+      const reviewBonus = Number(pendingReview.bonusAmount) || 500;
+      const currentBonus = toNumber(payload.performanceBonus);
+      if (!currentBonus || currentBonus === 0) {
+        console.log("[Payroll] Auto-injecting bonus from review:", reviewBonus);
+        payload.performanceBonus = reviewBonus;
+      }
+    }
+
     const calc = makePayrollCalculation(payload, employee);
     const payrollId = await nextPayrollId(calc.payPeriod);
     const periodLabel = monthLabelFromPeriod(calc.payPeriod);
@@ -226,6 +255,14 @@ export const payrollService = {
     await PayrollRecord.create(payrollRecord);
     await Payslip.create(payslip);
 
+    // Mark any pending review (Bonus or Promotion) as processed so it won't trigger again
+    if (pendingReview) {
+      await PerformanceReview.findByIdAndUpdate(pendingReview._id, {
+        payrollProcessed: true,
+      });
+      console.log("[Payroll] Marked review as payrollProcessed:", pendingReview._id, pendingReview.recommendation);
+    }
+
     return {
       payrollRecord,
       payslip,
@@ -235,5 +272,50 @@ export const payrollService = {
 
   findPeriodFromLabel(periodLabel) {
     return periodFromLabel(periodLabel);
+  },
+
+  /**
+   * Get the latest unprocessed performance recommendation for an employee.
+   * Used by the payroll UI to show alert banners and pre-fill bonus amounts.
+   */
+  async getRecommendation(employeeId) {
+    console.log("[Payroll] getRecommendation called with employeeId:", employeeId);
+
+    const review = await PerformanceReview.findOne({
+      employeeId,
+      status: "Completed",
+      payrollProcessed: { $ne: true },
+      recommendation: { $in: ["Bonus", "Promotion"] },
+    }).sort({ _id: -1 }).lean();
+
+    console.log("[Payroll] getRecommendation query result:", review
+      ? { id: review._id, recommendation: review.recommendation, bonusAmount: review.bonusAmount, payrollProcessed: review.payrollProcessed }
+      : null
+    );
+
+    if (!review) return null;
+
+    const result = {
+      recommendation: review.recommendation,
+      bonusAmount: Number(review.bonusAmount) || 0,
+      reviewId: review._id,
+      cycle: review.cycle,
+      finalRating: review.finalRating,
+      reviewer: review.reviewer,
+      payrollProcessed: false,
+    };
+
+    // For Promotions, also fetch the updated baseSalary from PayrollEmployee
+    // so the frontend can display the new salary in the green banner.
+    if (review.recommendation === "Promotion") {
+      const payrollEmp = await PayrollEmployee.findById(employeeId).lean();
+      if (payrollEmp) {
+        result.updatedBaseSalary = payrollEmp.baseSalary;
+        console.log("[Payroll] Promotion detected — current baseSalary:", payrollEmp.baseSalary);
+      }
+    }
+
+    console.log("[Payroll] Returning recommendation payload:", result);
+    return result;
   },
 };

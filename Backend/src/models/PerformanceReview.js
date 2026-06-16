@@ -13,6 +13,9 @@ const schema = new mongoose.Schema({
   finalRating: { type: Number, default: 0 },
   recommendation: { type: String, default: "No Change" },
   status: { type: String, default: "In Progress", index: true },
+  bonusAmount: { type: Number, default: 0 },
+  salaryBumpApplied: { type: Boolean, default: false },
+  payrollProcessed: { type: Boolean, default: false },
 });
 
 export default mongoose.model("PerformanceReview", schema);

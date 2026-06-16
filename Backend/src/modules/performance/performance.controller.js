@@ -93,4 +93,16 @@ export const performanceController = {
       next(error);
     }
   },
+
+  async clearTestReviews(_req, res, next) {
+    try {
+      const result = await performanceService.clearTestReviews();
+      res.json({
+        message: `Cleared ${result.deletedCount} unprocessed review(s). Rolled back ${result.rolledBack} promotion salary bump(s).`,
+        ...result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -68,6 +68,7 @@ const PerformanceReviews = () => {
     behaviorScore: 3.5,
     recommendation: 'No Change',
     status: 'In Progress',
+    bonusAmount: 500,
   });
 
   const [loading, setLoading] = useState(true);
@@ -78,6 +79,7 @@ const PerformanceReviews = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [currentReviewId, setCurrentReviewId] = useState(null);
+  const [clearing, setClearing] = useState(false);
 
   const safeDisplayReviews = useMemo(() => {
     if (!Array.isArray(reviews)) return [];
@@ -225,6 +227,7 @@ const PerformanceReviews = () => {
       finalRating: calculatedRating,
       recommendation: form.recommendation,
       status: form.status,
+      bonusAmount: form.recommendation === 'Bonus' ? toNumber(form.bonusAmount) : 0,
     };
 
     try {
@@ -247,6 +250,7 @@ const PerformanceReviews = () => {
         behaviorScore: 3.5,
         recommendation: 'No Change',
         status: 'In Progress',
+        bonusAmount: 500,
       }));
 
       setIsEditing(false);
@@ -287,6 +291,7 @@ const PerformanceReviews = () => {
       behaviorScore: review.behaviorScore,
       recommendation: review.recommendation,
       status: review.status,
+      bonusAmount: review.bonusAmount || 500,
     });
     setIsEditing(true);
     setCurrentReviewId(review.id);
@@ -539,7 +544,7 @@ const PerformanceReviews = () => {
                     Select the outcome and whether the review is still in progress or complete.
                   </p>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className={`grid gap-4 ${form.recommendation === 'Bonus' ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
                   <label className="space-y-2 text-sm font-medium text-gray-700">
                     <span>Recommendation</span>
                     <select
@@ -553,6 +558,19 @@ const PerformanceReviews = () => {
                       <option>Performance Plan</option>
                     </select>
                   </label>
+                  {form.recommendation === 'Bonus' && (
+                    <label className="space-y-2 text-sm font-medium text-gray-700">
+                      <span>Bonus Amount ($)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.bonusAmount}
+                        onChange={(event) => setForm((prev) => ({ ...prev, bonusAmount: event.target.value }))}
+                        placeholder="500"
+                        className={inputClassName}
+                      />
+                    </label>
+                  )}
                   <label className="space-y-2 text-sm font-medium text-gray-700">
                     <span>Review Status</span>
                     <select
@@ -730,9 +748,40 @@ const PerformanceReviews = () => {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Review History</h2>
-          <p className="mt-1 text-sm text-gray-500">Each row shows the employee, review context, score summary, and outcome.</p>
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Review History</h2>
+            <p className="mt-1 text-sm text-gray-500">Each row shows the employee, review context, score summary, and outcome.</p>
+          </div>
+          {isManagement && (
+            <button
+              type="button"
+              disabled={clearing || safeDisplayReviews.length === 0}
+              onClick={async () => {
+                const confirmed = window.confirm(
+                  'Are you sure you want to clear all unprocessed test review history?\n\nThis will delete all reviews that have NOT been processed by payroll, and rollback any promotion salary bumps. This action cannot be undone.'
+                );
+                if (!confirmed) return;
+
+                setClearing(true);
+                setError('');
+                try {
+                  const response = await apiClient.delete('/performance/reviews/clear-test');
+                  const msg = response.data?.message || 'Test history cleared successfully.';
+                  showSuccess(msg);
+                  await loadReviews();
+                } catch (err) {
+                  setError(err.response?.data?.message || 'Failed to clear test history');
+                } finally {
+                  setClearing(false);
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 hover:border-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="material-symbols-outlined text-lg">delete_sweep</span>
+              {clearing ? 'Clearing...' : 'Clear Test History'}
+            </button>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

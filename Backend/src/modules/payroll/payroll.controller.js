@@ -80,4 +80,17 @@ export const payrollController = {
       next(error);
     }
   },
+
+  async getRecommendation(req, res, next) {
+    try {
+      const employeeId = req.params.employeeId;
+      console.log("[Payroll Controller] GET /recommendation called with:", employeeId);
+      const data = await payrollService.getRecommendation(employeeId);
+      console.log("[Payroll Controller] Returning recommendation:", data);
+      res.json({ data });
+    } catch (error) {
+      console.error("[Payroll Controller] getRecommendation error:", error.message);
+      next(error);
+    }
+  },
 };
