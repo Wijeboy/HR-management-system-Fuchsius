@@ -53,6 +53,7 @@ const GoalsKPIs = () => {
   const [employeeLabels, setEmployeeLabels] = useState([]);
   const [employeeFilter, setEmployeeFilter] = useState('All Employees');
   const [statusFilter, setStatusFilter] = useState('All Status');
+  const [allUsers, setAllUsers] = useState([]);
 
   const [form, setForm] = useState({
     employeeName: '',
@@ -97,6 +98,15 @@ const GoalsKPIs = () => {
 
   useEffect(() => {
     loadGoals();
+    const loadUsers = async () => {
+      try {
+        const response = await apiClient.get('/users');
+        setAllUsers(response.data?.users || []);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      }
+    };
+    loadUsers();
   }, [loadGoals]);
 
   const employeeOptions = useMemo(() => ['All Employees', ...employeeLabels], [employeeLabels]);
@@ -256,24 +266,29 @@ const GoalsKPIs = () => {
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-900">Employee Details</h3>
                 <p className="mt-1 text-sm text-gray-500">Identify the owner of the KPI or goal.</p>
               </div>
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2 text-sm font-medium text-gray-700">
-                  <span>Employee Name</span>
-                  <input
-                    value={form.employeeName}
-                    onChange={(event) => setForm((prev) => ({ ...prev, employeeName: event.target.value }))}
-                    placeholder="Jane Perera"
-                    className={inputClassName}
-                  />
-                </label>
-                <label className="space-y-2 text-sm font-medium text-gray-700">
-                  <span>Employee ID</span>
-                  <input
+                  <span>Employee</span>
+                  <select
                     value={form.employeeId}
-                    onChange={(event) => setForm((prev) => ({ ...prev, employeeId: event.target.value }))}
-                    placeholder="EMP-104"
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      const selectedUser = allUsers.find((u) => u.employeeId === selectedId);
+                      setForm((prev) => ({
+                        ...prev,
+                        employeeId: selectedId,
+                        employeeName: selectedUser ? selectedUser.name : '',
+                      }));
+                    }}
                     className={inputClassName}
-                  />
+                  >
+                    <option value="">Select an employee...</option>
+                    {allUsers.map((user) => (
+                      <option key={user.employeeId} value={user.employeeId}>
+                        {user.name} ({user.employeeId})
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="space-y-2 text-sm font-medium text-gray-700">
                   <span>Goal Title</span>

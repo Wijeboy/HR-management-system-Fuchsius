@@ -17,6 +17,7 @@ import { userService } from '../../services/userService';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend);
 
 const Reports = () => {
+  const [timePeriod, setTimePeriod] = useState('30');
   const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState({
     totalEmployees: 0,
@@ -26,6 +27,9 @@ const Reports = () => {
   });
   const [prevMetrics, setPrevMetrics] = useState(null);
   const [users, setUsers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [reportType, setReportType] = useState('General');
+  const [reportName, setReportName] = useState('');
 
   const [reports, setReports] = useState([
     { id: 'RPT-001', name: 'Q1 Employee Performance', type: 'Performance', date: 'Mar 1, 2026', size: '2.4 MB', status: 'Ready' },
@@ -149,18 +153,26 @@ const Reports = () => {
     ],
   }), [users]);
 
-  const generateReport = () => {
+  const handleOpenModal = () => {
+    setReportType('General');
+    setReportName('');
+    setShowModal(true);
+  };
+
+  const handleGenerate = (e) => {
+    e.preventDefault();
     const id = `RPT-${String(reports.length + 1).padStart(3, '0')}`;
     const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     const item = {
       id,
-      name: `Auto Report ${id}`,
-      type: 'General',
+      name: reportName.trim() || `Auto Report ${id}`,
+      type: reportType,
       date,
-      size: '1.2 MB',
+      size: `${(Math.random() * 3 + 0.5).toFixed(1)} MB`,
       status: 'Ready',
     };
     setReports((prev) => [item, ...prev]);
+    setShowModal(false);
   };
 
   const exportReportList = () => {
@@ -176,6 +188,55 @@ const Reports = () => {
     URL.revokeObjectURL(url);
   };
 
+  const downloadReportData = async (report) => {
+    try {
+      let csv = '';
+      let filename = `${report.name.replace(/\s+/g, '_').toLowerCase()}.csv`;
+
+      if (report.type === 'General') {
+        const header = 'Employee ID,Name,Email,Department,Role,Status,Join Date\n';
+        const rows = users.map(u => `${u.employeeId || ''},${u.name || ''},${u.email || ''},${u.department || ''},${u.role || ''},${u.status || ''},${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ''}`);
+        csv = header + rows.join('\n');
+      } else if (report.type === 'Attendance') {
+        // Fetch actual attendance data
+        const res = await apiClient.get('/attendance/daily', { params: { limit: 100 } });
+        const records = res.data?.data || [];
+        const header = 'Date,Employee,Status,Check In,Check Out,Work Hours\n';
+        const rows = records.map(r => `${r.date || ''},${r.employeeName || ''},${r.status || ''},${r.checkIn || ''},${r.checkOut || ''},${r.workHours || ''}`);
+        csv = header + rows.join('\n');
+      } else if (report.type === 'Financial') {
+        // Fetch actual payroll data
+        const res = await apiClient.get('/payroll/records', { params: { limit: 100 } });
+        const records = res.data?.data || [];
+        const header = 'Payroll ID,Employee,Period,Gross Pay,Deductions,Net Pay,Status\n';
+        const rows = records.map(r => `${r.id || ''},${r.employeeName || ''},${r.payPeriod || ''},${r.gross || ''},${r.deductions || ''},${r.net || ''},${r.status || ''}`);
+        csv = header + rows.join('\n');
+      } else if (report.type === 'Performance') {
+        // Fetch actual performance data
+        const res = await apiClient.get('/performance/goals');
+        const goals = res.data?.data || [];
+        const header = 'Employee,Goal,Metric,Target,Current,Progress %,Status\n';
+        const rows = goals.map(g => `${g.employeeName || ''},${g.goal || ''},${g.metric || ''},${g.target || ''},${g.current || ''},${g.progress || 0},${g.status || ''}`);
+        csv = header + rows.join('\n');
+      } else {
+        // Fallback
+        const header = 'Report ID,Report Name,Type,Generated,Size,Status\n';
+        csv = header + `${report.id},${report.name},${report.type},${report.date},${report.size},${report.status}`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download report data:', err);
+      alert('Failed to generate the report data. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -185,15 +246,26 @@ const Reports = () => {
           <p className="text-gray-500 mt-1">Automated insights and data visualization</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            <span className="material-symbols-outlined text-xl">calendar_today</span>
-            Last 30 Days
-          </button>
+          <div className="relative">
+            <select
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="appearance-none flex items-center gap-2 pl-10 pr-8 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 bg-white text-sm font-medium outline-none cursor-pointer"
+            >
+              <option value="7">Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="365">This Year</option>
+            </select>
+            <span className="material-symbols-outlined text-xl absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+              calendar_today
+            </span>
+          </div>
           <button onClick={exportReportList} className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
             <span className="material-symbols-outlined text-xl">download</span>
             Export
           </button>
-          <button onClick={generateReport} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          <button onClick={handleOpenModal} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
             <span className="material-symbols-outlined text-xl">add</span>
             Generate Report
           </button>
@@ -339,7 +411,7 @@ const Reports = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button onClick={exportReportList} className="p-2 text-gray-400 hover:text-indigo-600 rounded-lg hover:bg-gray-100">
+                    <button onClick={() => downloadReportData(report)} className="p-2 text-gray-400 hover:text-indigo-600 rounded-lg hover:bg-gray-100">
                       <span className="material-symbols-outlined text-xl">download</span>
                     </button>
                   </td>
@@ -349,6 +421,55 @@ const Reports = () => {
           </table>
         </div>
       </div>
+
+      {/* Generate Report Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Generate New Report</h3>
+            <form onSubmit={handleGenerate} className="space-y-4">
+              <label className="block space-y-1 text-sm font-medium text-gray-700">
+                <span>Report Name (Optional)</span>
+                <input
+                  type="text"
+                  value={reportName}
+                  onChange={(e) => setReportName(e.target.value)}
+                  placeholder="e.g. Q3 Performance Summary"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </label>
+              <label className="block space-y-1 text-sm font-medium text-gray-700">
+                <span>Report Type</span>
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none"
+                >
+                  <option value="General">General Data Report</option>
+                  <option value="Attendance">Attendance & Time-Off</option>
+                  <option value="Performance">Performance & KPIs</option>
+                  <option value="Financial">Payroll & Financial</option>
+                </select>
+              </label>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                  Generate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
