@@ -15,5 +15,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['stitch-designs']
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.js',
   }
 })
